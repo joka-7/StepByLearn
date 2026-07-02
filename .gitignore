@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+
+# uv
+# (uv.lock IS committed on purpose)
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+# Local application data (SQLite DBs, generated content)
+*.sqlite3
+*.db
+data/
+
+# Secrets / local env
+.env
+!.env.example
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
