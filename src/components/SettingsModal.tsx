@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
 import {
+  PROVIDERS,
+  PROVIDER_IDS,
+  defaultModels,
+  type ProviderId,
+} from "../domain/providers";
+import type { AppSettings } from "../domain/types";
+import {
   getApiKey,
   getSettings,
   saveSettings,
@@ -8,53 +15,100 @@ import {
 
 interface Props {
   onClose: () => void;
-  /** Notifies the parent so it can refresh the "key set" badge. */
+  /** Notifies the parent so it can refresh the provider/key badge. */
   onSaved: () => void;
 }
 
-/** Modal to enter the Anthropic API key and choose the model. */
+/** Modal to choose the AI provider and enter its API key and model. */
 export function SettingsModal({ onClose, onSaved }: Props) {
+  const [provider, setProvider] = useState<ProviderId>("anthropic");
+  const [models, setModels] = useState<Record<ProviderId, string>>(defaultModels());
   const [apiKey, setApiKeyValue] = useState("");
-  const [model, setModel] = useState("claude-opus-4-8");
 
+  // Load persisted settings; the key field always reflects the selected provider.
   useEffect(() => {
-    setApiKeyValue(getApiKey() ?? "");
-    getSettings().then((s) => setModel(s.cloudModel));
+    getSettings().then((s) => {
+      setProvider(s.provider);
+      setModels(s.models);
+      setApiKeyValue(getApiKey(s.provider) ?? "");
+    });
   }, []);
 
+  function switchProvider(next: ProviderId) {
+    setProvider(next);
+    setApiKeyValue(getApiKey(next) ?? "");
+  }
+
   async function save() {
-    setApiKey(apiKey.trim());
-    await saveSettings({ id: "singleton", cloudModel: model.trim() || "claude-opus-4-8" });
+    // Store the key for the *selected* provider only; other keys are untouched.
+    setApiKey(provider, apiKey.trim());
+    const next: AppSettings = {
+      id: "singleton",
+      provider,
+      models: {
+        ...models,
+        [provider]: models[provider].trim() || PROVIDERS[provider].defaultModel,
+      },
+    };
+    await saveSettings(next);
     onSaved();
     onClose();
   }
+
+  const info = PROVIDERS[provider];
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="card modal" onClick={(e) => e.stopPropagation()}>
         <h2>Settings</h2>
         <p>
-          Your Anthropic API key is stored only in this browser (localStorage) and
-          is sent directly to the Anthropic API — never to any StepByLearn server,
-          because there isn't one.
+          Choose a provider and paste its API key. Keys are stored only in this
+          browser (localStorage) and sent directly to the provider's API — never
+          to any StepByLearn server, because there isn't one.
         </p>
+
         <label>
-          Anthropic API key
+          Provider
+          <select
+            value={provider}
+            onChange={(e) => switchProvider(e.target.value as ProviderId)}
+          >
+            {PROVIDER_IDS.map((id) => (
+              <option key={id} value={id}>
+                {PROVIDERS[id].label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          {info.label} API key
           <input
             type="password"
             value={apiKey}
-            placeholder="sk-ant-…"
+            placeholder={info.keyPlaceholder}
             onChange={(e) => setApiKeyValue(e.target.value)}
           />
         </label>
+
         <label>
           Model
           <input
             type="text"
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
+            value={models[provider]}
+            onChange={(e) =>
+              setModels({ ...models, [provider]: e.target.value })
+            }
           />
         </label>
+
+        <p className="hint" style={{ color: "var(--muted)" }}>
+          Get a key:{" "}
+          <a href={info.consoleUrl} target="_blank" rel="noreferrer">
+            {info.consoleUrl.replace(/^https:\/\//, "")}
+          </a>
+        </p>
+
         <button className="primary" onClick={save}>
           Save
         </button>

@@ -6,8 +6,9 @@
  * inherently atomic.
  */
 
-import { generateSyllabusText } from "../ai/anthropicClient";
 import { healAndValidate } from "../ai/jsonHealer";
+import { SYSTEM_INSTRUCTION, buildSyllabusPrompt } from "../ai/prompts";
+import { resolveStrategy } from "../ai/resolver";
 import { newId } from "../domain/ids";
 import type { Difficulty, LearningPath, PathStep } from "../domain/types";
 import { savePath } from "../repositories/pathRepository";
@@ -18,10 +19,16 @@ export async function generatePath(
   topic: string,
   difficulty: Difficulty,
 ): Promise<LearningPath> {
-  const apiKey = getApiKey() ?? "";
   const settings = await getSettings();
+  const provider = settings.provider;
+  const model = settings.models[provider];
+  const apiKey = getApiKey(provider) ?? "";
 
-  const raw = await generateSyllabusText(apiKey, settings.cloudModel, topic, difficulty);
+  const strategy = resolveStrategy(provider, apiKey, model);
+  const raw = await strategy.generateText(
+    buildSyllabusPrompt(topic, difficulty),
+    SYSTEM_INSTRUCTION,
+  );
   const draft = healAndValidate(raw);
 
   const now = new Date().toISOString();
@@ -49,7 +56,7 @@ export async function generatePath(
     description: draft.description,
     difficulty: draft.difficulty,
     estimatedHours: draft.estimatedHours,
-    modelName: settings.cloudModel,
+    modelName: model,
     steps,
     createdAt: now,
     updatedAt: now,

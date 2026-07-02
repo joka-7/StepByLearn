@@ -68,9 +68,17 @@ export interface SyllabusStepDraft {
   estimatedMinutes: number | null;
 }
 
-/** Persisted, cloud-only provider preferences (the API key is stored apart). */
+import type { ProviderId } from "./providers";
+
+/**
+ * Persisted provider preferences (API keys are stored apart, per provider).
+ *
+ * `models` keeps a chosen model id per provider so switching back and forth
+ * remembers each one.
+ */
 export interface AppSettings {
   /** Singleton key in the settings table. */
   id: "singleton";
-  cloudModel: string;
+  provider: ProviderId;
+  models: Record<ProviderId, string>;
 }

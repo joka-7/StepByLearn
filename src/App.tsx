@@ -4,8 +4,9 @@ import { GenerateForm } from "./components/GenerateForm";
 import { PathList } from "./components/PathList";
 import { PathDetail } from "./components/PathDetail";
 import { SettingsModal } from "./components/SettingsModal";
+import { PROVIDERS } from "./domain/providers";
 import { listPaths } from "./repositories/pathRepository";
-import { hasApiKey } from "./repositories/settingsRepository";
+import { getSettings, hasApiKey } from "./repositories/settingsRepository";
 
 /**
  * Root component. Wires the reactive path list (via Dexie live queries) to the
@@ -16,9 +17,11 @@ export function App() {
   // useLiveQuery re-runs automatically whenever the paths table changes, so any
   // service mutation (generate, schedule, mark-done, delete) refreshes the UI.
   const paths = useLiveQuery(() => listPaths(), [], []);
+  const settings = useLiveQuery(() => getSettings(), []);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [keyPresent, setKeyPresent] = useState(hasApiKey());
+  // Bumped on save so the key badge re-reads localStorage (which isn't reactive).
+  const [keyTick, setKeyTick] = useState(0);
 
   // Default the selection to the newest path once data loads.
   useEffect(() => {
@@ -26,6 +29,10 @@ export function App() {
   }, [paths, selectedId]);
 
   const selectedPath = paths.find((p) => p.id === selectedId) ?? null;
+  const provider = settings?.provider ?? "anthropic";
+  // keyTick is referenced so this recomputes after a save.
+  void keyTick;
+  const keyPresent = hasApiKey(provider);
 
   return (
     <>
@@ -39,7 +46,8 @@ export function App() {
         </div>
         <div className="badges">
           <span className={`badge ${keyPresent ? "badge-on" : "badge-off"}`}>
-            {keyPresent ? "● API key set" : "○ No API key"}
+            {keyPresent ? "● " : "○ "}
+            {PROVIDERS[provider].label}
           </span>
           <button className="link-btn" onClick={() => setShowSettings(true)}>
             Settings
@@ -75,7 +83,7 @@ export function App() {
       {showSettings ? (
         <SettingsModal
           onClose={() => setShowSettings(false)}
-          onSaved={() => setKeyPresent(hasApiKey())}
+          onSaved={() => setKeyTick((t) => t + 1)}
         />
       ) : null}
     </>
