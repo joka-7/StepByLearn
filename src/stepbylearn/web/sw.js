@@ -5,8 +5,8 @@
 // state already lives in the local database, so the app is offline-capable
 // without stale-caching dynamic responses.
 
-const CACHE = "stepbylearn-shell-v1";
-const SHELL = ["/", "/index.html"];
+const CACHE = "stepbylearn-shell-v2";
+const SHELL = ["/", "/index.html", "/assets/app.css", "/assets/app.js"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));

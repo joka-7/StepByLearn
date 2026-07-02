@@ -4,46 +4,64 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>StepByLearn</title>
-    <style>
-      :root { color-scheme: light dark; }
-      body {
-        font-family: system-ui, sans-serif;
-        margin: 0 auto;
-        max-width: 44rem;
-        padding: 2rem 1rem;
-        line-height: 1.5;
-      }
-      code { background: rgba(127, 127, 127, 0.15); padding: 0 0.25rem; }
-      .status { font-size: 0.9rem; opacity: 0.8; }
-    </style>
+    <link rel="stylesheet" href="/assets/app.css" />
   </head>
   <body>
-    <h1>StepByLearn</h1>
-    <p>
-      Offline-first, hybrid-AI, step-by-step learning platform. This is a minimal
-      placeholder shell; the JSON API is served under <code>/api</code>.
-    </p>
-    <p class="status" id="status">Checking engines…</p>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">◆</span>
+        <div>
+          <h1>StepByLearn</h1>
+          <p class="tagline">Offline-first, hybrid-AI learning paths</p>
+        </div>
+      </div>
+      <div id="engine-status" class="badges" aria-live="polite">
+        <span class="badge badge-muted">checking engines…</span>
+      </div>
+    </header>
 
-    <script>
-      // Register the service worker so the shell is available offline.
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/sw.js").catch(() => {});
-      }
+    <main class="layout">
+      <!-- Left column: create + list -->
+      <section class="sidebar">
+        <form id="generate-form" class="card">
+          <h2>New path</h2>
+          <label>
+            Topic
+            <input
+              id="topic"
+              type="text"
+              placeholder="e.g. Rust ownership"
+              required
+            />
+          </label>
+          <label>
+            Difficulty
+            <select id="difficulty">
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </label>
+          <button type="submit" id="generate-btn">Generate</button>
+          <p id="generate-hint" class="hint"></p>
+        </form>
 
-      // Surface which AI engines are currently reachable.
-      fetch("/api/engines")
-        .then((r) => r.json())
-        .then((data) => {
-          const local = data.local_ollama ? "available" : "offline";
-          const cloud = data.cloud_key_present ? "key set" : "no key";
-          document.getElementById("status").textContent =
-            `Local engine: ${local} · Cloud: ${cloud}`;
-        })
-        .catch(() => {
-          document.getElementById("status").textContent =
-            "API unreachable (are you running the server?).";
-        });
-    </script>
+        <div class="card">
+          <h2>Your paths</h2>
+          <ul id="path-list" class="path-list">
+            <li class="empty">No paths yet.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Right column: detail -->
+      <section id="detail" class="detail card">
+        <div class="empty-detail">
+          <p>Select a path, or generate a new one to get started.</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="/assets/app.js"></script>
   </body>
 </html>
