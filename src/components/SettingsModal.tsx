@@ -95,7 +95,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
         </label>
 
         <label>
-          Model
+          Model — freely editable; type any model id this provider supports
           <input
             type="text"
             value={models[provider] ?? info.defaultModel}
@@ -104,8 +104,16 @@ export function SettingsModal({ onClose, onSaved }: Props) {
             }
           />
         </label>
+        <p className="field-note">
+          Providers rename and retire models over time. If generation fails
+          with a "model not found" error, check{" "}
+          <a href={info.modelsUrl} target="_blank" rel="noreferrer">
+            {info.label}'s current model list
+          </a>{" "}
+          and paste a valid id above.
+        </p>
 
-        <p className="hint" style={{ color: "var(--muted)" }}>
+        <p className="field-note">
           Get a key:{" "}
           <a href={info.consoleUrl} target="_blank" rel="noreferrer">
             {info.consoleUrl.replace(/^https:\/\//, "")}

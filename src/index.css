@@ -110,6 +110,21 @@ body {
   gap: 1.25rem;
 }
 
+/* Anthropic-blue link, styled explicitly so it doesn't fall back to the
+   browser's default saturated link-blue, which reads poorly on dark cards. */
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+a:hover,
+a:focus-visible {
+  color: var(--accent-2);
+}
+a:visited {
+  color: var(--accent);
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -171,6 +186,13 @@ button.primary:disabled {
   color: var(--warn);
   margin: 0.5rem 0 0;
   min-height: 1rem;
+}
+
+.field-note {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0.4rem 0 0.9rem;
+  line-height: 1.4;
 }
 
 .path-list {
