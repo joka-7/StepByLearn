@@ -47,7 +47,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
       provider,
       models: {
         ...models,
-        [provider]: models[provider].trim() || PROVIDERS[provider].defaultModel,
+        [provider]: (models[provider] ?? "").trim() || info.defaultModel,
       },
     };
     await saveSettings(next);
@@ -55,7 +55,10 @@ export function SettingsModal({ onClose, onSaved }: Props) {
     onClose();
   }
 
-  const info = PROVIDERS[provider];
+  // Defensive fallback: if `provider` is ever something other than a known id
+  // (a stale cache, a future migration bug, a corrupted record), fall back to
+  // Anthropic's info rather than crashing the whole modal on `undefined.label`.
+  const info = PROVIDERS[provider] ?? PROVIDERS.anthropic;
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -95,7 +98,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
           Model
           <input
             type="text"
-            value={models[provider]}
+            value={models[provider] ?? info.defaultModel}
             onChange={(e) =>
               setModels({ ...models, [provider]: e.target.value })
             }

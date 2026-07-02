@@ -47,7 +47,7 @@ export function App() {
         <div className="badges">
           <span className={`badge ${keyPresent ? "badge-on" : "badge-off"}`}>
             {keyPresent ? "● " : "○ "}
-            {PROVIDERS[provider].label}
+            {(PROVIDERS[provider] ?? PROVIDERS.anthropic).label}
           </span>
           <button className="link-btn" onClick={() => setShowSettings(true)}>
             Settings
