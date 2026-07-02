@@ -30,3 +30,6 @@ __pycache__/
 .hypothesis/
 .coverage
 *.sqlite3
+
+# TS build info
+*.tsbuildinfo
