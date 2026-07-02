@@ -30,5 +30,10 @@ export function resolveStrategy(
       return createGroqStrategy(apiKey, model);
     case "gemini":
       return createGeminiStrategy(apiKey, model);
+    default:
+      // Defends against a stale/corrupted provider id from persisted settings
+      // that predates a newer provider list — fail with a clear message
+      // instead of returning undefined and crashing the caller.
+      throw new Error(`Unknown AI provider: ${String(provider)}`);
   }
 }

@@ -9,7 +9,7 @@
  */
 
 import { db } from "../db/database";
-import { defaultModels, type ProviderId } from "../domain/providers";
+import { PROVIDER_IDS, defaultModels, type ProviderId } from "../domain/providers";
 import type { AppSettings } from "../domain/types";
 
 const API_KEY_PREFIX = "stepbylearn.apiKey.";
@@ -24,8 +24,12 @@ const DEFAULT_SETTINGS: AppSettings = {
 export async function getSettings(): Promise<AppSettings> {
   const stored = await db.settings.get("singleton");
   if (!stored) return DEFAULT_SETTINGS;
+  // Guard against a record saved by an older app version (e.g. the single-
+  // provider shape `{id, cloudModel}`, which has no `provider` field): fall
+  // back to the default provider rather than persisting `undefined`.
+  const provider = PROVIDER_IDS.includes(stored.provider) ? stored.provider : DEFAULT_SETTINGS.provider;
   // Merge in any provider defaults added since the settings were first saved.
-  return { ...stored, models: { ...defaultModels(), ...stored.models } };
+  return { id: "singleton", provider, models: { ...defaultModels(), ...stored.models } };
 }
 
 /** Persist provider preferences (never keys — see {@link setApiKey}). */
