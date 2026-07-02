@@ -1,86 +1,82 @@
 # StepByLearn
 
-An **offline-first, hybrid-AI, step-by-step learning platform**. Generate a
-structured learning path for any topic — using a **100% free local engine**
-(Ollama running Llama3/Mistral) or an optional **cloud API key** (Anthropic
-Claude) for higher-fidelity output — then schedule it onto a calendar and track
-your progress. Everything is stored locally for absolute privacy and full
-offline functionality.
+An **offline-first, cloud-AI, step-by-step learning platform** — a pure browser
+web app. Generate a structured learning path for any topic with the Anthropic
+Claude API, schedule it onto a calendar, and track your progress. Everything is
+stored locally in your browser (IndexedDB) for privacy and full offline use.
+
+No backend, no server, no database to install. Just `npm install && npm run dev`.
 
 ## Highlights
 
-- **Hybrid AI (Strategy Pattern).** A `StrategyResolver` picks between the local
-  Ollama engine and the cloud Anthropic engine at runtime, honoring your
-  preference (`auto` / `force_local` / `force_cloud`) and degrading gracefully
-  when a backend is unreachable.
-- **Local-first storage (Repository Pattern).** All paths, steps, calendar
-  entries, and progress live in a zero-config local SQLite database behind a
-  swappable repository layer. No account, no server, no network required to
-  learn.
-- **Resilient LLM parsing.** A defense-in-depth JSON healer cleans fragile local
-  model output (code fences, prose, trailing commas, single quotes, truncation)
-  and validates it into typed domain models, with a bounded corrective
-  re-prompt.
-- **Safe key storage.** The optional cloud API key is stored in the OS keyring
-  (with an encrypted-at-rest fallback), never in the database or in plaintext.
+- **Pure web app** — Vite + React + TypeScript. Runs from `npm run dev` or
+  deploys as a static site to any host (Netlify, Vercel, GitHub Pages, S3…).
+- **Local-first storage** — all paths, steps, calendar dates, and progress live
+  in the browser's **IndexedDB** (via Dexie). Nothing is sent to a server.
+- **Cloud AI** — generation calls the **Anthropic Claude API directly from the
+  browser** using a key you paste into Settings (stored only in your browser).
+- **Resilient parsing** — a defense-in-depth JSON healer cleans fragile model
+  output (code fences, prose, stray text) into validated domain models.
+- **Fully offline after generation** — browsing paths, marking steps done,
+  scheduling, and progress/streaks all work with no network.
 
 ## Architecture
 
-Strictly layered with a single direction of dependency:
+Layered with a single direction of dependency:
 
 ```
-api → services → {repositories, ai} → domain
+components → services → { ai, repositories } → domain
 ```
 
-The `domain` layer is pure (no I/O); `db` is a persistence detail hidden behind
-`repositories`. See `src/stepbylearn/` for the full layout.
-
-## Requirements
-
-- Python **≥ 3.12**
-- [uv](https://docs.astral.sh/uv/) for dependency management
-- (Optional) A running [Ollama](https://ollama.com/) daemon for local generation
+- `src/domain` — pure types + id generation (no I/O).
+- `src/db` + `src/repositories` — Dexie/IndexedDB persistence behind repository
+  functions (swap storage without touching the rest).
+- `src/ai` — Anthropic browser client, prompts, and the JSON healer.
+- `src/services` — use-cases: generation, calendar scheduling, progress.
+- `src/components` + `src/App.tsx` — React UI, reactive via Dexie live queries.
 
 ## Quick start
 
 ```bash
-uv sync                 # install dependencies
-uv run alembic upgrade head   # create the local database schema
-uv run stepbylearn      # launch the local server at http://127.0.0.1:8000
+npm install
+npm run dev        # opens http://localhost:5173
 ```
 
-Then open <http://127.0.0.1:8000> for the minimal UI, or use the JSON API under
-`/api` (interactive docs at `/docs`).
+Then click **Settings** (top-right), paste your Anthropic API key
+(`sk-ant-…`), and generate a path. Get a key at
+<https://console.anthropic.com>.
 
-### Example API flow
+### Build / deploy
 
 ```bash
-# Generate a path
-curl -X POST localhost:8000/api/paths \
-  -H 'content-type: application/json' \
-  -d '{"topic": "Rust ownership", "difficulty": "beginner"}'
-
-# Schedule it, mark a step done, check progress
-curl -X POST localhost:8000/api/paths/<id>/schedule \
-  -d '{"start_date": "2026-07-01", "days_between": 1, "milestone_every": 3}'
-curl -X PATCH localhost:8000/api/steps/<step-id>/status -d '{"status": "done"}'
-curl localhost:8000/api/paths/<id>/progress
+npm run build      # outputs static files to dist/
+npm run preview    # serve the production build locally
 ```
 
-## Configuration
+Deploy the contents of `dist/` to any static host.
 
-Non-secret knobs are read from the environment (prefix `SBL_`) or a `.env` file
-— see `.env.example`. The cloud API key is **not** an env var; set it via
-`PUT /api/settings` (`cloud_api_key`), which routes it to the keyring.
+## Privacy & the API key
 
-## Development
+This is a single-user, local-first tool. Your API key is stored in the browser's
+`localStorage` and sent **only** to `api.anthropic.com` on the direct generation
+call — there is no StepByLearn server to receive it. The direct-browser call uses
+Anthropic's `dangerouslyAllowBrowser` mode; because you supply your own key on
+your own machine, this is an acceptable trade-off for a zero-backend app.
 
-```bash
-make check        # ruff + mypy (strict) + pytest with coverage
-make lint         # ruff check
-make typecheck    # mypy
-make test         # pytest
-```
+## Scripts
+
+| Script | Purpose |
+|---|---|
+| `npm run dev` | Start the dev server |
+| `npm run build` | Type-check and build to `dist/` |
+| `npm run preview` | Serve the built site |
+| `npm run typecheck` | Type-check only |
+
+## Legacy Python implementation
+
+An earlier Python (FastAPI + SQLite) implementation of the same concepts lives in
+[`legacy-python/`](./legacy-python) and in git history. It's kept for reference
+and can be deleted if you don't need it.
 
 ## License
 
