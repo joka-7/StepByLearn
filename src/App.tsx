@@ -38,7 +38,7 @@ export function App() {
     <>
       <header className="topbar">
         <div className="brand">
-          <span className="logo">◆</span>
+          <img className="logo" src="/icon.svg" alt="StepByLearn" width={36} height={36} />
           <div>
             <h1>StepByLearn</h1>
             <p className="tagline">Offline-first, cloud-AI learning paths</p>
