@@ -10,14 +10,24 @@ import { healAndValidate } from "../ai/jsonHealer";
 import { SYSTEM_INSTRUCTION, buildSyllabusPrompt } from "../ai/prompts";
 import { resolveStrategy } from "../ai/resolver";
 import { newId } from "../domain/ids";
-import type { Difficulty, LearningPath, PathStep } from "../domain/types";
+import type { ContentType, Difficulty, LearningPath, PathStep } from "../domain/types";
 import { savePath } from "../repositories/pathRepository";
 import { getApiKey, getSettings } from "../repositories/settingsRepository";
+
+export interface GeneratePathOptions {
+  /** Target time per step, e.g. "45 minutes". */
+  stepDuration: string;
+  /** Preferred content format, or "all" to let the model choose per step. */
+  contentType: ContentType | "all";
+  /** The learner's self-described background; empty string if unspecified. */
+  currentKnowledge: string;
+}
 
 /** Generate a learning path for a topic and persist it locally. */
 export async function generatePath(
   topic: string,
   difficulty: Difficulty,
+  options: GeneratePathOptions,
 ): Promise<LearningPath> {
   const settings = await getSettings();
   const provider = settings.provider;
@@ -26,7 +36,7 @@ export async function generatePath(
 
   const strategy = resolveStrategy(provider, apiKey, model);
   const raw = await strategy.generateText(
-    buildSyllabusPrompt(topic, difficulty),
+    buildSyllabusPrompt(topic, difficulty, options),
     SYSTEM_INSTRUCTION,
   );
   const draft = healAndValidate(raw);
@@ -40,9 +50,13 @@ export async function generatePath(
     id: newId(),
     orderIndex: index,
     title: step.title,
-    content: step.content,
+    duration: step.duration,
+    type: step.type,
+    description: step.description,
+    keyConcepts: step.keyConcepts,
+    materialTitle: step.materialTitle,
+    materialUrl: step.materialUrl,
     resources: step.resources,
-    estimatedMinutes: step.estimatedMinutes,
     status: "not_started",
     doneAt: null,
     scheduledDate: null,
@@ -57,6 +71,9 @@ export async function generatePath(
     difficulty: draft.difficulty,
     estimatedHours: draft.estimatedHours,
     modelName: model,
+    stepDuration: options.stepDuration,
+    contentType: options.contentType,
+    currentKnowledge: options.currentKnowledge,
     steps,
     createdAt: now,
     updatedAt: now,

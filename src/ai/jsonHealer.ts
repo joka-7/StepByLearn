@@ -13,13 +13,15 @@
  */
 
 import type {
+  ContentType,
   Difficulty,
-  StepResource,
+  LearningResource,
   SyllabusDraft,
   SyllabusStepDraft,
 } from "../domain/types";
 
 const DIFFICULTIES: readonly Difficulty[] = ["beginner", "intermediate", "advanced"];
+const CONTENT_TYPES: readonly ContentType[] = ["video", "podcast", "text"];
 
 export class JsonHealingError extends Error {
   constructor(
@@ -77,18 +79,40 @@ function asOptionalNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-function normalizeResources(value: unknown): StepResource[] {
+function asStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .filter((r): r is Record<string, unknown> => typeof r === "object" && r !== null)
-    .map((r) => ({ label: asString(r.label), url: asString(r.url) }))
-    .filter((r) => r.label && r.url);
+  return value.filter((v): v is string => typeof v === "string" && v.trim().length > 0);
+}
+
+/** Only accept plausible http(s) URLs; anything else becomes "" (no link shown). */
+function asUrl(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  return /^https?:\/\/.+/i.test(trimmed) ? trimmed : "";
+}
+
+function normalizeContentType(value: unknown): ContentType {
+  return CONTENT_TYPES.includes(value as ContentType) ? (value as ContentType) : "text";
 }
 
 function normalizeDifficulty(value: unknown): Difficulty {
   return DIFFICULTIES.includes(value as Difficulty)
     ? (value as Difficulty)
     : "beginner";
+}
+
+function normalizeResources(value: unknown): LearningResource[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((r): r is Record<string, unknown> => typeof r === "object" && r !== null)
+    .map((r) => ({
+      title: asString(r.title),
+      type: normalizeContentType(r.type),
+      description: asString(r.description),
+      duration: asString(r.duration),
+      url: asUrl(r.url),
+    }))
+    .filter((r) => r.title);
 }
 
 function normalizeStep(value: unknown): SyllabusStepDraft | null {
@@ -98,9 +122,13 @@ function normalizeStep(value: unknown): SyllabusStepDraft | null {
   if (!title) return null;
   return {
     title,
-    content: asString(record.content),
+    duration: asString(record.duration, "30 minutes"),
+    type: normalizeContentType(record.type),
+    description: asString(record.description),
+    keyConcepts: asStringArray(record.keyConcepts),
+    materialTitle: asString(record.materialTitle),
+    materialUrl: asUrl(record.materialUrl),
     resources: normalizeResources(record.resources),
-    estimatedMinutes: asOptionalNumber(record.estimatedMinutes),
   };
 }
 

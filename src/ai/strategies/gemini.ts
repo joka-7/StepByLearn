@@ -16,7 +16,7 @@ export function createGeminiStrategy(apiKey: string, model: string): AIStrategy 
       const generativeModel = client.getGenerativeModel({
         model,
         systemInstruction: system,
-        generationConfig: { responseMimeType: "application/json" },
+        generationConfig: { responseMimeType: "application/json", maxOutputTokens: 8192 },
       });
       const result = await generativeModel.generateContent(prompt);
       return result.response.text();

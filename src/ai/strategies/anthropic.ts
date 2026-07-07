@@ -9,7 +9,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { AIStrategy } from "../strategy";
 
-const MAX_TOKENS = 4096;
+const MAX_TOKENS = 8192;
 
 export function createAnthropicStrategy(apiKey: string, model: string): AIStrategy {
   const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
