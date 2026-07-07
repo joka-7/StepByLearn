@@ -6,7 +6,46 @@
  */
 
 import { db } from "../db/database";
-import type { LearningPath, PathStep } from "../domain/types";
+import type { ContentType, LearningPath, PathStep } from "../domain/types";
+
+/**
+ * Backfill fields onto a step that may have been written by an earlier schema
+ * version (before steps carried type/duration/material links/resources/
+ * keyConcepts). Without this, reading old IndexedDB data crashes the UI on
+ * `undefined.map()` the moment it touches a field that didn't exist yet.
+ */
+function normalizeStep(raw: PathStep & Record<string, unknown>): PathStep {
+  const legacyContent = typeof raw.content === "string" ? raw.content : "";
+  const resources = Array.isArray(raw.resources)
+    ? raw.resources
+        .filter(
+          (r): r is PathStep["resources"][number] =>
+            typeof r === "object" && r !== null && "title" in r,
+        )
+        .map((r) => ({ ...r, url: typeof r.url === "string" ? r.url : "" }))
+    : [];
+  return {
+    ...raw,
+    duration: raw.duration ?? "30 minutes",
+    type: (raw.type as ContentType) ?? "text",
+    description: raw.description ?? legacyContent,
+    keyConcepts: raw.keyConcepts ?? [],
+    materialTitle: raw.materialTitle ?? "",
+    materialUrl: raw.materialUrl ?? "",
+    resources,
+  };
+}
+
+/** Backfill fields onto a path that may have been written by an earlier schema. */
+function normalizePath(raw: LearningPath & Record<string, unknown>): LearningPath {
+  return {
+    ...raw,
+    stepDuration: raw.stepDuration ?? "30 minutes",
+    contentType: raw.contentType ?? "all",
+    currentKnowledge: raw.currentKnowledge ?? "",
+    steps: raw.steps.map((s) => normalizeStep(s as PathStep & Record<string, unknown>)),
+  };
+}
 
 /** Persist a new (or replace an existing) path with all its steps. */
 export async function savePath(path: LearningPath): Promise<void> {
@@ -15,12 +54,14 @@ export async function savePath(path: LearningPath): Promise<void> {
 
 /** Return every path, newest first. */
 export async function listPaths(): Promise<LearningPath[]> {
-  return db.paths.orderBy("createdAt").reverse().toArray();
+  const paths = await db.paths.orderBy("createdAt").reverse().toArray();
+  return paths.map((p) => normalizePath(p as LearningPath & Record<string, unknown>));
 }
 
 /** Return a single path by id, or undefined if absent. */
 export async function getPath(id: string): Promise<LearningPath | undefined> {
-  return db.paths.get(id);
+  const path = await db.paths.get(id);
+  return path && normalizePath(path as LearningPath & Record<string, unknown>);
 }
 
 /** Delete a path and everything embedded in it. */
@@ -40,8 +81,9 @@ export async function updateStep(
   mutate: (step: PathStep) => PathStep,
 ): Promise<LearningPath | undefined> {
   return db.transaction("rw", db.paths, async () => {
-    const path = await db.paths.get(pathId);
-    if (!path) return undefined;
+    const raw = await db.paths.get(pathId);
+    if (!raw) return undefined;
+    const path = normalizePath(raw as LearningPath & Record<string, unknown>);
     const updated: LearningPath = {
       ...path,
       steps: path.steps.map((s) => (s.id === stepId ? mutate(s) : s)),

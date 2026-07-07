@@ -5,12 +5,19 @@
  * auditable and in lock-step with {@link SyllabusDraft}.
  */
 
-import type { Difficulty } from "../domain/types";
+import type { ContentType, Difficulty } from "../domain/types";
 
 export const SYSTEM_INSTRUCTION =
-  "You are an expert curriculum designer. You produce concise, well-sequenced, " +
-  "step-by-step learning paths. You ALWAYS respond with a single valid JSON " +
-  "object and no surrounding prose, markdown, or code fences.";
+  "You are an elite instructional designer who curates step-by-step learning " +
+  "paths from REAL material that already exists on the web, rather than " +
+  "writing new content yourself. For every step you pick one primary resource " +
+  "(matching the step's format: a specific YouTube video for 'video', a named " +
+  "podcast episode for 'podcast', or a specific article/doc page for 'text') " +
+  "plus 1-2 supplementary resources. Prefer well-known, stable, canonical " +
+  "sources — official documentation, Wikipedia, MDN, established YouTube " +
+  "channels, major publications — over obscure ones, since a link that " +
+  "doesn't resolve is worse than no link. You ALWAYS respond with a single " +
+  "valid JSON object and no surrounding prose, markdown, or code fences.";
 
 const SCHEMA_HINT = `{
   "title": string,
@@ -21,23 +28,51 @@ const SCHEMA_HINT = `{
   "steps": [
     {
       "title": string,
-      "content": string,
-      "resources": [ { "label": string, "url": string } ],
-      "estimatedMinutes": number
+      "duration": string (e.g. "45 minutes"),
+      "type": "video" | "podcast" | "text",
+      "description": string,
+      "keyConcepts": [ string ],
+      "materialTitle": string (title of the primary resource),
+      "materialUrl": string (a real, specific URL to that resource),
+      "resources": [
+        { "title": string, "type": "video" | "podcast" | "text", "description": string, "duration": string, "url": string }
+      ]
     }
   ]
 }`;
 
+export interface SyllabusPromptOptions {
+  /** Target time per step, e.g. "45 minutes". */
+  stepDuration: string;
+  /** Preferred content format, or "all" to let the model choose per step. */
+  contentType: ContentType | "all";
+  /** The learner's self-described background; empty string if unspecified. */
+  currentKnowledge: string;
+}
+
 /** Build the user prompt asking the model for a structured syllabus. */
-export function buildSyllabusPrompt(topic: string, difficulty: Difficulty): string {
+export function buildSyllabusPrompt(
+  topic: string,
+  difficulty: Difficulty,
+  options: SyllabusPromptOptions,
+): string {
+  const { stepDuration, contentType, currentKnowledge } = options;
   return (
     `Create a step-by-step learning path for the topic: ${JSON.stringify(topic)}.\n` +
-    `Target difficulty: ${difficulty}.\n\n` +
+    `Target difficulty: ${difficulty}.\n` +
+    `Each step should target roughly: ${stepDuration}.\n` +
+    `Preferred content format(s): ${contentType}.\n` +
+    `Learner's current knowledge / background: ${currentKnowledge || "Beginner level, no specific background."}\n\n` +
     "Requirements:\n" +
-    "- Between 5 and 12 ordered steps, each with a clear title and a short " +
-    "content description.\n" +
-    "- Optionally include a few high-quality resources (label + URL) per step.\n" +
-    "- Provide estimatedMinutes per step when reasonable.\n\n" +
+    "- Between 4 and 8 ordered steps, each logically building on the last.\n" +
+    "- Each step needs a clear title, a short description, 2-3 keyConcepts, a " +
+    "primary resource (materialTitle + a real materialUrl matching the step's " +
+    "type), and 1-2 supplementary resources (each with its own url).\n" +
+    "- Choose each step's 'type' to match the preferred content format(s) above " +
+    "when it says 'all', vary sensibly between video/podcast/text.\n" +
+    "- Only link to real, well-known, stable sources you are confident exist " +
+    "(official docs, Wikipedia, MDN, established publishers/channels). Do not " +
+    "invent a plausible-looking URL for a page you are not confident is real.\n\n" +
     "Return ONLY a JSON object matching exactly this shape:\n" +
     SCHEMA_HINT +
     "\n"

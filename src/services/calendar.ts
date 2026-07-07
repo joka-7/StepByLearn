@@ -6,7 +6,7 @@
  */
 
 import type { LearningPath } from "../domain/types";
-import { savePath } from "../repositories/pathRepository";
+import { savePath, updateStep } from "../repositories/pathRepository";
 
 export interface ScheduleOptions {
   /** First step's date (YYYY-MM-DD). */
@@ -59,4 +59,13 @@ export async function schedulePath(
   };
   await savePath(updated);
   return updated;
+}
+
+/** Assign a single step to a specific calendar date, leaving the rest untouched. */
+export async function scheduleStep(
+  pathId: string,
+  stepId: string,
+  dateStr: string,
+): Promise<LearningPath | undefined> {
+  return updateStep(pathId, stepId, (step) => ({ ...step, scheduledDate: dateStr }));
 }
