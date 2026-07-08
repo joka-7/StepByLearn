@@ -21,7 +21,7 @@ export function TopBar({ paths, selectedPathId, onSelect, selectedPath, onDelete
           id="header_course_selector"
           value={selectedPathId ?? ""}
           onChange={(e) => onSelect(e.target.value)}
-          className="bg-slate-800 text-xs border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 outline-none focus:border-indigo-500"
+          className="bg-slate-800 text-xs border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 outline-none focus:border-blue-500"
         >
           {paths.length === 0 ? (
             <option value="">No Courses Yet</option>
@@ -49,7 +49,7 @@ export function TopBar({ paths, selectedPathId, onSelect, selectedPath, onDelete
         )}
         <div className="text-xs bg-slate-800/80 border border-slate-700/60 px-3 py-1 rounded-full text-slate-400 font-mono flex items-center gap-2">
           <span
-            className={`h-1.5 w-1.5 rounded-full ${synced ? "bg-indigo-400" : "bg-emerald-400"}`}
+            className={`h-1.5 w-1.5 rounded-full ${synced ? "bg-blue-400" : "bg-emerald-400"}`}
           ></span>
           {synced ? "Synced" : "Local-only"}
         </div>

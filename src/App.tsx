@@ -159,7 +159,7 @@ function StudyViewEmptyState({ onGoToPlanner }: { onGoToPlanner: () => void }) {
         </p>
         <button
           onClick={onGoToPlanner}
-          className="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors"
+          className="mt-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors"
         >
           Go to Planner
         </button>

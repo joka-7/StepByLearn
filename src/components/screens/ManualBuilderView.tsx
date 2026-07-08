@@ -62,7 +62,7 @@ export function ManualBuilderView({ onCreated }: Props) {
       id="view_manual"
     >
       <div className="flex items-center gap-3 pb-4 border-b border-slate-800">
-        <div className="h-9 w-9 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400">
+        <div className="h-9 w-9 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400">
           <ListTodo className="h-5 w-5" />
         </div>
         <div>
@@ -86,7 +86,7 @@ export function ManualBuilderView({ onCreated }: Props) {
               placeholder="e.g. Master React 19 Fundamentals"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-emerald-500 placeholder:text-slate-600"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500 placeholder:text-slate-600"
             />
           </div>
 
@@ -101,7 +101,7 @@ export function ManualBuilderView({ onCreated }: Props) {
               placeholder="e.g. React hooks, State managers"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-emerald-500 placeholder:text-slate-600"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500 placeholder:text-slate-600"
             />
           </div>
         </div>
@@ -114,7 +114,7 @@ export function ManualBuilderView({ onCreated }: Props) {
             id="manual_form_duration_select"
             value={stepDuration}
             onChange={(e) => setStepDuration(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-emerald-500"
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500"
           >
             <option value="15 minutes">15 Minutes</option>
             <option value="30 minutes">30 Minutes</option>
@@ -133,7 +133,7 @@ export function ManualBuilderView({ onCreated }: Props) {
               id="manual_form_add_step_btn"
               type="button"
               onClick={addStep}
-              className="text-xs bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-semibold px-3 py-1 rounded-lg border border-emerald-500/15 flex items-center gap-1"
+              className="text-xs bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold px-3 py-1 rounded-lg border border-blue-500/15 flex items-center gap-1"
             >
               <Plus className="h-3 w-3" />
               <span>Add Study Step</span>
@@ -169,7 +169,7 @@ export function ManualBuilderView({ onCreated }: Props) {
                       placeholder="Step title (e.g. Setting up Vite & TS compiler)"
                       value={step.title}
                       onChange={(e) => updateStep(idx, "title", e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-emerald-500"
+                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -177,7 +177,7 @@ export function ManualBuilderView({ onCreated }: Props) {
                     <select
                       value={step.type}
                       onChange={(e) => updateStep(idx, "type", e.target.value as ContentType)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-emerald-500"
+                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-blue-500"
                     >
                       <option value="text">Text Tutorial</option>
                       <option value="video">Video Study</option>
@@ -191,7 +191,7 @@ export function ManualBuilderView({ onCreated }: Props) {
                   placeholder="Brief description / instructions (e.g. Initialize package.json, edit configs, install React...)"
                   value={step.description}
                   onChange={(e) => updateStep(idx, "description", e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 outline-none focus:border-blue-500"
                 />
 
                 <input
@@ -199,7 +199,7 @@ export function ManualBuilderView({ onCreated }: Props) {
                   placeholder="Material URL — a real link to the video/podcast/article for this step (optional)"
                   value={step.materialUrl}
                   onChange={(e) => updateStep(idx, "materialUrl", e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 outline-none focus:border-blue-500"
                 />
               </div>
             ))}
@@ -209,7 +209,7 @@ export function ManualBuilderView({ onCreated }: Props) {
         <button
           id="manual_form_submit_btn"
           type="submit"
-          className="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold py-3 px-4 rounded-xl text-xs transition-colors shadow-lg flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl text-xs transition-colors shadow-lg flex items-center justify-center gap-2"
         >
           <Plus className="h-4 w-4" />
           <span>Construct and Load Offline Course</span>

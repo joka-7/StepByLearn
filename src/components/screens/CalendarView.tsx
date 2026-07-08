@@ -87,7 +87,7 @@ export function CalendarView({ paths }: Props) {
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5 text-indigo-400" />
+            <CalendarIcon className="h-5 w-5 text-blue-400" />
             <span>In-App Study Calendar</span>
           </h2>
           <p className="text-xs text-slate-400">
@@ -158,13 +158,13 @@ export function CalendarView({ paths }: Props) {
                   onClick={() => setSelectedDay(dateStr)}
                   className={`h-24 p-1.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all ${
                     isToday
-                      ? "bg-indigo-950/20 border-indigo-500"
+                      ? "bg-blue-950/20 border-blue-500"
                       : "bg-slate-950 border-slate-800 hover:border-slate-700"
                   }`}
                 >
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-[10px] font-mono font-semibold ${isToday ? "text-indigo-400 font-bold" : "text-slate-400"}`}
+                      className={`text-[10px] font-mono font-semibold ${isToday ? "text-blue-400 font-bold" : "text-slate-400"}`}
                     >
                       {dayNumber}
                     </span>
@@ -204,7 +204,7 @@ export function CalendarView({ paths }: Props) {
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
-              <CalendarRange className="h-4.5 w-4.5 text-indigo-400" />
+              <CalendarRange className="h-4.5 w-4.5 text-blue-400" />
               <h3 className="font-bold text-xs text-slate-200 uppercase tracking-wider font-mono">
                 Study Scheduler
               </h3>
@@ -214,7 +214,7 @@ export function CalendarView({ paths }: Props) {
               <div className="space-y-4">
                 <div className="space-y-1">
                   <span className="text-[10px] text-slate-400">Selected target day</span>
-                  <p className="text-xs font-bold text-indigo-400 font-mono">{selectedDay}</p>
+                  <p className="text-xs font-bold text-blue-400 font-mono">{selectedDay}</p>
                 </div>
 
                 <div className="space-y-3">
@@ -240,7 +240,7 @@ export function CalendarView({ paths }: Props) {
                               className="w-full text-left p-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-[10px] font-mono text-slate-300 truncate transition-colors flex items-center justify-between"
                             >
                               <span className="truncate">{step.title}</span>
-                              <Plus className="h-3 w-3 shrink-0 text-indigo-400 ml-1" />
+                              <Plus className="h-3 w-3 shrink-0 text-blue-400 ml-1" />
                             </button>
                           ))}
                         </div>
@@ -277,7 +277,7 @@ export function CalendarView({ paths }: Props) {
                         className="w-full p-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-[10px] font-mono text-slate-300 text-left truncate flex justify-between items-center"
                       >
                         <span className="truncate">{path.title}</span>
-                        <span className="text-[8px] bg-indigo-500/10 text-indigo-400 px-1 py-0.2 rounded shrink-0">
+                        <span className="text-[8px] bg-blue-500/10 text-blue-400 px-1 py-0.2 rounded shrink-0">
                           Schedule
                         </span>
                       </button>

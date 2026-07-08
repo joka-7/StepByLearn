@@ -27,17 +27,17 @@ export function StudyMaterialTab({ step }: Props) {
           href={step.materialUrl}
           target="_blank"
           rel="noreferrer"
-          className="block p-5 bg-gradient-to-br from-indigo-950/40 to-slate-950 rounded-2xl border border-indigo-500/20 hover:border-indigo-500/40 transition-all group"
+          className="block p-5 bg-gradient-to-br from-blue-950/40 to-slate-950 rounded-2xl border border-blue-500/20 hover:border-blue-500/40 transition-all group"
         >
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-indigo-400 font-mono mb-2">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-blue-400 font-mono mb-2">
             {meta.icon}
             <span>Primary Material</span>
           </div>
-          <p className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">
+          <p className="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">
             {step.materialTitle || step.title}
           </p>
           <p className="text-xs text-slate-500 mt-1 truncate font-mono">{step.materialUrl}</p>
-          <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400">
+          <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400">
             <span>{meta.label}</span>
             <ExternalLink className="h-3.5 w-3.5" />
           </div>
@@ -69,7 +69,7 @@ export function StudyMaterialTab({ step }: Props) {
               const inner = (
                 <>
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-indigo-400 uppercase bg-indigo-500/15 border border-indigo-500/20 px-2 py-0.5 rounded capitalize">
+                    <span className="text-[10px] font-mono text-blue-400 uppercase bg-blue-500/15 border border-blue-500/20 px-2 py-0.5 rounded capitalize">
                       {res.type}
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">

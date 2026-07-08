@@ -112,12 +112,12 @@ export function DashboardView({
       className="max-w-4xl mx-auto space-y-8"
       id="view_dashboard"
     >
-      <div className="bg-gradient-to-r from-indigo-950 to-slate-900 rounded-3xl p-6 md:p-8 border border-indigo-500/20 shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-950 to-slate-900 rounded-3xl p-6 md:p-8 border border-blue-500/20 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-          <Sparkles className="h-40 w-40 text-indigo-500" />
+          <Sparkles className="h-40 w-40 text-blue-500" />
         </div>
         <div className="max-w-xl space-y-3 relative z-10">
-          <span className="text-[10px] font-mono tracking-widest bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 px-3 py-1 rounded-full uppercase">
+          <span className="text-[10px] font-mono tracking-widest bg-blue-500/20 border border-blue-500/30 text-blue-300 px-3 py-1 rounded-full uppercase">
             Dynamic Knowledge Generator
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
@@ -133,7 +133,7 @@ export function DashboardView({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7 bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-6">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400">
+            <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center text-blue-400">
               <Sparkles className="h-4 w-4" />
             </div>
             <div>
@@ -156,7 +156,7 @@ export function DashboardView({
                 placeholder="e.g. Rust ownership, or learn TypeScript knowing Python"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-indigo-500 placeholder:text-slate-600"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500 placeholder:text-slate-600"
               />
             </div>
 
@@ -168,7 +168,7 @@ export function DashboardView({
                 <select
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500"
                 >
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
@@ -184,7 +184,7 @@ export function DashboardView({
                   id="ai_form_duration_select"
                   value={stepDuration}
                   onChange={(e) => setStepDuration(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500"
                 >
                   <option value="15 minutes">15 Minutes</option>
                   <option value="30 minutes">30 Minutes</option>
@@ -202,7 +202,7 @@ export function DashboardView({
                   id="ai_form_type_select"
                   value={contentType}
                   onChange={(e) => setContentType(e.target.value as ContentType | "all")}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500"
                 >
                   <option value="all">All media types</option>
                   <option value="text">Text only</option>
@@ -222,7 +222,7 @@ export function DashboardView({
                 value={currentKnowledge}
                 onChange={(e) => setCurrentKnowledge(e.target.value)}
                 rows={3}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-indigo-500 placeholder:text-slate-600 resize-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500 placeholder:text-slate-600 resize-none"
               />
             </div>
 
@@ -233,7 +233,7 @@ export function DashboardView({
                   type="checkbox"
                   checked={useCalendar}
                   onChange={(e) => setUseCalendar(e.target.checked)}
-                  className="h-4 w-4 bg-slate-950 rounded text-indigo-600 border-slate-800"
+                  className="h-4 w-4 bg-slate-950 rounded text-blue-600 border-slate-800"
                 />
                 <label
                   htmlFor="ai_form_calendar_checkbox"
@@ -248,7 +248,7 @@ export function DashboardView({
               id="ai_form_submit_btn"
               type="submit"
               disabled={isGenerating}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl text-xs transition-colors shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2"
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl text-xs transition-colors shadow-lg shadow-blue-600/10 flex items-center justify-center gap-2"
             >
               {isGenerating ? (
                 <>
@@ -330,7 +330,7 @@ export function DashboardView({
                         onClick={() => onSelectPath(path.id)}
                         className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
                           isSelected
-                            ? "bg-slate-800/80 border-indigo-500"
+                            ? "bg-slate-800/80 border-blue-500"
                             : "bg-slate-950 border-slate-800 hover:border-slate-700"
                         }`}
                       >
@@ -347,12 +347,12 @@ export function DashboardView({
 
                         <div className="flex items-center gap-3 shrink-0">
                           <div className="text-right">
-                            <span className="text-[10px] font-mono font-bold text-indigo-400">
+                            <span className="text-[10px] font-mono font-bold text-blue-400">
                               {progress}%
                             </span>
                             <div className="w-12 bg-slate-800 h-1 rounded-full overflow-hidden mt-1">
                               <div
-                                className="bg-indigo-500 h-full"
+                                className="bg-blue-500 h-full"
                                 style={{ width: `${progress}%` }}
                               ></div>
                             </div>
@@ -390,13 +390,13 @@ export function DashboardView({
           >
             <div className="max-w-md space-y-6">
               <div className="relative">
-                <div className="h-20 w-20 rounded-full border-4 border-indigo-500/10 border-t-indigo-500 animate-spin mx-auto"></div>
-                <Sparkles className="h-8 w-8 text-indigo-400 animate-pulse absolute inset-0 m-auto" />
+                <div className="h-20 w-20 rounded-full border-4 border-blue-500/10 border-t-blue-500 animate-spin mx-auto"></div>
+                <Sparkles className="h-8 w-8 text-blue-400 animate-pulse absolute inset-0 m-auto" />
               </div>
 
               <div className="space-y-2">
                 <h3 className="text-lg font-bold text-white">Generating Personalized Roadmap</h3>
-                <p className="text-indigo-400 text-xs font-semibold font-mono animate-pulse uppercase tracking-wider">
+                <p className="text-blue-400 text-xs font-semibold font-mono animate-pulse uppercase tracking-wider">
                   {LOADING_STEPS[generationStep]}
                 </p>
                 <p className="text-slate-500 text-[11px] max-w-xs mx-auto">
@@ -409,7 +409,7 @@ export function DashboardView({
                   <div
                     key={i}
                     className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${
-                      i <= generationStep ? "bg-indigo-500 w-4" : "bg-slate-800"
+                      i <= generationStep ? "bg-blue-500 w-4" : "bg-slate-800"
                     }`}
                   ></div>
                 ))}
