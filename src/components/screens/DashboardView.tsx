@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import {
   AlertCircle,
   ArrowRight,
+  Bookmark,
   BookOpen,
   CheckSquare,
   ChevronRight,
@@ -285,15 +286,24 @@ export function DashboardView({
               Workspace Status
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
+              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 relative">
                 <span className="text-[10px] text-slate-500">My Courses</span>
                 <p className="text-xl font-bold text-white mt-1">{paths.length}</p>
+                <Bookmark className="h-3.5 w-3.5 text-blue-400 absolute top-3.5 right-3.5" />
               </div>
               <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
                 <span className="text-[10px] text-slate-500">Completed Steps</span>
-                <p className="text-xl font-bold text-emerald-400 mt-1">
+                <p className="text-xl font-bold text-white mt-1">
                   {completedSteps} / {totalSteps}
                 </p>
+                <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden mt-2">
+                  <div
+                    className="bg-blue-500 h-full"
+                    style={{
+                      width: `${totalSteps > 0 ? Math.round((100 * completedSteps) / totalSteps) : 0}%`,
+                    }}
+                  ></div>
+                </div>
               </div>
             </div>
           </div>

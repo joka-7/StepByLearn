@@ -1,5 +1,5 @@
-import { Clock, ExternalLink, FileText, Info, Video, Volume2 } from "lucide-react";
-import type { ReactElement } from "react";
+import { Clock, ExternalLink, FileText, Info, Play, Video, Volume2 } from "lucide-react";
+import { useState, type ReactElement } from "react";
 import type { ContentType, PathStep } from "../../../domain/types";
 
 interface Props {
@@ -12,6 +12,24 @@ const TYPE_META: Record<ContentType, { icon: ReactElement; label: string }> = {
   text: { icon: <FileText className="h-3.5 w-3.5" />, label: "Read the article" },
 };
 
+/** Extracts a YouTube video ID from common URL shapes, or null if not YouTube. */
+function youtubeThumbnail(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtu.be")) {
+      const id = u.pathname.slice(1);
+      return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+    }
+    if (u.hostname.includes("youtube.com")) {
+      const id = u.searchParams.get("v") ?? u.pathname.split("/embed/")[1];
+      return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 /**
  * The step's study material: a link to real content on the web, matching the
  * step's format, plus any supplementary resource links. Nothing here is
@@ -19,29 +37,58 @@ const TYPE_META: Record<ContentType, { icon: ReactElement; label: string }> = {
  */
 export function StudyMaterialTab({ step }: Props) {
   const meta = TYPE_META[step.type];
+  const thumbnail = step.materialUrl ? youtubeThumbnail(step.materialUrl) : null;
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
 
   return (
     <div className="space-y-6" id="desk_material_tab">
       {step.materialUrl ? (
-        <a
-          href={step.materialUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="block p-5 bg-gradient-to-br from-blue-950/40 to-slate-950 rounded-2xl border border-blue-500/20 hover:border-blue-500/40 transition-all group"
-        >
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-blue-400 font-mono mb-2">
-            {meta.icon}
-            <span>Primary Material</span>
+        <div className="p-5 bg-gradient-to-br from-blue-950/40 to-slate-950 rounded-2xl border border-blue-500/20">
+          <div className="flex flex-col sm:flex-row gap-5">
+            <a
+              href={step.materialUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="sm:w-56 shrink-0 relative aspect-video rounded-xl overflow-hidden bg-slate-800 flex items-center justify-center group"
+            >
+              {thumbnail && !thumbnailFailed ? (
+                <img
+                  src={thumbnail}
+                  alt=""
+                  onError={() => setThumbnailFailed(true)}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="text-blue-400/60">{meta.icon}</div>
+              )}
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-blue-600/90 flex items-center justify-center shadow-lg">
+                  <Play className="h-4 w-4 text-white fill-current" />
+                </div>
+              </div>
+            </a>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-blue-400 font-mono mb-2">
+                {meta.icon}
+                <span>Primary Material</span>
+              </div>
+              <p className="text-sm font-bold text-white">{step.materialTitle || step.title}</p>
+              {step.description && (
+                <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">{step.description}</p>
+              )}
+              <a
+                href={step.materialUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-100 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <span>{meta.label}</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
           </div>
-          <p className="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">
-            {step.materialTitle || step.title}
-          </p>
-          <p className="text-xs text-slate-500 mt-1 truncate font-mono">{step.materialUrl}</p>
-          <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400">
-            <span>{meta.label}</span>
-            <ExternalLink className="h-3.5 w-3.5" />
-          </div>
-        </a>
+        </div>
       ) : (
         <div className="text-center py-10 bg-slate-950 rounded-xl border border-slate-800">
           <Info className="h-8 w-8 text-slate-700 mx-auto mb-2" />
