@@ -10,9 +10,16 @@ export type Difficulty = "beginner" | "intermediate" | "advanced";
 
 export type StepStatus = "not_started" | "in_progress" | "done";
 
-/** A single external reference attached to a step. */
-export interface StepResource {
-  label: string;
+/** The format a step's content is best delivered in. */
+export type ContentType = "video" | "podcast" | "text";
+
+/** A curated study material suggestion attached to a step, linking out to the web. */
+export interface LearningResource {
+  title: string;
+  type: ContentType;
+  description: string;
+  duration: string;
+  /** External URL to the actual material. */
   url: string;
 }
 
@@ -21,9 +28,17 @@ export interface PathStep {
   id: string;
   orderIndex: number;
   title: string;
-  content: string;
-  resources: StepResource[];
-  estimatedMinutes: number | null;
+  /** Target time to complete the step, as free text (e.g. "45 minutes"). */
+  duration: string;
+  type: ContentType;
+  description: string;
+  keyConcepts: string[];
+  /** Display title of the primary external resource for this step. */
+  materialTitle: string;
+  /** External URL to the primary material (video/podcast/article) for this step. */
+  materialUrl: string;
+  /** Additional, supplementary resource links beyond the primary material. */
+  resources: LearningResource[];
   status: StepStatus;
   /** ISO timestamp set when the step is marked done; null otherwise. */
   doneAt: string | null;
@@ -43,6 +58,12 @@ export interface LearningPath {
   estimatedHours: number | null;
   /** Provenance: the model that generated this path. */
   modelName: string;
+  /** Target per-step duration requested at generation time (e.g. "45 minutes"). */
+  stepDuration: string;
+  /** Preferred content format requested at generation time. */
+  contentType: ContentType | "all";
+  /** Learner's self-described background, fed into the generation prompt. */
+  currentKnowledge: string;
   steps: PathStep[];
   createdAt: string;
   updatedAt: string;
@@ -63,9 +84,13 @@ export interface SyllabusDraft {
 
 export interface SyllabusStepDraft {
   title: string;
-  content: string;
-  resources: StepResource[];
-  estimatedMinutes: number | null;
+  duration: string;
+  type: ContentType;
+  description: string;
+  keyConcepts: string[];
+  materialTitle: string;
+  materialUrl: string;
+  resources: LearningResource[];
 }
 
 import type { ProviderId } from "./providers";

@@ -27,7 +27,9 @@ export async function getSettings(): Promise<AppSettings> {
   // Guard against a record saved by an older app version (e.g. the single-
   // provider shape `{id, cloudModel}`, which has no `provider` field): fall
   // back to the default provider rather than persisting `undefined`.
-  const provider = PROVIDER_IDS.includes(stored.provider) ? stored.provider : DEFAULT_SETTINGS.provider;
+  const provider = PROVIDER_IDS.includes(stored.provider)
+    ? stored.provider
+    : DEFAULT_SETTINGS.provider;
   // Merge in any provider defaults added since the settings were first saved.
   return { id: "singleton", provider, models: { ...defaultModels(), ...stored.models } };
 }

@@ -6,7 +6,7 @@
  */
 
 import type { LearningPath } from "../domain/types";
-import { savePath } from "../repositories/pathRepository";
+import { savePath, updateStep } from "../repositories/pathRepository";
 
 export interface ScheduleOptions {
   /** First step's date (YYYY-MM-DD). */
@@ -46,7 +46,11 @@ export async function schedulePath(
 
   const steps = path.steps.map((step, index) => {
     const position = index + 1;
-    const scheduled = { ...step, scheduledDate: toISODate(cursor), isMilestone: options.milestoneEvery > 0 && position % options.milestoneEvery === 0 };
+    const scheduled = {
+      ...step,
+      scheduledDate: toISODate(cursor),
+      isMilestone: options.milestoneEvery > 0 && position % options.milestoneEvery === 0,
+    };
     cursor.setDate(cursor.getDate() + Math.max(1, options.daysBetween));
     if (options.skipWeekends) cursor = nextWeekday(cursor);
     return scheduled;
@@ -59,4 +63,13 @@ export async function schedulePath(
   };
   await savePath(updated);
   return updated;
+}
+
+/** Assign a single step to a specific calendar date, leaving the rest untouched. */
+export async function scheduleStep(
+  pathId: string,
+  stepId: string,
+  dateStr: string,
+): Promise<LearningPath | undefined> {
+  return updateStep(pathId, stepId, (step) => ({ ...step, scheduledDate: dateStr }));
 }

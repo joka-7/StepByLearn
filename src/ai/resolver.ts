@@ -8,18 +8,11 @@
 import type { ProviderId } from "../domain/providers";
 import { createAnthropicStrategy } from "./strategies/anthropic";
 import { createGeminiStrategy } from "./strategies/gemini";
-import {
-  createGroqStrategy,
-  createOpenAIStrategy,
-} from "./strategies/openaiCompatible";
+import { createGroqStrategy, createOpenAIStrategy } from "./strategies/openaiCompatible";
 import { MissingApiKeyError, type AIStrategy } from "./strategy";
 
 /** Build the strategy for a provider, or throw if no key is configured. */
-export function resolveStrategy(
-  provider: ProviderId,
-  apiKey: string,
-  model: string,
-): AIStrategy {
+export function resolveStrategy(provider: ProviderId, apiKey: string, model: string): AIStrategy {
   if (!apiKey) throw new MissingApiKeyError();
   switch (provider) {
     case "anthropic":

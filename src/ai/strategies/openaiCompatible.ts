@@ -10,7 +10,7 @@
 import OpenAI from "openai";
 import type { AIStrategy } from "../strategy";
 
-const MAX_TOKENS = 4096;
+const MAX_TOKENS = 8192;
 const GROQ_BASE_URL = "https://api.groq.com/openai/v1";
 
 function createStrategy(apiKey: string, model: string, baseURL?: string): AIStrategy {

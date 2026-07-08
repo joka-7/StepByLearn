@@ -52,9 +52,7 @@ export function summarize(path: LearningPath): ProgressSummary {
 /** Count consecutive days ending today that have at least one completion. */
 function streakDays(timestamps: (string | null)[]): number {
   const doneDates = new Set(
-    timestamps
-      .filter((t): t is string => t !== null)
-      .map((t) => t.slice(0, 10)),
+    timestamps.filter((t): t is string => t !== null).map((t) => t.slice(0, 10)),
   );
   if (doneDates.size === 0) return 0;
 
