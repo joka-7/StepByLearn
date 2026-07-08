@@ -115,9 +115,7 @@ export function Sidebar({
             <h1 className="font-bold text-sm leading-none tracking-tight text-white">
               StepByLearn
             </h1>
-            <span className="text-[10px] text-slate-400 font-mono tracking-wider">
-              WORKSPACE
-            </span>
+            <span className="text-[10px] text-slate-400 font-mono tracking-wider">WORKSPACE</span>
           </div>
         </div>
 
@@ -247,9 +245,7 @@ export function Sidebar({
             ></div>
             <span>{user ? "Synced across devices" : "Offline mode fully supported"}</span>
           </div>
-          <div className="text-[10px] font-mono">
-            {keyPresent ? providerLabel : "No key set"}
-          </div>
+          <div className="text-[10px] font-mono">{keyPresent ? providerLabel : "No key set"}</div>
         </div>
       </div>
     </aside>

@@ -10,8 +10,18 @@ interface Props {
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 function getDaysInMonth(year: number, month: number) {
@@ -129,13 +139,17 @@ export function CalendarView({ paths }: Props) {
 
           <div className="grid grid-cols-7 gap-1.5">
             {Array.from({ length: firstDay }).map((_, i) => (
-              <div key={`empty-${i}`} className="h-24 bg-slate-950/30 rounded-xl border border-transparent"></div>
+              <div
+                key={`empty-${i}`}
+                className="h-24 bg-slate-950/30 rounded-xl border border-transparent"
+              ></div>
             ))}
 
             {Array.from({ length: daysInMonth }).map((_, i) => {
               const dayNumber = i + 1;
               const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(dayNumber).padStart(2, "0")}`;
-              const isToday = new Date().toDateString() === new Date(year, month, dayNumber).toDateString();
+              const isToday =
+                new Date().toDateString() === new Date(year, month, dayNumber).toDateString();
               const scheduledItems = scheduleMap[dateStr] || [];
 
               return (
@@ -278,8 +292,8 @@ export function CalendarView({ paths }: Props) {
                     💡 Pro Tip
                   </p>
                   <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-                    Click on any calendar day block to open the assignment editor and
-                    plan custom milestones manually.
+                    Click on any calendar day block to open the assignment editor and plan custom
+                    milestones manually.
                   </p>
                 </div>
               </div>

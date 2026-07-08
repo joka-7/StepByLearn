@@ -65,12 +65,17 @@ your own machine, this is an acceptable trade-off for a zero-backend app.
 
 ## Scripts
 
-| Script | Purpose |
-|---|---|
-| `npm run dev` | Start the dev server |
-| `npm run build` | Type-check and build to `dist/` |
-| `npm run preview` | Serve the built site |
-| `npm run typecheck` | Type-check only |
+| Script                 | Purpose                          |
+| ---------------------- | -------------------------------- |
+| `npm run dev`          | Start the dev server             |
+| `npm run build`        | Type-check and build to `dist/`  |
+| `npm run preview`      | Serve the built site             |
+| `npm run typecheck`    | Type-check only                  |
+| `npm run lint`         | Lint with ESLint                 |
+| `npm run format`       | Format with Prettier             |
+| `npm run format:check` | Check formatting without writing |
+| `npm test`             | Run the unit test suite (Vitest) |
+| `npm run test:watch`   | Run tests in watch mode          |
 
 ## Legacy Python implementation
 

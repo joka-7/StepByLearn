@@ -16,14 +16,7 @@
  */
 
 import { liveQuery } from "dexie";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getFirestore,
-  onSnapshot,
-  setDoc,
-} from "firebase/firestore";
+import { collection, deleteDoc, doc, getFirestore, onSnapshot, setDoc } from "firebase/firestore";
 import { db } from "../db/database";
 import type { LearningPath } from "../domain/types";
 import { firebaseApp } from "./config";

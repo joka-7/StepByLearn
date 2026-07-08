@@ -96,9 +96,7 @@ function normalizeContentType(value: unknown): ContentType {
 }
 
 function normalizeDifficulty(value: unknown): Difficulty {
-  return DIFFICULTIES.includes(value as Difficulty)
-    ? (value as Difficulty)
-    : "beginner";
+  return DIFFICULTIES.includes(value as Difficulty) ? (value as Difficulty) : "beginner";
 }
 
 function normalizeResources(value: unknown): LearningResource[] {

@@ -46,7 +46,11 @@ export async function schedulePath(
 
   const steps = path.steps.map((step, index) => {
     const position = index + 1;
-    const scheduled = { ...step, scheduledDate: toISODate(cursor), isMilestone: options.milestoneEvery > 0 && position % options.milestoneEvery === 0 };
+    const scheduled = {
+      ...step,
+      scheduledDate: toISODate(cursor),
+      isMilestone: options.milestoneEvery > 0 && position % options.milestoneEvery === 0,
+    };
     cursor.setDate(cursor.getDate() + Math.max(1, options.daysBetween));
     if (options.skipWeekends) cursor = nextWeekday(cursor);
     return scheduled;

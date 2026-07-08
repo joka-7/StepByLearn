@@ -10,8 +10,8 @@ interface Props {
 /** Aggregate study analytics derived entirely from local path/step data. */
 export function AnalyticsView({ paths }: Props) {
   const totalCourses = paths.length;
-  const completedCoursesCount = paths.filter((p) =>
-    p.steps.length > 0 && p.steps.every((s) => s.status === "done"),
+  const completedCoursesCount = paths.filter(
+    (p) => p.steps.length > 0 && p.steps.every((s) => s.status === "done"),
   ).length;
 
   let totalStepsCount = 0;
@@ -68,10 +68,15 @@ export function AnalyticsView({ paths }: Props) {
         </div>
 
         <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-2">
-          <span className="text-[10px] text-slate-400 font-mono uppercase">Workspace Completion</span>
+          <span className="text-[10px] text-slate-400 font-mono uppercase">
+            Workspace Completion
+          </span>
           <p className="text-2xl font-bold text-white">{overallCompletionRate}%</p>
           <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
-            <div className="bg-indigo-500 h-full" style={{ width: `${overallCompletionRate}%` }}></div>
+            <div
+              className="bg-indigo-500 h-full"
+              style={{ width: `${overallCompletionRate}%` }}
+            ></div>
           </div>
         </div>
       </div>
@@ -107,7 +112,9 @@ export function AnalyticsView({ paths }: Props) {
                   <Volume2 className="h-3.5 w-3.5 text-amber-400" />
                   Audio Podcasts
                 </span>
-                <span className="text-slate-200 font-bold">{studyFormatCounts.podcast} lessons</span>
+                <span className="text-slate-200 font-bold">
+                  {studyFormatCounts.podcast} lessons
+                </span>
               </div>
               <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
                 <div
@@ -151,8 +158,8 @@ export function AnalyticsView({ paths }: Props) {
                   1
                 </div>
                 <p>
-                  <strong>Maintain consistency</strong>: Access your Study Calendar
-                  daily to review and tick off assigned checkpoints.
+                  <strong>Maintain consistency</strong>: Access your Study Calendar daily to review
+                  and tick off assigned checkpoints.
                 </p>
               </div>
 
@@ -161,8 +168,8 @@ export function AnalyticsView({ paths }: Props) {
                   2
                 </div>
                 <p>
-                  <strong>Engage fully</strong>: Follow each step's material link out
-                  to the real video, podcast, or article before marking it done.
+                  <strong>Engage fully</strong>: Follow each step's material link out to the real
+                  video, podcast, or article before marking it done.
                 </p>
               </div>
 
@@ -171,8 +178,8 @@ export function AnalyticsView({ paths }: Props) {
                   3
                 </div>
                 <p>
-                  <strong>Iterate dynamically</strong>: Use the Manual Course
-                  Architect when you wish to study offline with customized tasks.
+                  <strong>Iterate dynamically</strong>: Use the Manual Course Architect when you
+                  wish to study offline with customized tasks.
                 </p>
               </div>
             </div>

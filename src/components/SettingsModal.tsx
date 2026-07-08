@@ -1,11 +1,6 @@
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
-import {
-  PROVIDERS,
-  PROVIDER_IDS,
-  defaultModels,
-  type ProviderId,
-} from "../domain/providers";
+import { PROVIDERS, PROVIDER_IDS, defaultModels, type ProviderId } from "../domain/providers";
 import type { AppSettings } from "../domain/types";
 import {
   getApiKey,
@@ -81,15 +76,13 @@ export function SettingsModal({ onClose, onSaved }: Props) {
         </div>
 
         <p className="text-xs text-slate-400 leading-relaxed">
-          Choose a provider and paste its API key. Keys are stored only in this
-          browser (localStorage) and sent directly to the provider's API — never to
-          any StepByLearn server, because there isn't one.
+          Choose a provider and paste its API key. Keys are stored only in this browser
+          (localStorage) and sent directly to the provider's API — never to any StepByLearn server,
+          because there isn't one.
         </p>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            Provider
-          </label>
+          <label className="block text-xs font-semibold text-slate-300 mb-1.5">Provider</label>
           <select
             value={provider}
             onChange={(e) => switchProvider(e.target.value as ProviderId)}
@@ -129,8 +122,8 @@ export function SettingsModal({ onClose, onSaved }: Props) {
         </div>
 
         <p className="text-[11px] text-slate-500 leading-relaxed">
-          Providers rename and retire models over time. If generation fails with a
-          "model not found" error, check{" "}
+          Providers rename and retire models over time. If generation fails with a "model not found"
+          error, check{" "}
           <a
             href={info.modelsUrl}
             target="_blank"

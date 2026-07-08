@@ -42,30 +42,20 @@ export function App() {
   // Bumped on save so the key badge re-reads localStorage (which isn't reactive).
   const [keyTick, setKeyTick] = useState(0);
 
-  // Default the selection to the newest path once data loads, and fall back to
-  // another path (or none) if the selected one is deleted elsewhere.
-  useEffect(() => {
-    if (selectedPathId && !paths.some((p) => p.id === selectedPathId)) {
-      setSelectedPathId(paths[0]?.id ?? null);
-    } else if (!selectedPathId && paths.length > 0) {
-      setSelectedPathId(paths[0].id);
-    }
-  }, [paths, selectedPathId]);
+  // Derive the effective selection from `paths` directly (rather than syncing
+  // it into state via an effect): defaults to the newest path, and falls back
+  // automatically the moment the previously-selected path/step disappears
+  // (deleted locally or elsewhere via sync).
+  const effectiveSelectedPathId =
+    selectedPathId && paths.some((p) => p.id === selectedPathId)
+      ? selectedPathId
+      : (paths[0]?.id ?? null);
+  const selectedPath = paths.find((p) => p.id === effectiveSelectedPathId) ?? null;
 
-  const selectedPath = paths.find((p) => p.id === selectedPathId) ?? null;
-
-  // Keep the selected step in sync with whichever path is selected.
-  useEffect(() => {
-    if (!selectedPath) {
-      setSelectedStepId(null);
-      return;
-    }
-    if (!selectedPath.steps.some((s) => s.id === selectedStepId)) {
-      setSelectedStepId(selectedPath.steps[0]?.id ?? null);
-    }
-    // Only re-run when the selected path identity changes, not on every step edit.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPath?.id]);
+  const effectiveSelectedStepId =
+    selectedPath && selectedPath.steps.some((s) => s.id === selectedStepId)
+      ? selectedStepId
+      : (selectedPath?.steps[0]?.id ?? null);
 
   const provider = settings?.provider ?? "anthropic";
   // keyTick is referenced so this recomputes after a save.
@@ -107,7 +97,7 @@ export function App() {
       <main className="flex-1 flex flex-col min-w-0" id="main_content_stage">
         <TopBar
           paths={paths}
-          selectedPathId={selectedPathId}
+          selectedPathId={effectiveSelectedPathId}
           onSelect={selectPath}
           selectedPath={selectedPath}
           onDelete={handleDeleteSelected}
@@ -123,7 +113,7 @@ export function App() {
               onGenerated={handleCreated}
               onSelectPath={selectPath}
               onOpenStudyDesk={() => setActiveView("study")}
-              selectedPathId={selectedPathId}
+              selectedPathId={effectiveSelectedPathId}
             />
           )}
 
@@ -131,7 +121,7 @@ export function App() {
             (selectedPath ? (
               <StudyView
                 path={selectedPath}
-                selectedStepId={selectedStepId}
+                selectedStepId={effectiveSelectedStepId}
                 onSelectStep={setSelectedStepId}
                 onGoToPlanner={() => setActiveView("dashboard")}
               />
@@ -164,8 +154,8 @@ function StudyViewEmptyState({ onGoToPlanner }: { onGoToPlanner: () => void }) {
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl text-center py-20">
         <h3 className="font-bold text-sm text-slate-300">No Course Selected</h3>
         <p className="text-xs text-slate-500 max-w-sm mx-auto mt-2">
-          Select an existing course or create a new AI-generated or manual roadmap to
-          launch your workspace.
+          Select an existing course or create a new AI-generated or manual roadmap to launch your
+          workspace.
         </p>
         <button
           onClick={onGoToPlanner}

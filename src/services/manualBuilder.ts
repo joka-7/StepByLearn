@@ -41,8 +41,7 @@ export async function createManualPath(input: ManualPathInput): Promise<Learning
       duration: step.duration || input.stepDuration,
       type: step.type,
       description:
-        step.description.trim() ||
-        "Study guide and exercise instructions for this milestone.",
+        step.description.trim() || "Study guide and exercise instructions for this milestone.",
       keyConcepts: [input.topic],
       materialTitle: materialUrl ? title : "",
       materialUrl,

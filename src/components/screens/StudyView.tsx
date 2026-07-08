@@ -1,4 +1,12 @@
-import { BookOpen, Calendar as CalendarIcon, Check, Clock, FileText, Video, Volume2 } from "lucide-react";
+import {
+  BookOpen,
+  Calendar as CalendarIcon,
+  Check,
+  Clock,
+  FileText,
+  Video,
+  Volume2,
+} from "lucide-react";
 import type { ReactElement } from "react";
 import type { ContentType, LearningPath } from "../../domain/types";
 import { setStepStatus } from "../../services/progress";
@@ -141,8 +149,8 @@ export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }:
             <BookOpen className="h-12 w-12 text-slate-700 mx-auto mb-4" />
             <h3 className="font-bold text-sm text-slate-300">No Step Loaded</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto mt-2">
-              Select an existing course or create a new AI-generated or manual roadmap
-              to launch your workspace.
+              Select an existing course or create a new AI-generated or manual roadmap to launch
+              your workspace.
             </p>
             <button
               id="desk_open_planner_btn"

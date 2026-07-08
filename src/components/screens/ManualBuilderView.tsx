@@ -12,8 +12,7 @@ const EMPTY_STEP: ManualStepInput = {
   title: "Introduction & Setup",
   duration: "30 minutes",
   type: "text",
-  description:
-    "Getting acquainted with the core concepts and launching our workspace.",
+  description: "Getting acquainted with the core concepts and launching our workspace.",
   materialUrl: "",
 };
 
@@ -143,7 +142,10 @@ export function ManualBuilderView({ onCreated }: Props) {
 
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
             {steps.map((step, idx) => (
-              <div key={idx} className="p-4 bg-slate-950 rounded-xl border border-slate-800 relative space-y-3">
+              <div
+                key={idx}
+                className="p-4 bg-slate-950 rounded-xl border border-slate-800 relative space-y-3"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono text-slate-500">
                     Step #{idx + 1} Parameters

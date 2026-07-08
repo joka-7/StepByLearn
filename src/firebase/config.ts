@@ -22,7 +22,7 @@ import { getApps, initializeApp, type FirebaseOptions } from "firebase/app";
  * than a clear config error, so every value is defensively trimmed and
  * unquoted here.
  */
-function cleanEnvVar(value: string | undefined): string | undefined {
+export function cleanEnvVar(value: string | undefined): string | undefined {
   return value?.trim().replace(/^['"]|['"]$/g, "") || undefined;
 }
 
@@ -38,9 +38,9 @@ const firebaseConfig: FirebaseOptions = {
 /** Whether all required Firebase env vars are present. */
 export const firebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
-    firebaseConfig.authDomain &&
-    firebaseConfig.projectId &&
-    firebaseConfig.appId,
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.appId,
 );
 
 export const firebaseApp = firebaseConfigured

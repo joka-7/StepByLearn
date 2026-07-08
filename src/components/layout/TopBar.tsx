@@ -12,14 +12,7 @@ interface Props {
 }
 
 /** Top status bar: course selector and delete action for the active course. */
-export function TopBar({
-  paths,
-  selectedPathId,
-  onSelect,
-  selectedPath,
-  onDelete,
-  synced,
-}: Props) {
+export function TopBar({ paths, selectedPathId, onSelect, selectedPath, onDelete, synced }: Props) {
   return (
     <header className="h-14 bg-slate-900/60 backdrop-blur border-b border-slate-800 flex items-center justify-between px-6">
       <div className="flex items-center gap-3">

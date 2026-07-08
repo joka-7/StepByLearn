@@ -64,7 +64,6 @@ export function DashboardView({
 
   useEffect(() => {
     if (!isGenerating) return;
-    setGenerationStep(0);
     const interval = setInterval(() => {
       setGenerationStep((prev) => (prev < LOADING_STEPS.length - 1 ? prev + 1 : prev));
     }, 2500);
@@ -80,6 +79,7 @@ export function DashboardView({
     }
 
     setIsGenerating(true);
+    setGenerationStep(0);
     setGenerationError(null);
     try {
       const path = await generatePath(topic.trim(), difficulty, {
@@ -124,9 +124,8 @@ export function DashboardView({
             What do you want to learn today?
           </h2>
           <p className="text-slate-300 text-sm leading-relaxed">
-            Instantly build custom learning roadmaps. Use our AI agent to curate real
-            videos, podcasts, and articles for each step, or define your milestones
-            completely offline.
+            Instantly build custom learning roadmaps. Use our AI agent to curate real videos,
+            podcasts, and articles for each step, or define your milestones completely offline.
           </p>
         </div>
       </div>
@@ -271,9 +270,8 @@ export function DashboardView({
                   <p className="font-semibold">AI Generation Failed</p>
                   <p className="text-[10px] text-rose-400/90 mt-0.5">{generationError}</p>
                   <p className="text-[10px] text-slate-300 mt-2 font-medium">
-                    ✨ Tip: You can immediately build custom offline courses using the
-                    "Manual Course Architect" tab on the sidebar without needing API
-                    keys!
+                    ✨ Tip: You can immediately build custom offline courses using the "Manual
+                    Course Architect" tab on the sidebar without needing API keys!
                   </p>
                 </div>
               </div>
@@ -307,9 +305,7 @@ export function DashboardView({
                   <CheckSquare className="h-4 w-4 text-emerald-400" />
                   <h3 className="font-bold text-sm text-slate-100">Course Library</h3>
                 </div>
-                <span className="text-[10px] text-slate-500 font-mono">
-                  {paths.length} loaded
-                </span>
+                <span className="text-[10px] text-slate-500 font-mono">{paths.length} loaded</span>
               </div>
 
               <div className="space-y-2 max-h-[250px] overflow-y-auto pr-1">
@@ -399,9 +395,7 @@ export function DashboardView({
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-lg font-bold text-white">
-                  Generating Personalized Roadmap
-                </h3>
+                <h3 className="text-lg font-bold text-white">Generating Personalized Roadmap</h3>
                 <p className="text-indigo-400 text-xs font-semibold font-mono animate-pulse uppercase tracking-wider">
                   {LOADING_STEPS[generationStep]}
                 </p>
