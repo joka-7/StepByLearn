@@ -15,13 +15,24 @@
 
 import { getApps, initializeApp, type FirebaseOptions } from "firebase/app";
 
+/**
+ * Vercel's env var UI is a common source of accidentally-pasted leading/
+ * trailing whitespace or wrapping quotes. A stray quote in `authDomain` in
+ * particular breaks Google sign-in with an opaque DNS/network error rather
+ * than a clear config error, so every value is defensively trimmed and
+ * unquoted here.
+ */
+function cleanEnvVar(value: string | undefined): string | undefined {
+  return value?.trim().replace(/^['"]|['"]$/g, "") || undefined;
+}
+
 const firebaseConfig: FirebaseOptions = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: cleanEnvVar(import.meta.env.VITE_FIREBASE_API_KEY),
+  authDomain: cleanEnvVar(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN),
+  projectId: cleanEnvVar(import.meta.env.VITE_FIREBASE_PROJECT_ID),
+  storageBucket: cleanEnvVar(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET),
+  messagingSenderId: cleanEnvVar(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
+  appId: cleanEnvVar(import.meta.env.VITE_FIREBASE_APP_ID),
 };
 
 /** Whether all required Firebase env vars are present. */
