@@ -42,7 +42,7 @@ export function AnalyticsView({ paths }: Props) {
     >
       <div>
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-indigo-400" />
+          <BarChart3 className="h-5 w-5 text-blue-400" />
           <span>My Learning Insights</span>
         </h2>
         <p className="text-xs text-slate-400 mt-1">
@@ -61,7 +61,7 @@ export function AnalyticsView({ paths }: Props) {
 
         <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-2">
           <span className="text-[10px] text-slate-400 font-mono uppercase">Lessons Completed</span>
-          <p className="text-2xl font-bold text-indigo-400">{completedStepsCount}</p>
+          <p className="text-2xl font-bold text-blue-400">{completedStepsCount}</p>
           <span className="text-[10px] text-slate-500 block font-mono">
             {totalStepsCount} scheduled total
           </span>
@@ -74,7 +74,7 @@ export function AnalyticsView({ paths }: Props) {
           <p className="text-2xl font-bold text-white">{overallCompletionRate}%</p>
           <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
             <div
-              className="bg-indigo-500 h-full"
+              className="bg-blue-500 h-full"
               style={{ width: `${overallCompletionRate}%` }}
             ></div>
           </div>
@@ -154,7 +154,7 @@ export function AnalyticsView({ paths }: Props) {
 
             <div className="space-y-3.5 text-xs text-slate-400">
               <div className="flex gap-3 items-start">
-                <div className="h-5 w-5 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold font-mono shrink-0">
+                <div className="h-5 w-5 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold font-mono shrink-0">
                   1
                 </div>
                 <p>
@@ -164,7 +164,7 @@ export function AnalyticsView({ paths }: Props) {
               </div>
 
               <div className="flex gap-3 items-start">
-                <div className="h-5 w-5 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold font-mono shrink-0">
+                <div className="h-5 w-5 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold font-mono shrink-0">
                   2
                 </div>
                 <p>
@@ -174,7 +174,7 @@ export function AnalyticsView({ paths }: Props) {
               </div>
 
               <div className="flex gap-3 items-start">
-                <div className="h-5 w-5 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold font-mono shrink-0">
+                <div className="h-5 w-5 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold font-mono shrink-0">
                   3
                 </div>
                 <p>
@@ -185,8 +185,8 @@ export function AnalyticsView({ paths }: Props) {
             </div>
           </div>
 
-          <div className="p-4 bg-indigo-950/20 border border-indigo-500/20 rounded-xl flex items-center gap-4 mt-6">
-            <Award className="h-10 w-10 text-indigo-400 shrink-0" />
+          <div className="p-4 bg-blue-950/20 border border-blue-500/20 rounded-xl flex items-center gap-4 mt-6">
+            <Award className="h-10 w-10 text-blue-400 shrink-0" />
             <div>
               <p className="text-xs font-bold text-slate-200">
                 {bestStreak > 0 ? "Study Streak Active!" : "Start your streak today"}

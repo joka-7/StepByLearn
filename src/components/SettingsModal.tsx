@@ -86,7 +86,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
           <select
             value={provider}
             onChange={(e) => switchProvider(e.target.value as ProviderId)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-indigo-500"
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500"
           >
             {PROVIDER_IDS.map((id) => (
               <option key={id} value={id}>
@@ -105,7 +105,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
             value={apiKey}
             placeholder={info.keyPlaceholder}
             onChange={(e) => setApiKeyValue(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-indigo-500 placeholder:text-slate-600"
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500 placeholder:text-slate-600"
           />
         </div>
 
@@ -117,7 +117,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
             type="text"
             value={models[provider] ?? info.defaultModel}
             onChange={(e) => setModels({ ...models, [provider]: e.target.value })}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-indigo-500"
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 outline-none focus:border-blue-500"
           />
         </div>
 
@@ -128,7 +128,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
             href={info.modelsUrl}
             target="_blank"
             rel="noreferrer"
-            className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
+            className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
           >
             {info.label}'s current model list
           </a>{" "}
@@ -141,7 +141,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
             href={info.consoleUrl}
             target="_blank"
             rel="noreferrer"
-            className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
+            className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
           >
             {info.consoleUrl.replace(/^https:\/\//, "")}
           </a>
@@ -149,7 +149,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
 
         <button
           onClick={save}
-          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition-colors shadow-lg shadow-indigo-600/10"
+          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition-colors shadow-lg shadow-blue-600/10"
         >
           Save
         </button>

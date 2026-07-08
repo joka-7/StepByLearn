@@ -75,7 +75,7 @@ function NavItem({ id, active, disabled, icon, label, badge, onClick }: NavItemP
         disabled ? "opacity-50 cursor-not-allowed" : ""
       } ${
         active
-          ? "bg-indigo-600/90 text-white shadow-lg shadow-indigo-600/15"
+          ? "bg-blue-600/90 text-white shadow-lg shadow-blue-600/15"
           : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/40"
       }`}
     >
@@ -107,7 +107,7 @@ export function Sidebar({
     >
       <div>
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 p-1.5">
+          <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 p-1.5">
             <img src="/icon.svg" alt="" width={36} height={36} className="h-full w-full" />
           </div>
           <div>
@@ -121,7 +121,7 @@ export function Sidebar({
         {activePath && (
           <div className="px-4 pt-4 pb-2">
             <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-              <span className="text-[10px] uppercase tracking-wider font-semibold text-indigo-400 font-mono">
+              <span className="text-[10px] uppercase tracking-wider font-semibold text-blue-400 font-mono">
                 Current Course
               </span>
               <p className="text-xs font-semibold text-slate-200 mt-1 line-clamp-1">
@@ -196,7 +196,7 @@ export function Sidebar({
                 className="h-7 w-7 rounded-full shrink-0"
               />
             ) : (
-              <div className="h-7 w-7 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+              <div className="h-7 w-7 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
                 {(user.displayName ?? user.email ?? "?").charAt(0).toUpperCase()}
               </div>
             )}
@@ -240,7 +240,7 @@ export function Sidebar({
         <div className="text-[11px] text-slate-500 space-y-2 px-1">
           <div className="flex items-center gap-2">
             <div
-              className={`h-1.5 w-1.5 rounded-full ${user ? "bg-indigo-400" : "bg-emerald-400"}`}
+              className={`h-1.5 w-1.5 rounded-full ${user ? "bg-blue-400" : "bg-emerald-400"}`}
             ></div>
             <span>{user ? "Synced across devices" : "Offline mode fully supported"}</span>
           </div>

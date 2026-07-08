@@ -55,7 +55,7 @@ export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }:
                 key={step.id}
                 className={`p-3.5 rounded-xl border relative transition-all cursor-pointer ${
                   isActive
-                    ? "bg-slate-800/80 border-indigo-500"
+                    ? "bg-slate-800/80 border-blue-500"
                     : "bg-slate-950 border-slate-800 hover:border-slate-700"
                 }`}
                 onClick={() => onSelectStep(step.id)}
@@ -90,7 +90,7 @@ export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }:
                       </span>
                     </div>
                     {step.scheduledDate && (
-                      <div className="flex items-center gap-1 mt-1.5 text-[9px] text-indigo-400 font-mono">
+                      <div className="flex items-center gap-1 mt-1.5 text-[9px] text-blue-400 font-mono">
                         <CalendarIcon className="h-2.5 w-2.5" />
                         <span>Scheduled: {step.scheduledDate}</span>
                       </div>
@@ -108,7 +108,7 @@ export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }:
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex-1 flex flex-col">
             <div className="border-b border-slate-800 pb-5 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-mono tracking-widest text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded">
+                <span className="text-[10px] uppercase font-mono tracking-widest text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded">
                   Study Milestone
                 </span>
                 <button
@@ -155,7 +155,7 @@ export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }:
             <button
               id="desk_open_planner_btn"
               onClick={onGoToPlanner}
-              className="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors"
+              className="mt-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors"
             >
               Go to Planner
             </button>
