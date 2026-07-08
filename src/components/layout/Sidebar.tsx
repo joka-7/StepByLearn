@@ -3,7 +3,6 @@ import {
   BookOpen,
   CalendarIcon,
   Clock,
-  GraduationCap,
   ListTodo,
   LogOut,
   Settings,
@@ -108,8 +107,8 @@ export function Sidebar({
     >
       <div>
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-            <GraduationCap className="h-5 w-5" />
+          <div className="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 p-1.5">
+            <img src="/icon.svg" alt="" width={36} height={36} className="h-full w-full" />
           </div>
           <div>
             <h1 className="font-bold text-sm leading-none tracking-tight text-white">

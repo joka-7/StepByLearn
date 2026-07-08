@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Ascending staircase: base shape -->
+  <path d="M8,92 L8,76 L28,76 L28,61 L48,61 L48,46 L68,46 L68,31 L88,31 L88,92 Z"
+        fill="#4c7a2f" stroke="#2f5720" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- Riser shading (subtle depth on each vertical face) -->
+  <rect x="8" y="76" width="4" height="16" fill="#3f6b28"/>
+  <rect x="28" y="61" width="4" height="15" fill="#3f6b28"/>
+  <rect x="48" y="46" width="4" height="15" fill="#3f6b28"/>
+  <rect x="68" y="31" width="4" height="15" fill="#3f6b28"/>
+
+  <!-- Tread highlights (top face of each step) -->
+  <rect x="8" y="76" width="20" height="4" fill="#8fbf5a"/>
+  <rect x="28" y="61" width="20" height="4" fill="#8fbf5a"/>
+  <rect x="48" y="46" width="20" height="4" fill="#8fbf5a"/>
+  <rect x="68" y="31" width="20" height="4" fill="#8fbf5a"/>
+
+  <!-- Sprout on step 2 -->
+  <g transform="translate(38,61)">
+    <path d="M0,0 C-0.5,-5 -0.5,-5 0,-9" stroke="#3f6b28" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M0,-3 C-5,-5 -7,-11 -5,-15 C-1.5,-13 0,-8 0,-3 Z" fill="#5fae3f"/>
+    <path d="M0,-5 C5,-7 7,-13 5,-17 C1.5,-15 0,-10 0,-5 Z" fill="#5fae3f"/>
+  </g>
+
+  <!-- Sprout on step 3 (slightly larger) -->
+  <g transform="translate(58,46) scale(1.15)">
+    <path d="M0,0 C-0.5,-5 -0.5,-5 0,-9" stroke="#3f6b28" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M0,-3 C-5,-5 -7,-11 -5,-15 C-1.5,-13 0,-8 0,-3 Z" fill="#5fae3f"/>
+    <path d="M0,-5 C5,-7 7,-13 5,-17 C1.5,-15 0,-10 0,-5 Z" fill="#5fae3f"/>
+  </g>
+
+  <!-- Lightbulb on step 4 (tallest) -->
+  <g transform="translate(78,20)">
+    <circle cx="0" cy="0" r="10" fill="#fdfdf5" stroke="#26261f" stroke-width="2.2"/>
+    <path d="M-3.2,9.5 L3.2,9.5 M-2.6,12.5 L2.6,12.5 M-2,15.3 L2,15.3"
+          stroke="#26261f" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="M-4,4 C-6.2,-2 -1.8,-6.4 2.2,-4.2 C5.4,-2.4 4.2,2.2 0,3.4 C-2.2,4 -3.2,2 -2,0"
+          stroke="#5fae3f" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <path d="M2.2,-4.2 C4.4,-6.2 6.6,-5.2 5.4,-2.2 C4.7,-0.7 2.8,-1.1 2.2,-2.2 Z" fill="#5fae3f"/>
+  </g>
+</svg>
