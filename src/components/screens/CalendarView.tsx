@@ -152,49 +152,50 @@ export function CalendarView({ paths }: Props) {
                 new Date().toDateString() === new Date(year, month, dayNumber).toDateString();
               const scheduledItems = scheduleMap[dateStr] || [];
 
+              const hasItems = scheduledItems.length > 0;
+
               return (
                 <div
                   key={dayNumber}
                   onClick={() => setSelectedDay(dateStr)}
                   className={`h-24 p-1.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all ${
-                    isToday
-                      ? "bg-blue-950/20 border-blue-500"
+                    hasItems
+                      ? "bg-blue-600/90 border-blue-500 hover:bg-blue-600"
                       : "bg-slate-950 border-slate-800 hover:border-slate-700"
-                  }`}
+                  } ${isToday ? "ring-2 ring-blue-300" : ""}`}
                 >
                   <div className="flex justify-between items-center">
                     <span
-                      className={`text-[10px] font-mono font-semibold ${isToday ? "text-blue-400 font-bold" : "text-slate-400"}`}
+                      className={`text-[10px] font-mono font-semibold ${hasItems ? "text-white" : "text-slate-400"}`}
                     >
                       {dayNumber}
                     </span>
-                    {scheduledItems.length > 0 && (
-                      <span className="text-[8px] bg-slate-900 px-1 py-0.2 rounded font-mono text-slate-400">
+                    {hasItems && (
+                      <span className="text-[8px] bg-black/20 px-1 py-0.2 rounded font-mono text-white">
                         {scheduledItems.length}
                       </span>
                     )}
                   </div>
 
-                  <div className="flex-1 mt-1 overflow-y-auto space-y-0.5 pr-0.5">
-                    {scheduledItems.slice(0, 2).map((item, idx) => (
-                      <div
-                        key={idx}
-                        className={`text-[8px] px-1 py-0.5 rounded font-mono leading-tight truncate border ${
-                          item.step.status === "done"
-                            ? "bg-emerald-950/30 border-emerald-500/20 text-emerald-400 line-through"
-                            : "bg-amber-950/30 border-amber-500/20 text-amber-400"
+                  {hasItems && (
+                    <div className="flex-1 mt-1 overflow-hidden">
+                      <p
+                        className={`text-[9px] font-mono leading-tight truncate ${
+                          scheduledItems[0].step.status === "done"
+                            ? "text-white/70 line-through"
+                            : "text-white"
                         }`}
-                        title={`${item.path.title} - ${item.step.title}`}
+                        title={`${scheduledItems[0].path.title} - ${scheduledItems[0].step.title}`}
                       >
-                        {item.step.title}
-                      </div>
-                    ))}
-                    {scheduledItems.length > 2 && (
-                      <div className="text-[7px] text-slate-500 text-center font-mono">
-                        + {scheduledItems.length - 2} more
-                      </div>
-                    )}
-                  </div>
+                        {scheduledItems[0].step.title}
+                      </p>
+                      {scheduledItems.length > 1 && (
+                        <div className="text-[7px] text-white/70 font-mono mt-0.5">
+                          + {scheduledItems.length - 1} more
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
