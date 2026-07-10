@@ -124,6 +124,8 @@ export function App() {
                 selectedStepId={effectiveSelectedStepId}
                 onSelectStep={setSelectedStepId}
                 onGoToPlanner={() => setActiveView("dashboard")}
+                hasKey={keyPresent}
+                onNeedKey={() => setShowSettings(true)}
               />
             ) : (
               <StudyViewEmptyState onGoToPlanner={() => setActiveView("dashboard")} />

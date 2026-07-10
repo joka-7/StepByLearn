@@ -5,12 +5,14 @@ import {
   Check,
   FileText,
   Play,
+  Plus,
   Video,
   Volume2,
 } from "lucide-react";
 import { useState, type ReactElement } from "react";
 import type { ContentType, LearningPath } from "../../domain/types";
 import { setStepStatus } from "../../services/progress";
+import { AddStepModal } from "./study/AddStepModal";
 import { StudyMaterialTab } from "./study/StudyMaterialTab";
 
 interface Props {
@@ -18,6 +20,8 @@ interface Props {
   selectedStepId: string | null;
   onSelectStep: (id: string) => void;
   onGoToPlanner: () => void;
+  hasKey: boolean;
+  onNeedKey: () => void;
 }
 
 const TYPE_ICONS: Record<ContentType, ReactElement> = {
@@ -33,11 +37,19 @@ const TYPE_PILL_CLASS: Record<ContentType, string> = {
 };
 
 /** The Active Study Desk: step list on the left, tabbed workspace on the right. */
-export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }: Props) {
+export function StudyView({
+  path,
+  selectedStepId,
+  onSelectStep,
+  onGoToPlanner,
+  hasKey,
+  onNeedKey,
+}: Props) {
   const activeStep = path.steps.find((s) => s.id === selectedStepId) ?? null;
   // On mobile the list and detail don't fit side by side; this only controls
   // which of the two is shown there (desktop always shows both).
   const [showListOnMobile, setShowListOnMobile] = useState(false);
+  const [showAddStep, setShowAddStep] = useState(false);
   const showDetail = activeStep && !showListOnMobile;
 
   async function toggleCompleted() {
@@ -114,7 +126,26 @@ export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }:
             );
           })}
         </div>
+
+        <button
+          id="desk_add_step_btn"
+          type="button"
+          onClick={() => setShowAddStep(true)}
+          className="w-full mt-3 text-xs bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-2.5 rounded-xl border border-blue-500/20 flex items-center justify-center gap-1.5"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          <span>Add Study Step</span>
+        </button>
       </div>
+
+      {showAddStep && (
+        <AddStepModal
+          path={path}
+          hasKey={hasKey}
+          onNeedKey={onNeedKey}
+          onClose={() => setShowAddStep(false)}
+        />
+      )}
 
       <div className={`${showDetail ? "block" : "hidden lg:block"} lg:col-span-8 flex flex-col gap-6`}>
         {activeStep ? (
