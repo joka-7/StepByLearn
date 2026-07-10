@@ -6,12 +6,12 @@
  * inherently atomic.
  */
 
-import { healAndValidate } from "../ai/jsonHealer";
-import { SYSTEM_INSTRUCTION, buildSyllabusPrompt } from "../ai/prompts";
+import { healAndValidate, healAndValidateSteps } from "../ai/jsonHealer";
+import { SYSTEM_INSTRUCTION, buildAdditionalStepsPrompt, buildSyllabusPrompt } from "../ai/prompts";
 import { resolveStrategy } from "../ai/resolver";
 import { newId } from "../domain/ids";
 import type { ContentType, Difficulty, LearningPath, PathStep } from "../domain/types";
-import { savePath } from "../repositories/pathRepository";
+import { appendSteps, savePath } from "../repositories/pathRepository";
 import { getApiKey, getSettings } from "../repositories/settingsRepository";
 
 export interface GeneratePathOptions {
@@ -81,4 +81,56 @@ export async function generatePath(
 
   await savePath(path);
   return path;
+}
+
+/**
+ * Ask the AI agent to draft one or more additional steps for an existing
+ * path, matching its established tone/format, and append them.
+ */
+export async function generateAdditionalSteps(
+  path: LearningPath,
+  instruction: string,
+): Promise<PathStep[]> {
+  const settings = await getSettings();
+  const provider = settings.provider;
+  const model = settings.models[provider];
+  const apiKey = getApiKey(provider) ?? "";
+
+  const strategy = resolveStrategy(provider, apiKey, model);
+  const raw = await strategy.generateText(
+    buildAdditionalStepsPrompt(
+      path.title,
+      path.topic,
+      path.steps.map((s) => s.title),
+      instruction,
+      {
+        stepDuration: path.stepDuration,
+        contentType: path.contentType,
+        currentKnowledge: path.currentKnowledge,
+      },
+    ),
+    SYSTEM_INSTRUCTION,
+  );
+  const drafts = healAndValidateSteps(raw);
+
+  const startIndex = path.steps.length;
+  const steps: PathStep[] = drafts.map((step, index) => ({
+    id: newId(),
+    orderIndex: startIndex + index,
+    title: step.title,
+    duration: step.duration,
+    type: step.type,
+    description: step.description,
+    keyConcepts: step.keyConcepts,
+    materialTitle: step.materialTitle,
+    materialUrl: step.materialUrl,
+    resources: step.resources,
+    status: "not_started",
+    doneAt: null,
+    scheduledDate: null,
+    isMilestone: false,
+  }));
+
+  await appendSteps(path.id, steps);
+  return steps;
 }

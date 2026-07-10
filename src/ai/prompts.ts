@@ -50,6 +50,58 @@ export interface SyllabusPromptOptions {
   currentKnowledge: string;
 }
 
+const STEPS_ONLY_SCHEMA_HINT = `{
+  "steps": [
+    {
+      "title": string,
+      "duration": string (e.g. "45 minutes"),
+      "type": "video" | "podcast" | "text",
+      "description": string,
+      "keyConcepts": [ string ],
+      "materialTitle": string (title of the primary resource),
+      "materialUrl": string (a real, specific URL to that resource),
+      "resources": [
+        { "title": string, "type": "video" | "podcast" | "text", "description": string, "duration": string, "url": string }
+      ]
+    }
+  ]
+}`;
+
+/** Build the prompt asking the model to draft additional steps for an existing path. */
+export function buildAdditionalStepsPrompt(
+  courseTitle: string,
+  topic: string,
+  existingStepTitles: string[],
+  instruction: string,
+  options: SyllabusPromptOptions,
+): string {
+  const { stepDuration, contentType } = options;
+  return (
+    `You are extending an existing step-by-step learning path titled ${JSON.stringify(courseTitle)} ` +
+    `(topic: ${JSON.stringify(topic)}).\n` +
+    "The course already has these steps, in order:\n" +
+    existingStepTitles.map((t, i) => `${i + 1}. ${t}`).join("\n") +
+    "\n\n" +
+    `Add new step(s) per this request from the learner: ${JSON.stringify(
+      instruction || "Continue the course with the next logical steps.",
+    )}\n` +
+    `Each step should target roughly: ${stepDuration}.\n` +
+    `Preferred content format(s): ${contentType}.\n\n` +
+    "Requirements:\n" +
+    "- Return between 1 and 5 new steps that continue naturally after the existing ones — do " +
+    "not repeat any existing step.\n" +
+    "- Each step needs a clear title, a short description, 2-3 keyConcepts, a primary resource " +
+    "(materialTitle + a real materialUrl matching the step's type), and 1-2 supplementary " +
+    "resources (each with its own url).\n" +
+    "- Only link to real, well-known, stable sources you are confident exist (official docs, " +
+    "Wikipedia, MDN, established publishers/channels). Do not invent a plausible-looking URL for " +
+    "a page you are not confident is real.\n\n" +
+    "Return ONLY a JSON object matching exactly this shape:\n" +
+    STEPS_ONLY_SCHEMA_HINT +
+    "\n"
+  );
+}
+
 /** Build the user prompt asking the model for a structured syllabus. */
 export function buildSyllabusPrompt(
   topic: string,
