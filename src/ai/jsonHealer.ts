@@ -33,7 +33,7 @@ export class JsonHealingError extends Error {
   }
 }
 
-function stripCodeFences(text: string): string {
+export function stripCodeFences(text: string): string {
   const trimmed = text.trim();
   if (!trimmed.startsWith("```")) return trimmed;
   const lines = trimmed.split("\n");
@@ -113,7 +113,7 @@ function normalizeResources(value: unknown): LearningResource[] {
     .filter((r) => r.title);
 }
 
-function normalizeStep(value: unknown): SyllabusStepDraft | null {
+export function normalizeStep(value: unknown): SyllabusStepDraft | null {
   if (typeof value !== "object" || value === null) return null;
   const record = value as Record<string, unknown>;
   const title = asString(record.title).trim();
@@ -161,4 +161,33 @@ export function healAndValidate(raw: string): SyllabusDraft {
     estimatedHours: asOptionalNumber(record.estimatedHours),
     steps,
   };
+}
+
+/**
+ * Clean, parse, and validate raw model output into just a list of new steps —
+ * for extending an existing path rather than drafting a whole new syllabus.
+ */
+export function healAndValidateSteps(raw: string): SyllabusStepDraft[] {
+  const span = extractJsonSpan(stripCodeFences(raw));
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(span);
+  } catch {
+    throw new JsonHealingError("Model output was not valid JSON.", raw);
+  }
+  if (typeof parsed !== "object" || parsed === null) {
+    throw new JsonHealingError("Model output was not a JSON object.", raw);
+  }
+
+  const record = parsed as Record<string, unknown>;
+  const steps = (Array.isArray(record.steps) ? record.steps : [])
+    .map(normalizeStep)
+    .filter((s): s is SyllabusStepDraft => s !== null);
+
+  if (steps.length === 0) {
+    throw new JsonHealingError("No usable steps were returned.", raw);
+  }
+
+  return steps;
 }

@@ -1,15 +1,18 @@
 import {
+  ArrowLeft,
   BookOpen,
   Calendar as CalendarIcon,
   Check,
   FileText,
   Play,
+  Plus,
   Video,
   Volume2,
 } from "lucide-react";
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import type { ContentType, LearningPath } from "../../domain/types";
 import { setStepStatus } from "../../services/progress";
+import { AddStepModal } from "./study/AddStepModal";
 import { StudyMaterialTab } from "./study/StudyMaterialTab";
 
 interface Props {
@@ -17,6 +20,8 @@ interface Props {
   selectedStepId: string | null;
   onSelectStep: (id: string) => void;
   onGoToPlanner: () => void;
+  hasKey: boolean;
+  onNeedKey: () => void;
 }
 
 const TYPE_ICONS: Record<ContentType, ReactElement> = {
@@ -32,8 +37,20 @@ const TYPE_PILL_CLASS: Record<ContentType, string> = {
 };
 
 /** The Active Study Desk: step list on the left, tabbed workspace on the right. */
-export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }: Props) {
+export function StudyView({
+  path,
+  selectedStepId,
+  onSelectStep,
+  onGoToPlanner,
+  hasKey,
+  onNeedKey,
+}: Props) {
   const activeStep = path.steps.find((s) => s.id === selectedStepId) ?? null;
+  // On mobile the list and detail don't fit side by side; this only controls
+  // which of the two is shown there (desktop always shows both).
+  const [showListOnMobile, setShowListOnMobile] = useState(false);
+  const [showAddStep, setShowAddStep] = useState(false);
+  const showDetail = activeStep && !showListOnMobile;
 
   async function toggleCompleted() {
     if (!activeStep) return;
@@ -43,7 +60,9 @@ export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }:
 
   return (
     <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8" id="view_study">
-      <div className="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl max-h-[calc(100vh-200px)] overflow-y-auto">
+      <div
+        className={`${showDetail ? "hidden lg:block" : "block"} lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl max-h-[calc(100vh-200px)] overflow-y-auto`}
+      >
         <h3 className="font-bold text-xs text-slate-400 uppercase tracking-wider font-mono">
           Curriculum Progression
         </h3>
@@ -61,7 +80,10 @@ export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }:
                 className={`relative flex items-start gap-3 p-3 cursor-pointer transition-all rounded-xl ${
                   isActive ? "bg-slate-800/60" : ""
                 }`}
-                onClick={() => onSelectStep(step.id)}
+                onClick={() => {
+                  onSelectStep(step.id);
+                  setShowListOnMobile(false);
+                }}
               >
                 <div
                   className={`relative z-10 h-8 w-8 rounded-full flex items-center justify-center shrink-0 border-2 ${
@@ -104,11 +126,40 @@ export function StudyView({ path, selectedStepId, onSelectStep, onGoToPlanner }:
             );
           })}
         </div>
+
+        <button
+          id="desk_add_step_btn"
+          type="button"
+          onClick={() => setShowAddStep(true)}
+          className="w-full mt-3 text-xs bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-2.5 rounded-xl border border-blue-500/20 flex items-center justify-center gap-1.5"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          <span>Add Study Step</span>
+        </button>
       </div>
 
-      <div className="lg:col-span-8 flex flex-col gap-6">
+      {showAddStep && (
+        <AddStepModal
+          path={path}
+          hasKey={hasKey}
+          onNeedKey={onNeedKey}
+          onClose={() => setShowAddStep(false)}
+        />
+      )}
+
+      <div
+        className={`${showDetail ? "block" : "hidden lg:block"} lg:col-span-8 flex flex-col gap-6`}
+      >
         {activeStep ? (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex-1 flex flex-col">
+            <button
+              id="desk_back_to_list_btn"
+              onClick={() => setShowListOnMobile(true)}
+              className="lg:hidden flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 mb-4 -mt-1 transition-colors"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Back to Curriculum</span>
+            </button>
             <div className="border-b border-slate-800 pb-5 space-y-3">
               <div className="flex items-start justify-between gap-4">
                 <h2 className="text-xl font-bold text-white tracking-tight">

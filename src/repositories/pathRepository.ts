@@ -93,3 +93,26 @@ export async function updateStep(
     return updated;
   });
 }
+
+/**
+ * Append new steps to the end of an existing path's curriculum, re-indexing
+ * their `orderIndex` to continue from the current step count.
+ */
+export async function appendSteps(
+  pathId: string,
+  newSteps: PathStep[],
+): Promise<LearningPath | undefined> {
+  return db.transaction("rw", db.paths, async () => {
+    const raw = await db.paths.get(pathId);
+    if (!raw) return undefined;
+    const path = normalizePath(raw as LearningPath & Record<string, unknown>);
+    const startIndex = path.steps.length;
+    const updated: LearningPath = {
+      ...path,
+      steps: [...path.steps, ...newSteps.map((s, i) => ({ ...s, orderIndex: startIndex + i }))],
+      updatedAt: new Date().toISOString(),
+    };
+    await db.paths.put(updated);
+    return updated;
+  });
+}

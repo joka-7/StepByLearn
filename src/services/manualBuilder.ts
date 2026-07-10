@@ -9,7 +9,7 @@
 
 import { newId } from "../domain/ids";
 import type { ContentType, LearningPath, PathStep } from "../domain/types";
-import { savePath } from "../repositories/pathRepository";
+import { appendSteps, savePath } from "../repositories/pathRepository";
 
 export interface ManualStepInput {
   title: string;
@@ -27,31 +27,40 @@ export interface ManualPathInput {
   steps: ManualStepInput[];
 }
 
+function buildManualStep(
+  step: ManualStepInput,
+  topic: string,
+  index: number,
+  fallbackDuration: string,
+): PathStep {
+  const title = step.title.trim() || `Milestone ${index + 1}`;
+  const materialUrl = step.materialUrl.trim();
+  return {
+    id: newId(),
+    orderIndex: index,
+    title,
+    duration: step.duration || fallbackDuration,
+    type: step.type,
+    description:
+      step.description.trim() || "Study guide and exercise instructions for this milestone.",
+    keyConcepts: [topic],
+    materialTitle: materialUrl ? title : "",
+    materialUrl,
+    resources: [],
+    status: "not_started",
+    doneAt: null,
+    scheduledDate: null,
+    isMilestone: false,
+  };
+}
+
 /** Build a learning path from user-entered steps and material links, offline. */
 export async function createManualPath(input: ManualPathInput): Promise<LearningPath> {
   const now = new Date().toISOString();
 
-  const steps: PathStep[] = input.steps.map((step, index) => {
-    const title = step.title.trim() || `Milestone ${index + 1}`;
-    const materialUrl = step.materialUrl.trim();
-    return {
-      id: newId(),
-      orderIndex: index,
-      title,
-      duration: step.duration || input.stepDuration,
-      type: step.type,
-      description:
-        step.description.trim() || "Study guide and exercise instructions for this milestone.",
-      keyConcepts: [input.topic],
-      materialTitle: materialUrl ? title : "",
-      materialUrl,
-      resources: [],
-      status: "not_started",
-      doneAt: null,
-      scheduledDate: null,
-      isMilestone: false,
-    };
-  });
+  const steps: PathStep[] = input.steps.map((step, index) =>
+    buildManualStep(step, input.topic, index, input.stepDuration),
+  );
 
   const path: LearningPath = {
     id: newId(),
@@ -71,4 +80,14 @@ export async function createManualPath(input: ManualPathInput): Promise<Learning
 
   await savePath(path);
   return path;
+}
+
+/** Append a single user-entered step to an existing path, offline. */
+export async function addManualStep(
+  path: LearningPath,
+  input: ManualStepInput,
+): Promise<LearningPath> {
+  const step = buildManualStep(input, path.topic, path.steps.length, path.stepDuration);
+  const updated = await appendSteps(path.id, [step]);
+  return updated ?? path;
 }

@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PROVIDERS, PROVIDER_IDS, defaultModels, type ProviderId } from "../domain/providers";
 import type { AppSettings } from "../domain/types";
+import { closeViaHistoryBack, useBackClose } from "../hooks/useBackClose";
 import {
   getApiKey,
   getSettings,
@@ -17,6 +18,7 @@ interface Props {
 
 /** Modal to choose the AI provider and enter its API key and model. */
 export function SettingsModal({ onClose, onSaved }: Props) {
+  useBackClose(true, onClose);
   const [provider, setProvider] = useState<ProviderId>("anthropic");
   const [models, setModels] = useState<Record<ProviderId, string>>(defaultModels());
   const [apiKey, setApiKeyValue] = useState("");
@@ -48,7 +50,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
     };
     await saveSettings(next);
     onSaved();
-    onClose();
+    closeViaHistoryBack();
   }
 
   // Defensive fallback: if `provider` is ever something other than a known id
@@ -59,7 +61,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
   return (
     <div
       className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-      onClick={onClose}
+      onClick={closeViaHistoryBack}
     >
       <div
         className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5"
@@ -68,7 +70,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-white">Settings</h2>
           <button
-            onClick={onClose}
+            onClick={closeViaHistoryBack}
             className="text-slate-500 hover:text-slate-300 transition-colors"
           >
             <X className="h-4 w-4" />
