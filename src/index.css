@@ -6,6 +6,13 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+html,
 body {
   margin: 0;
+  /* Prevent the horizontal rubber-band bounce (and the edge-swipe back/forward
+     gesture it triggers on mobile browsers) from revealing blank space beyond
+     the app's dark background. */
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  background-color: #020617;
 }

@@ -42,6 +42,24 @@ export function App() {
   // Bumped on save so the key badge re-reads localStorage (which isn't reactive).
   const [keyTick, setKeyTick] = useState(0);
 
+  // Push a browser history entry per tab switch so the hardware/browser back
+  // button steps back through the app's own tabs — like a native app's back
+  // stack — instead of immediately exiting.
+  useEffect(() => {
+    window.history.replaceState({ view: "dashboard" }, "");
+    function handlePopState(event: PopStateEvent) {
+      const view = (event.state as { view?: ViewId } | null)?.view;
+      if (view) setActiveView(view);
+    }
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  function navigateToView(next: ViewId) {
+    if (next !== activeView) window.history.pushState({ view: next }, "");
+    setActiveView(next);
+  }
+
   // Derive the effective selection from `paths` directly (rather than syncing
   // it into state via an effect): defaults to the newest path, and falls back
   // automatically the moment the previously-selected path/step disappears
@@ -69,7 +87,7 @@ export function App() {
   function handleCreated(path: LearningPath) {
     setSelectedPathId(path.id);
     setSelectedStepId(path.steps[0]?.id ?? null);
-    setActiveView("study");
+    navigateToView("study");
   }
 
   async function handleDeleteSelected() {
@@ -86,7 +104,7 @@ export function App() {
     >
       <Sidebar
         activeView={activeView}
-        onChangeView={setActiveView}
+        onChangeView={navigateToView}
         activePath={selectedPath}
         onOpenSettings={() => setShowSettings(true)}
         keyPresent={keyPresent}
@@ -112,7 +130,7 @@ export function App() {
               onNeedKey={() => setShowSettings(true)}
               onGenerated={handleCreated}
               onSelectPath={selectPath}
-              onOpenStudyDesk={() => setActiveView("study")}
+              onOpenStudyDesk={() => navigateToView("study")}
               selectedPathId={effectiveSelectedPathId}
             />
           )}
@@ -123,12 +141,12 @@ export function App() {
                 path={selectedPath}
                 selectedStepId={effectiveSelectedStepId}
                 onSelectStep={setSelectedStepId}
-                onGoToPlanner={() => setActiveView("dashboard")}
+                onGoToPlanner={() => navigateToView("dashboard")}
                 hasKey={keyPresent}
                 onNeedKey={() => setShowSettings(true)}
               />
             ) : (
-              <StudyViewEmptyState onGoToPlanner={() => setActiveView("dashboard")} />
+              <StudyViewEmptyState onGoToPlanner={() => navigateToView("dashboard")} />
             ))}
 
           {activeView === "calendar" && <CalendarView paths={paths} />}

@@ -1,6 +1,7 @@
 import { AlertCircle, ListPlus, Sparkles, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import type { ContentType, LearningPath } from "../../../domain/types";
+import { closeViaHistoryBack, useBackClose } from "../../../hooks/useBackClose";
 import { generateAdditionalSteps } from "../../../services/generation";
 import { addManualStep } from "../../../services/manualBuilder";
 
@@ -15,6 +16,7 @@ type Mode = "manual" | "ai";
 
 /** Add one or more new steps to an existing course — by hand or via the AI agent. */
 export function AddStepModal({ path, hasKey, onNeedKey, onClose }: Props) {
+  useBackClose(true, onClose);
   const [mode, setMode] = useState<Mode>("manual");
 
   // Manual tab state
@@ -36,7 +38,7 @@ export function AddStepModal({ path, hasKey, onNeedKey, onClose }: Props) {
     setSavingManual(true);
     try {
       await addManualStep(path, { title, type, duration, description, materialUrl });
-      onClose();
+      closeViaHistoryBack();
     } finally {
       setSavingManual(false);
     }
@@ -52,7 +54,7 @@ export function AddStepModal({ path, hasKey, onNeedKey, onClose }: Props) {
     setGenerationError(null);
     try {
       await generateAdditionalSteps(path, instruction.trim());
-      onClose();
+      closeViaHistoryBack();
     } catch (err) {
       setGenerationError(err instanceof Error ? err.message : "Generation failed.");
     } finally {
@@ -63,7 +65,7 @@ export function AddStepModal({ path, hasKey, onNeedKey, onClose }: Props) {
   return (
     <div
       className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-      onClick={onClose}
+      onClick={closeViaHistoryBack}
     >
       <div
         className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5"
@@ -72,7 +74,10 @@ export function AddStepModal({ path, hasKey, onNeedKey, onClose }: Props) {
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-white">Add Study Step</h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-300 transition-colors">
+          <button
+            onClick={closeViaHistoryBack}
+            className="text-slate-500 hover:text-slate-300 transition-colors"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
