@@ -147,7 +147,9 @@ export function StudyView({
         />
       )}
 
-      <div className={`${showDetail ? "block" : "hidden lg:block"} lg:col-span-8 flex flex-col gap-6`}>
+      <div
+        className={`${showDetail ? "block" : "hidden lg:block"} lg:col-span-8 flex flex-col gap-6`}
+      >
         {activeStep ? (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex-1 flex flex-col">
             <button

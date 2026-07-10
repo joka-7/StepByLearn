@@ -109,10 +109,7 @@ export async function appendSteps(
     const startIndex = path.steps.length;
     const updated: LearningPath = {
       ...path,
-      steps: [
-        ...path.steps,
-        ...newSteps.map((s, i) => ({ ...s, orderIndex: startIndex + i })),
-      ],
+      steps: [...path.steps, ...newSteps.map((s, i) => ({ ...s, orderIndex: startIndex + i }))],
       updatedAt: new Date().toISOString(),
     };
     await db.paths.put(updated);
