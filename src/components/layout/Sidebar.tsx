@@ -21,6 +21,10 @@ interface Props {
   keyPresent: boolean;
   providerLabel: string;
   user: User | null;
+  /** Mobile only: whether the drawer is open. Ignored at the md+ breakpoint, where the sidebar is always shown inline. */
+  mobileOpen: boolean;
+  /** Mobile only: close the drawer (backdrop click, or after picking a nav item). */
+  onCloseMobile: () => void;
 }
 
 /** Google's standard multi-color "G" mark, used on the sign-in button. */
@@ -97,156 +101,175 @@ export function Sidebar({
   keyPresent,
   providerLabel,
   user,
+  mobileOpen,
+  onCloseMobile,
 }: Props) {
   const doneSteps = activePath?.steps.filter((s) => s.status === "done").length ?? 0;
 
+  function selectView(view: ViewId) {
+    onChangeView(view);
+    onCloseMobile();
+  }
+
   return (
-    <aside
-      className="w-full md:w-64 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col justify-between"
-      id="app_sidebar"
-    >
-      <div>
-        <div className="p-6 border-b border-slate-800 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 p-1.5">
-            <img src="/icon.svg" alt="" width={36} height={36} className="h-full w-full" />
+    <>
+      {/* Backdrop: mobile only, and only while the drawer is open. */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 md:hidden"
+          onClick={onCloseMobile}
+          aria-hidden
+        />
+      )}
+      <aside
+        className={`fixed md:static inset-y-0 left-0 z-50 w-72 md:w-64 transform transition-transform duration-200 ease-in-out md:translate-x-0 ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        } bg-slate-900 md:border-r border-slate-800 flex flex-col justify-between overflow-y-auto`}
+        id="app_sidebar"
+      >
+        <div>
+          <div className="p-6 border-b border-slate-800 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 p-1.5">
+              <img src="/icon.svg" alt="" width={36} height={36} className="h-full w-full" />
+            </div>
+            <div>
+              <h1 className="font-bold text-sm leading-none tracking-tight text-white">
+                StepByLearn
+              </h1>
+              <span className="text-[10px] text-slate-400 font-mono tracking-wider">WORKSPACE</span>
+            </div>
           </div>
-          <div>
-            <h1 className="font-bold text-sm leading-none tracking-tight text-white">
-              StepByLearn
-            </h1>
-            <span className="text-[10px] text-slate-400 font-mono tracking-wider">WORKSPACE</span>
-          </div>
-        </div>
 
-        {activePath && (
-          <div className="px-4 pt-4 pb-2">
-            <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-              <span className="text-[10px] uppercase tracking-wider font-semibold text-blue-400 font-mono">
-                Current Course
-              </span>
-              <p className="text-xs font-semibold text-slate-200 mt-1 line-clamp-1">
-                {activePath.title}
-              </p>
-              <div className="mt-2 flex items-center justify-between text-[10px] text-slate-400">
-                <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  <span>{activePath.stepDuration} / step</span>
-                </div>
-                <span>
-                  {doneSteps}/{activePath.steps.length} Steps
+          {activePath && (
+            <div className="px-4 pt-4 pb-2">
+              <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
+                <span className="text-[10px] uppercase tracking-wider font-semibold text-blue-400 font-mono">
+                  Current Course
                 </span>
+                <p className="text-xs font-semibold text-slate-200 mt-1 line-clamp-1">
+                  {activePath.title}
+                </p>
+                <div className="mt-2 flex items-center justify-between text-[10px] text-slate-400">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    <span>{activePath.stepDuration} / step</span>
+                  </div>
+                  <span>
+                    {doneSteps}/{activePath.steps.length} Steps
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <nav className="p-4 space-y-1.5" id="sidebar_nav">
-          <NavItem
-            id="nav_btn_dashboard"
-            active={activeView === "dashboard"}
-            icon={<Sparkles className="h-4 w-4" />}
-            label="Workspace Planner"
-            onClick={() => onChangeView("dashboard")}
-          />
-          <NavItem
-            id="nav_btn_study"
-            active={activeView === "study"}
-            disabled={!activePath}
-            icon={<BookOpen className="h-4 w-4" />}
-            label="Active Study Desk"
-            badge={
-              activePath ? (
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              ) : undefined
-            }
-            onClick={() => onChangeView("study")}
-          />
-          <NavItem
-            id="nav_btn_calendar"
-            active={activeView === "calendar"}
-            icon={<CalendarIcon className="h-4 w-4" />}
-            label="Study Calendar"
-            onClick={() => onChangeView("calendar")}
-          />
-          <NavItem
-            id="nav_btn_manual"
-            active={activeView === "manual"}
-            icon={<ListTodo className="h-4 w-4" />}
-            label="Manual Course Architect"
-            onClick={() => onChangeView("manual")}
-          />
-          <NavItem
-            id="nav_btn_analytics"
-            active={activeView === "analytics"}
-            icon={<BarChart3 className="h-4 w-4" />}
-            label="My Analytics"
-            onClick={() => onChangeView("analytics")}
-          />
-        </nav>
-      </div>
-
-      <div className="p-4 border-t border-slate-800 space-y-3">
-        {user ? (
-          <div className="flex items-center gap-2.5 px-1">
-            {user.photoURL ? (
-              <img
-                src={user.photoURL}
-                alt=""
-                referrerPolicy="no-referrer"
-                className="h-7 w-7 rounded-full shrink-0"
-              />
-            ) : (
-              <div className="h-7 w-7 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
-                {(user.displayName ?? user.email ?? "?").charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-slate-200 truncate">
-                {user.displayName ?? "Signed in"}
-              </p>
-              <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
-            </div>
-            <button
-              id="google_sign_out_btn"
-              onClick={() => signOutUser()}
-              title="Sign out"
-              className="text-slate-500 hover:text-rose-400 transition-colors shrink-0"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ) : (
-          <button
-            id="google_sign_in_btn"
-            onClick={handleGoogleSignIn}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 transition-all"
-          >
-            <GoogleGlyph className="h-3.5 w-3.5" />
-            <span>Sign in with Google</span>
-          </button>
-        )}
-
-        <button
-          id="nav_btn_settings"
-          onClick={onOpenSettings}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 transition-all"
-        >
-          <Settings className="h-4 w-4" />
-          <span>Provider Settings</span>
-          <span
-            className={`ml-auto h-1.5 w-1.5 rounded-full ${keyPresent ? "bg-emerald-400" : "bg-slate-600"}`}
-          ></span>
-        </button>
-        <div className="text-[11px] text-slate-500 space-y-2 px-1">
-          <div className="flex items-center gap-2">
-            <div
-              className={`h-1.5 w-1.5 rounded-full ${user ? "bg-blue-400" : "bg-emerald-400"}`}
-            ></div>
-            <span>{user ? "Synced across devices" : "Offline mode fully supported"}</span>
-          </div>
-          <div className="text-[10px] font-mono">{keyPresent ? providerLabel : "No key set"}</div>
+          <nav className="p-4 space-y-1.5" id="sidebar_nav">
+            <NavItem
+              id="nav_btn_dashboard"
+              active={activeView === "dashboard"}
+              icon={<Sparkles className="h-4 w-4" />}
+              label="Workspace Planner"
+              onClick={() => selectView("dashboard")}
+            />
+            <NavItem
+              id="nav_btn_study"
+              active={activeView === "study"}
+              disabled={!activePath}
+              icon={<BookOpen className="h-4 w-4" />}
+              label="Active Study Desk"
+              badge={
+                activePath ? (
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                ) : undefined
+              }
+              onClick={() => selectView("study")}
+            />
+            <NavItem
+              id="nav_btn_calendar"
+              active={activeView === "calendar"}
+              icon={<CalendarIcon className="h-4 w-4" />}
+              label="Study Calendar"
+              onClick={() => selectView("calendar")}
+            />
+            <NavItem
+              id="nav_btn_manual"
+              active={activeView === "manual"}
+              icon={<ListTodo className="h-4 w-4" />}
+              label="Manual Course Architect"
+              onClick={() => selectView("manual")}
+            />
+            <NavItem
+              id="nav_btn_analytics"
+              active={activeView === "analytics"}
+              icon={<BarChart3 className="h-4 w-4" />}
+              label="My Analytics"
+              onClick={() => selectView("analytics")}
+            />
+          </nav>
         </div>
-      </div>
-    </aside>
+
+        <div className="p-4 border-t border-slate-800 space-y-3">
+          {user ? (
+            <div className="flex items-center gap-2.5 px-1">
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  className="h-7 w-7 rounded-full shrink-0"
+                />
+              ) : (
+                <div className="h-7 w-7 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                  {(user.displayName ?? user.email ?? "?").charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-slate-200 truncate">
+                  {user.displayName ?? "Signed in"}
+                </p>
+                <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
+              </div>
+              <button
+                id="google_sign_out_btn"
+                onClick={() => signOutUser()}
+                title="Sign out"
+                className="text-slate-500 hover:text-rose-400 transition-colors shrink-0"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              id="google_sign_in_btn"
+              onClick={handleGoogleSignIn}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 transition-all"
+            >
+              <GoogleGlyph className="h-3.5 w-3.5" />
+              <span>Sign in with Google</span>
+            </button>
+          )}
+
+          <button
+            id="nav_btn_settings"
+            onClick={onOpenSettings}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 transition-all"
+          >
+            <Settings className="h-4 w-4" />
+            <span>Provider Settings</span>
+            <span
+              className={`ml-auto h-1.5 w-1.5 rounded-full ${keyPresent ? "bg-emerald-400" : "bg-slate-600"}`}
+            ></span>
+          </button>
+          <div className="text-[11px] text-slate-500 space-y-2 px-1">
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-1.5 w-1.5 rounded-full ${user ? "bg-blue-400" : "bg-emerald-400"}`}
+              ></div>
+              <span>{user ? "Synced across devices" : "Offline mode fully supported"}</span>
+            </div>
+            <div className="text-[10px] font-mono">{keyPresent ? providerLabel : "No key set"}</div>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
