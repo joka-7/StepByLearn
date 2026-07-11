@@ -1,4 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
+import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SettingsModal } from "./components/SettingsModal";
 import { Sidebar } from "./components/layout/Sidebar";
@@ -13,8 +14,17 @@ import { PROVIDERS } from "./domain/providers";
 import type { LearningPath } from "./domain/types";
 import { startPathSync } from "./firebase/pathSync";
 import { useAuthUser } from "./hooks/useAuthUser";
+import { useBackClose } from "./hooks/useBackClose";
 import { deletePath, listPaths } from "./repositories/pathRepository";
 import { getSettings, hasApiKey } from "./repositories/settingsRepository";
+
+const VIEW_LABELS: Record<ViewId, string> = {
+  dashboard: "Workspace Planner",
+  study: "Active Study Desk",
+  calendar: "Study Calendar",
+  manual: "Manual Course Architect",
+  analytics: "My Analytics",
+};
 
 /**
  * Root component. Wires the reactive path list (via Dexie live queries) to the
@@ -41,6 +51,13 @@ export function App() {
   const [showSettings, setShowSettings] = useState(false);
   // Bumped on save so the key badge re-reads localStorage (which isn't reactive).
   const [keyTick, setKeyTick] = useState(0);
+
+  // Mobile only: the sidebar renders as a slide-in drawer there (see Sidebar's
+  // md:static/fixed classes) instead of stacking above the content, so picking
+  // a tab replaces the whole screen rather than just scrolling to it. The
+  // hardware/browser back button closes the drawer first, same as a modal.
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  useBackClose(mobileNavOpen, () => setMobileNavOpen(false));
 
   // Push a browser history entry per tab switch so the hardware/browser back
   // button steps back through the app's own tabs — like a native app's back
@@ -102,6 +119,18 @@ export function App() {
       className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col md:flex-row"
       id="app_root"
     >
+      <header className="md:hidden h-14 shrink-0 bg-slate-900 border-b border-slate-800 flex items-center gap-3 px-4">
+        <button
+          id="mobile_nav_open_btn"
+          onClick={() => setMobileNavOpen(true)}
+          className="text-slate-300 hover:text-white transition-colors p-1 -ml-1"
+          aria-label="Open navigation"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <span className="text-sm font-bold text-white">{VIEW_LABELS[activeView]}</span>
+      </header>
+
       <Sidebar
         activeView={activeView}
         onChangeView={navigateToView}
@@ -110,6 +139,8 @@ export function App() {
         keyPresent={keyPresent}
         providerLabel={(PROVIDERS[provider] ?? PROVIDERS.anthropic).label}
         user={user}
+        mobileOpen={mobileNavOpen}
+        onCloseMobile={() => setMobileNavOpen(false)}
       />
 
       <main className="flex-1 flex flex-col min-w-0" id="main_content_stage">
