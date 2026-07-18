@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { extractJsonSpan, healAndValidate, JsonHealingError } from "./jsonHealer";
+import {
+  extractJsonSpan,
+  healAndValidate,
+  healAndValidateSteps,
+  JsonHealingError,
+} from "./jsonHealer";
 
 const MINIMAL_VALID = JSON.stringify({
   title: "Learn Rust",
@@ -141,5 +146,48 @@ describe("healAndValidate", () => {
 
   it("throws on malformed JSON syntax", () => {
     expect(() => healAndValidate("{title: 'unquoted keys'}")).toThrow(JsonHealingError);
+  });
+
+  it("recovers earlier complete steps when output is truncated mid-string", () => {
+    const raw =
+      '{"title":"Learn Rust","topic":"Rust","difficulty":"beginner","steps":[' +
+      '{"title":"Ownership","duration":"45 minutes","type":"text","description":"Understand it"},' +
+      '{"title":"Borrowing","description":"Cut off partway through this sente';
+    const draft = healAndValidate(raw);
+    expect(draft.steps.map((s) => s.title)).toEqual(["Ownership", "Borrowing"]);
+  });
+
+  it("recovers earlier complete steps when the last step is truncated mid-key", () => {
+    const raw =
+      '{"title":"Learn Rust","steps":[' +
+      '{"title":"Ownership","description":"Understand it"},' +
+      '{"title":"Borrowing","desc';
+    const draft = healAndValidate(raw);
+    expect(draft.steps.map((s) => s.title)).toEqual(["Ownership", "Borrowing"]);
+  });
+
+  it("drops a truncated final step that never got a title", () => {
+    const raw =
+      '{"title":"Learn Rust","steps":[' +
+      '{"title":"Ownership","description":"Understand it"},' +
+      '{"description":"no title yet, cut off he';
+    const draft = healAndValidate(raw);
+    expect(draft.steps.map((s) => s.title)).toEqual(["Ownership"]);
+  });
+
+  it("throws when truncation is too severe to recover any usable step", () => {
+    const raw = '{"title":"Learn Rust","steps":[{"title"';
+    expect(() => healAndValidate(raw)).toThrow(JsonHealingError);
+  });
+});
+
+describe("healAndValidateSteps", () => {
+  it("recovers complete steps from truncated output", () => {
+    const raw =
+      '{"steps":[' +
+      '{"title":"Ownership","description":"Understand it"},' +
+      '{"title":"Borrowing","description":"Cut off partway through this sente';
+    const steps = healAndValidateSteps(raw);
+    expect(steps.map((s) => s.title)).toEqual(["Ownership", "Borrowing"]);
   });
 });

@@ -71,6 +71,104 @@ export function extractJsonSpan(text: string): string {
   throw new JsonHealingError("Unbalanced JSON: object never closed.", text);
 }
 
+/**
+ * Track string/escape state and bracket nesting over `s`, close a dangling
+ * string, drop a trailing comma/colon left by a cut-off key or value, then
+ * close every still-open container. The result may still not be valid JSON
+ * (e.g. a key with no value survives) — the caller re-parses and, on
+ * failure, trims back further via {@link trimToLastSafeBoundary}.
+ */
+function closeOpenStructures(s: string): string {
+  const stack: ("{" | "[")[] = [];
+  let inString = false;
+  let escaped = false;
+  for (const ch of s) {
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === "{" || ch === "[") stack.push(ch);
+    else if (ch === "}" || ch === "]") stack.pop();
+  }
+
+  let result = inString ? s + '"' : s;
+  result = result.replace(/[,:\s]+$/, "");
+  for (let i = stack.length - 1; i >= 0; i--) {
+    result += stack[i] === "{" ? "}" : "]";
+  }
+  return result;
+}
+
+/**
+ * Find the last top-level-reachable comma or opening bracket outside any
+ * string. Trimming here discards the last (possibly partial) array/object
+ * element so the next repair attempt has one less broken fragment to deal
+ * with.
+ */
+function trimToLastSafeBoundary(s: string): string | null {
+  let inString = false;
+  let escaped = false;
+  let lastIndex = -1;
+  let lastChar = "";
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === "," || ch === "{" || ch === "[") {
+      lastIndex = i;
+      lastChar = ch;
+    }
+  }
+  if (lastIndex === -1) return null;
+  return lastChar === "," ? s.slice(0, lastIndex) : s.slice(0, lastIndex + 1);
+}
+
+const MAX_REPAIR_ATTEMPTS = 50;
+
+/**
+ * Recover a parseable prefix from JSON that got cut off mid-object — the
+ * common case being a response hitting the provider's max-token cap partway
+ * through a later step. Repeatedly closes whatever's open and, if that still
+ * doesn't parse, drops the last (partial) element and tries again.
+ */
+function repairTruncatedSpan(text: string, start: number): string {
+  let candidate = text.slice(start);
+  for (let attempt = 0; attempt < MAX_REPAIR_ATTEMPTS; attempt++) {
+    try {
+      const closed = closeOpenStructures(candidate);
+      JSON.parse(closed);
+      return closed;
+    } catch {
+      // Not parseable yet — drop the trailing partial fragment and retry.
+    }
+    const trimmed = trimToLastSafeBoundary(candidate);
+    if (trimmed === null || trimmed === candidate) break;
+    candidate = trimmed;
+  }
+  throw new JsonHealingError("Unbalanced JSON: object never closed.", text);
+}
+
+/** Extract a balanced JSON span, falling back to truncation repair on cut-off output. */
+function extractSpanWithRepair(text: string): string {
+  try {
+    return extractJsonSpan(text);
+  } catch (err) {
+    const isUnbalanced =
+      err instanceof JsonHealingError && err.message.startsWith("Unbalanced JSON");
+    const start = text.indexOf("{");
+    if (!isUnbalanced || start === -1) throw err;
+    return repairTruncatedSpan(text, start);
+  }
+}
+
 function asString(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
 }
@@ -132,7 +230,7 @@ export function normalizeStep(value: unknown): SyllabusStepDraft | null {
 
 /** Clean, parse, and validate raw model output into a {@link SyllabusDraft}. */
 export function healAndValidate(raw: string): SyllabusDraft {
-  const span = extractJsonSpan(stripCodeFences(raw));
+  const span = extractSpanWithRepair(stripCodeFences(raw));
 
   let parsed: unknown;
   try {
@@ -168,7 +266,7 @@ export function healAndValidate(raw: string): SyllabusDraft {
  * for extending an existing path rather than drafting a whole new syllabus.
  */
 export function healAndValidateSteps(raw: string): SyllabusStepDraft[] {
-  const span = extractJsonSpan(stripCodeFences(raw));
+  const span = extractSpanWithRepair(stripCodeFences(raw));
 
   let parsed: unknown;
   try {
