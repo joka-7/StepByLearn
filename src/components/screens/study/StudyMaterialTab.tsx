@@ -42,6 +42,13 @@ export function StudyMaterialTab({ step }: Props) {
 
   return (
     <div className="space-y-6" id="desk_material_tab">
+      <p className="text-[10px] text-slate-500 flex items-center gap-1.5">
+        <Info className="h-3 w-3 shrink-0" />
+        <span>
+          AI-suggested links aren't verified to be live — if one 404s, search the title instead.
+        </span>
+      </p>
+
       {step.materialUrl ? (
         <div className="p-5 bg-gradient-to-br from-blue-950/40 to-slate-950 rounded-2xl border border-blue-500/20">
           <div className="flex flex-col sm:flex-row gap-5">

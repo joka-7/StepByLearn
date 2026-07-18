@@ -193,6 +193,38 @@ function normalizeContentType(value: unknown): ContentType {
   return CONTENT_TYPES.includes(value as ContentType) ? (value as ContentType) : "text";
 }
 
+const VIDEO_HOSTS = [
+  "youtube.com",
+  "youtu.be",
+  "vimeo.com",
+  "twitch.tv",
+  "dailymotion.com",
+  "ted.com",
+];
+
+/** Whether `url` points at a host known to serve actual video content. */
+function isLikelyVideoUrl(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    return VIDEO_HOSTS.some((h) => host === h || host.endsWith(`.${h}`));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The model sometimes labels a step/resource "video" while linking an
+ * article or channel page rather than a specific video. Since the UI builds
+ * a video-style card (thumbnail, "Watch") around that label, a mismatched
+ * label is more misleading than a generic one — downgrade to "text" when the
+ * URL isn't from a recognized video host.
+ */
+function resolveContentType(rawType: unknown, url: string): ContentType {
+  const type = normalizeContentType(rawType);
+  if (type === "video" && url && !isLikelyVideoUrl(url)) return "text";
+  return type;
+}
+
 function normalizeDifficulty(value: unknown): Difficulty {
   return DIFFICULTIES.includes(value as Difficulty) ? (value as Difficulty) : "beginner";
 }
@@ -201,13 +233,16 @@ function normalizeResources(value: unknown): LearningResource[] {
   if (!Array.isArray(value)) return [];
   return value
     .filter((r): r is Record<string, unknown> => typeof r === "object" && r !== null)
-    .map((r) => ({
-      title: asString(r.title),
-      type: normalizeContentType(r.type),
-      description: asString(r.description),
-      duration: asString(r.duration),
-      url: asUrl(r.url),
-    }))
+    .map((r) => {
+      const url = asUrl(r.url);
+      return {
+        title: asString(r.title),
+        type: resolveContentType(r.type, url),
+        description: asString(r.description),
+        duration: asString(r.duration),
+        url,
+      };
+    })
     .filter((r) => r.title);
 }
 
@@ -216,14 +251,15 @@ export function normalizeStep(value: unknown): SyllabusStepDraft | null {
   const record = value as Record<string, unknown>;
   const title = asString(record.title).trim();
   if (!title) return null;
+  const materialUrl = asUrl(record.materialUrl);
   return {
     title,
     duration: asString(record.duration, "30 minutes"),
-    type: normalizeContentType(record.type),
+    type: resolveContentType(record.type, materialUrl),
     description: asString(record.description),
     keyConcepts: asStringArray(record.keyConcepts),
     materialTitle: asString(record.materialTitle),
-    materialUrl: asUrl(record.materialUrl),
+    materialUrl,
     resources: normalizeResources(record.resources),
   };
 }
