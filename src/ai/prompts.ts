@@ -13,11 +13,16 @@ export const SYSTEM_INSTRUCTION =
   "writing new content yourself. For every step you pick one primary resource " +
   "(matching the step's format: a specific YouTube video for 'video', a named " +
   "podcast episode for 'podcast', or a specific article/doc page for 'text') " +
-  "plus 1-2 supplementary resources. Prefer well-known, stable, canonical " +
-  "sources — official documentation, Wikipedia, MDN, established YouTube " +
-  "channels, major publications — over obscure ones, since a link that " +
-  "doesn't resolve is worse than no link. You ALWAYS respond with a single " +
-  "valid JSON object and no surrounding prose, markdown, or code fences.";
+  "plus 1-2 supplementary resources. A 'video' entry's url MUST be a direct " +
+  "link to one specific video on a known video platform (e.g. a youtube.com " +
+  "/watch or youtu.be link) — never a channel page, playlist, or an article " +
+  "that merely embeds or discusses a video; if you cannot pick a specific " +
+  "video you are confident is real, use 'text' or 'podcast' instead. Prefer " +
+  "well-known, stable, canonical sources — official documentation, " +
+  "Wikipedia, MDN, established YouTube channels, major publications — over " +
+  "obscure ones, since a link that doesn't resolve is worse than no link. " +
+  "You ALWAYS respond with a single valid JSON object and no surrounding " +
+  "prose, markdown, or code fences.";
 
 const SCHEMA_HINT = `{
   "title": string,
@@ -95,7 +100,9 @@ export function buildAdditionalStepsPrompt(
     "resources (each with its own url).\n" +
     "- Only link to real, well-known, stable sources you are confident exist (official docs, " +
     "Wikipedia, MDN, established publishers/channels). Do not invent a plausible-looking URL for " +
-    "a page you are not confident is real.\n\n" +
+    "a page you are not confident is real.\n" +
+    "- Any 'video' type must link to one specific video (a youtube.com/watch or youtu.be URL, " +
+    "or another known video platform) — not a channel, playlist, or an article about a video.\n\n" +
     "Return ONLY a JSON object matching exactly this shape:\n" +
     STEPS_ONLY_SCHEMA_HINT +
     "\n"
@@ -124,7 +131,9 @@ export function buildSyllabusPrompt(
     "when it says 'all', vary sensibly between video/podcast/text.\n" +
     "- Only link to real, well-known, stable sources you are confident exist " +
     "(official docs, Wikipedia, MDN, established publishers/channels). Do not " +
-    "invent a plausible-looking URL for a page you are not confident is real.\n\n" +
+    "invent a plausible-looking URL for a page you are not confident is real.\n" +
+    "- Any 'video' type must link to one specific video (a youtube.com/watch or youtu.be URL, " +
+    "or another known video platform) — not a channel, playlist, or an article about a video.\n\n" +
     "Return ONLY a JSON object matching exactly this shape:\n" +
     SCHEMA_HINT +
     "\n"

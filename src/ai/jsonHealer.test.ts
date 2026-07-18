@@ -90,6 +90,43 @@ describe("healAndValidate", () => {
     expect(draft.steps[0].type).toBe("text");
   });
 
+  it("downgrades a 'video' step to 'text' when materialUrl isn't a known video host", () => {
+    const raw = JSON.stringify({
+      steps: [{ title: "Step", type: "video", materialUrl: "https://example.com/some-article" }],
+    });
+    const draft = healAndValidate(raw);
+    expect(draft.steps[0].type).toBe("text");
+  });
+
+  it("keeps 'video' type when materialUrl is a recognized video host", () => {
+    const raw = JSON.stringify({
+      steps: [{ title: "Step", type: "video", materialUrl: "https://www.youtube.com/watch?v=abc" }],
+    });
+    const draft = healAndValidate(raw);
+    expect(draft.steps[0].type).toBe("video");
+  });
+
+  it("keeps 'video' type when there is no materialUrl to check against", () => {
+    const raw = JSON.stringify({
+      steps: [{ title: "Step", type: "video" }],
+    });
+    const draft = healAndValidate(raw);
+    expect(draft.steps[0].type).toBe("video");
+  });
+
+  it("downgrades a resource's 'video' type when its url isn't a known video host", () => {
+    const raw = JSON.stringify({
+      steps: [
+        {
+          title: "Step",
+          resources: [{ title: "Res", type: "video", url: "https://example.com/blog-post" }],
+        },
+      ],
+    });
+    const draft = healAndValidate(raw);
+    expect(draft.steps[0].resources[0].type).toBe("text");
+  });
+
   it("drops materialUrl and resource urls that aren't http(s)", () => {
     const raw = JSON.stringify({
       steps: [
