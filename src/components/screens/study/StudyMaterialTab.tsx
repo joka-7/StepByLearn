@@ -1,4 +1,13 @@
-import { Clock, ExternalLink, FileText, Info, Play, Video, Volume2 } from "lucide-react";
+import {
+  ArrowUpRight,
+  Clock,
+  ExternalLink,
+  FileText,
+  Info,
+  Play,
+  Video,
+  Volume2,
+} from "lucide-react";
 import { useState, type ReactElement } from "react";
 import type { ContentType, PathStep } from "../../../domain/types";
 
@@ -6,10 +15,26 @@ interface Props {
   step: PathStep;
 }
 
-const TYPE_META: Record<ContentType, { icon: ReactElement; label: string }> = {
-  video: { icon: <Video className="h-3.5 w-3.5" />, label: "Watch the video" },
-  podcast: { icon: <Volume2 className="h-3.5 w-3.5" />, label: "Listen to the podcast" },
-  text: { icon: <FileText className="h-3.5 w-3.5" />, label: "Read the article" },
+/** overlayIcon reflects the actual action (play vs. open) so a text step never looks like a video. */
+const TYPE_META: Record<
+  ContentType,
+  { icon: ReactElement; label: string; overlayIcon: ReactElement }
+> = {
+  video: {
+    icon: <Video className="h-3.5 w-3.5" />,
+    label: "Watch the video",
+    overlayIcon: <Play className="h-4 w-4 text-white fill-current" />,
+  },
+  podcast: {
+    icon: <Volume2 className="h-3.5 w-3.5" />,
+    label: "Listen to the podcast",
+    overlayIcon: <Play className="h-4 w-4 text-white fill-current" />,
+  },
+  text: {
+    icon: <FileText className="h-3.5 w-3.5" />,
+    label: "Read the article",
+    overlayIcon: <ArrowUpRight className="h-4 w-4 text-white" />,
+  },
 };
 
 /** Extracts a YouTube video ID from common URL shapes, or null if not YouTube. */
@@ -63,7 +88,7 @@ export function StudyMaterialTab({ step }: Props) {
               )}
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                 <div className="h-10 w-10 rounded-full bg-blue-600/90 flex items-center justify-center shadow-lg">
-                  <Play className="h-4 w-4 text-white fill-current" />
+                  {meta.overlayIcon}
                 </div>
               </div>
             </a>

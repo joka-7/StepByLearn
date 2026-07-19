@@ -1,9 +1,17 @@
-import { AlertCircle, Pencil, Sparkles, X } from "lucide-react";
+import { AlertCircle, Pencil, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import type { ContentType, LearningPath, PathStep } from "../../../domain/types";
+import type { ContentType, LearningPath, LearningResource, PathStep } from "../../../domain/types";
 import { closeViaHistoryBack, useBackClose } from "../../../hooks/useBackClose";
 import { regenerateStep } from "../../../services/generation";
 import { editManualStep } from "../../../services/manualBuilder";
+
+const BLANK_RESOURCE: LearningResource = {
+  title: "",
+  type: "text",
+  description: "",
+  duration: "",
+  url: "",
+};
 
 interface Props {
   path: LearningPath;
@@ -26,7 +34,24 @@ export function EditStepModal({ path, step, hasKey, onNeedKey, onClose }: Props)
   const [duration, setDuration] = useState(step.duration);
   const [description, setDescription] = useState(step.description);
   const [materialUrl, setMaterialUrl] = useState(step.materialUrl);
+  const [resources, setResources] = useState<LearningResource[]>(step.resources);
   const [savingManual, setSavingManual] = useState(false);
+
+  function updateResource(index: number, field: keyof LearningResource, value: string) {
+    setResources((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  }
+
+  function addResource() {
+    setResources((prev) => [...prev, { ...BLANK_RESOURCE }]);
+  }
+
+  function removeResource(index: number) {
+    setResources((prev) => prev.filter((_, i) => i !== index));
+  }
 
   // AI tab state
   const [instruction, setInstruction] = useState("");
@@ -38,7 +63,17 @@ export function EditStepModal({ path, step, hasKey, onNeedKey, onClose }: Props)
     if (!title.trim()) return;
     setSavingManual(true);
     try {
-      await editManualStep(path, step.id, { title, type, duration, description, materialUrl });
+      const cleanedResources = resources
+        .map((r) => ({ ...r, title: r.title.trim(), url: r.url.trim() }))
+        .filter((r) => r.title);
+      await editManualStep(path, step.id, {
+        title,
+        type,
+        duration,
+        description,
+        materialUrl,
+        resources: cleanedResources,
+      });
       closeViaHistoryBack();
     } finally {
       setSavingManual(false);
@@ -184,6 +219,70 @@ export function EditStepModal({ path, step, hasKey, onNeedKey, onClose }: Props)
               <p className="text-[10px] text-slate-500 mt-1.5">
                 Clear this to remove the broken link — the step keeps its progress either way.
               </p>
+            </div>
+
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-slate-300">
+                  Additional Resources
+                </label>
+                <button
+                  id="edit_step_add_resource_btn"
+                  type="button"
+                  onClick={addResource}
+                  className="flex items-center gap-1 text-[11px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <Plus className="h-3 w-3" />
+                  <span>Add Resource</span>
+                </button>
+              </div>
+
+              {resources.length === 0 ? (
+                <p className="text-[10px] text-slate-500">No supplementary resources.</p>
+              ) : (
+                <div className="space-y-2">
+                  {resources.map((res, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-2"
+                    >
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Resource title"
+                          value={res.title}
+                          onChange={(e) => updateResource(idx, "title", e.target.value)}
+                          className="flex-1 min-w-0 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-blue-500 placeholder:text-slate-600"
+                        />
+                        <select
+                          value={res.type}
+                          onChange={(e) => updateResource(idx, "type", e.target.value)}
+                          className="bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-200 outline-none focus:border-blue-500"
+                        >
+                          <option value="text">Text</option>
+                          <option value="video">Video</option>
+                          <option value="podcast">Podcast</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => removeResource(idx)}
+                          className="text-slate-500 hover:text-rose-400 transition-colors p-1 shrink-0"
+                          aria-label="Remove resource"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                      <input
+                        type="url"
+                        placeholder="Resource URL"
+                        value={res.url}
+                        onChange={(e) => updateResource(idx, "url", e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-blue-500 placeholder:text-slate-600"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <button
