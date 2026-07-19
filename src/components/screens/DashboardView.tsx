@@ -348,6 +348,11 @@ export function DashboardView({
                           <p className="text-xs font-bold text-slate-200 line-clamp-1">
                             {path.title}
                           </p>
+                          {path.description && (
+                            <p className="text-[10px] text-slate-500 line-clamp-1">
+                              {path.description}
+                            </p>
+                          )}
                           <div className="flex items-center gap-2 text-[10px] text-slate-500 font-mono">
                             <span>{total} steps</span>
                             <span>·</span>

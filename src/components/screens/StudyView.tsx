@@ -63,6 +63,13 @@ export function StudyView({
       <div
         className={`${showDetail ? "hidden lg:block" : "block"} lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl max-h-[calc(100vh-200px)] overflow-y-auto`}
       >
+        <div className="mb-4 pb-4 border-b border-slate-800/80 space-y-1.5">
+          <h2 className="text-sm font-bold text-white leading-snug">{path.title}</h2>
+          {path.description && (
+            <p className="text-[11px] text-slate-400 leading-relaxed">{path.description}</p>
+          )}
+        </div>
+
         <h3 className="font-bold text-xs text-slate-400 uppercase tracking-wider font-mono">
           Curriculum Progression
         </h3>
