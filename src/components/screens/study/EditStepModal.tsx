@@ -1,4 +1,14 @@
-import { AlertCircle, Pencil, Plus, Sparkles, Trash2, X } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ExternalLink,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Sparkles,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useState, type FormEvent } from "react";
 import type { ContentType, LearningPath, LearningResource, PathStep } from "../../../domain/types";
 import { closeViaHistoryBack, useBackClose } from "../../../hooks/useBackClose";
@@ -57,6 +67,9 @@ export function EditStepModal({ path, step, hasKey, onNeedKey, onClose }: Props)
   const [instruction, setInstruction] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
+  // What the agent actually returned, so the fix is visible before trusting it —
+  // rather than the modal just closing and leaving the user to discover a still-broken link.
+  const [aiResult, setAiResult] = useState<PathStep | null>(null);
 
   async function handleManualSubmit(e: FormEvent) {
     e.preventDefault();
@@ -89,8 +102,13 @@ export function EditStepModal({ path, step, hasKey, onNeedKey, onClose }: Props)
     setIsGenerating(true);
     setGenerationError(null);
     try {
-      await regenerateStep(path, step, instruction.trim());
-      closeViaHistoryBack();
+      const updatedPath = await regenerateStep(path, step, instruction.trim());
+      const updatedStep = updatedPath?.steps.find((s) => s.id === step.id);
+      if (!updatedStep) {
+        setGenerationError("Could not find the step to update — it may have been deleted.");
+        return;
+      }
+      setAiResult(updatedStep);
     } catch (err) {
       setGenerationError(err instanceof Error ? err.message : "Generation failed.");
     } finally {
@@ -122,7 +140,10 @@ export function EditStepModal({ path, step, hasKey, onNeedKey, onClose }: Props)
           <button
             type="button"
             id="edit_step_mode_manual_btn"
-            onClick={() => setMode("manual")}
+            onClick={() => {
+              setMode("manual");
+              setAiResult(null);
+            }}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-colors ${
               mode === "manual" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"
             }`}
@@ -294,6 +315,67 @@ export function EditStepModal({ path, step, hasKey, onNeedKey, onClose }: Props)
               {savingManual ? "Saving…" : "Save Changes"}
             </button>
           </form>
+        ) : aiResult ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl space-y-2">
+              <p className="text-xs font-semibold text-emerald-300 flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>Here's what the agent came back with</span>
+              </p>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono text-blue-300 uppercase bg-blue-500/15 border border-blue-500/20 px-2 py-0.5 rounded capitalize">
+                    {aiResult.type}
+                  </span>
+                  <p className="text-sm font-bold text-white">
+                    {aiResult.materialTitle || aiResult.title}
+                  </p>
+                </div>
+                {aiResult.description && (
+                  <p className="text-xs text-slate-400">{aiResult.description}</p>
+                )}
+                {aiResult.materialUrl ? (
+                  <a
+                    href={aiResult.materialUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 break-all"
+                  >
+                    <span>{aiResult.materialUrl}</span>
+                    <ExternalLink className="h-3 w-3 shrink-0" />
+                  </a>
+                ) : (
+                  <p className="text-xs text-slate-500">No material link came back.</p>
+                )}
+              </div>
+            </div>
+
+            <p className="text-[10px] text-slate-500">
+              Open the link above to confirm it's actually right before trusting it — AI-suggested
+              links aren't verified to be live. If it's still wrong, try again with a more specific
+              instruction (e.g. name the exact source you want).
+            </p>
+
+            <div className="flex gap-2">
+              <button
+                id="edit_step_ai_try_again_btn"
+                type="button"
+                onClick={() => setAiResult(null)}
+                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold py-2.5 px-4 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>Try Again</span>
+              </button>
+              <button
+                id="edit_step_ai_done_btn"
+                type="button"
+                onClick={closeViaHistoryBack}
+                className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          </div>
         ) : (
           <form onSubmit={handleAiSubmit} className="space-y-4">
             <div>
