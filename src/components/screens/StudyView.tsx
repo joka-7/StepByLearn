@@ -4,6 +4,7 @@ import {
   Calendar as CalendarIcon,
   Check,
   FileText,
+  Pencil,
   Play,
   Plus,
   Video,
@@ -13,6 +14,7 @@ import { useState, type ReactElement } from "react";
 import type { ContentType, LearningPath } from "../../domain/types";
 import { setStepStatus } from "../../services/progress";
 import { AddStepModal } from "./study/AddStepModal";
+import { EditStepModal } from "./study/EditStepModal";
 import { StudyMaterialTab } from "./study/StudyMaterialTab";
 
 interface Props {
@@ -50,6 +52,7 @@ export function StudyView({
   // which of the two is shown there (desktop always shows both).
   const [showListOnMobile, setShowListOnMobile] = useState(false);
   const [showAddStep, setShowAddStep] = useState(false);
+  const [showEditStep, setShowEditStep] = useState(false);
   const showDetail = activeStep && !showListOnMobile;
 
   async function toggleCompleted() {
@@ -147,6 +150,16 @@ export function StudyView({
         />
       )}
 
+      {showEditStep && activeStep && (
+        <EditStepModal
+          path={path}
+          step={activeStep}
+          hasKey={hasKey}
+          onNeedKey={onNeedKey}
+          onClose={() => setShowEditStep(false)}
+        />
+      )}
+
       <div
         className={`${showDetail ? "block" : "hidden lg:block"} lg:col-span-8 flex flex-col gap-6`}
       >
@@ -165,18 +178,28 @@ export function StudyView({
                 <h2 className="text-xl font-bold text-white tracking-tight">
                   Study Milestone: {activeStep.title}
                 </h2>
-                <button
-                  id="toggle_step_completed_desk_btn"
-                  onClick={toggleCompleted}
-                  className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                    activeStep.status === "done"
-                      ? "bg-blue-600 text-white"
-                      : "bg-blue-600 hover:bg-blue-500 text-white"
-                  }`}
-                >
-                  <Check className="h-3.5 w-3.5" />
-                  <span>{activeStep.status === "done" ? "Completed" : "Mark as Completed"}</span>
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    id="edit_step_btn"
+                    onClick={() => setShowEditStep(true)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    id="toggle_step_completed_desk_btn"
+                    onClick={toggleCompleted}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      activeStep.status === "done"
+                        ? "bg-blue-600 text-white"
+                        : "bg-blue-600 hover:bg-blue-500 text-white"
+                    }`}
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    <span>{activeStep.status === "done" ? "Completed" : "Mark as Completed"}</span>
+                  </button>
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">

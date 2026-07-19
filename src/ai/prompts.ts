@@ -102,6 +102,59 @@ export function buildAdditionalStepsPrompt(
   );
 }
 
+export interface ExistingStep {
+  title: string;
+  type: ContentType;
+  description: string;
+  materialTitle: string;
+  materialUrl: string;
+}
+
+/** Build the prompt asking the model to fix or improve a single existing step. */
+export function buildFixStepPrompt(
+  courseTitle: string,
+  topic: string,
+  step: ExistingStep,
+  instruction: string,
+  options: SyllabusPromptOptions,
+): string {
+  const { stepDuration, contentType } = options;
+  return (
+    `You are fixing one step in an existing step-by-step learning path titled ${JSON.stringify(courseTitle)} ` +
+    `(topic: ${JSON.stringify(topic)}).\n` +
+    "Here is the step as it currently stands:\n" +
+    JSON.stringify(
+      {
+        title: step.title,
+        type: step.type,
+        description: step.description,
+        materialTitle: step.materialTitle,
+        materialUrl: step.materialUrl,
+      },
+      null,
+      2,
+    ) +
+    "\n\n" +
+    `What's wrong with it / what to fix: ${JSON.stringify(
+      instruction ||
+        "The material link is broken, mislabeled, or low quality — find a real, working replacement.",
+    )}\n` +
+    `Target duration: ${stepDuration}.\n` +
+    `Preferred content format(s): ${contentType}.\n\n` +
+    "Requirements:\n" +
+    "- Return exactly ONE corrected step. Keep the same title and topic focus unless the fix " +
+    "requires changing it.\n" +
+    "- Only link to real, well-known, stable sources you are confident exist (official docs, " +
+    "Wikipedia, MDN, established publishers/channels). Do not invent a plausible-looking URL for " +
+    "a page you are not confident is real.\n" +
+    "- Any 'video' type must link to one specific video (a youtube.com/watch or youtu.be URL, " +
+    "or another known video platform) — not a channel, playlist, or an article about a video.\n\n" +
+    "Return ONLY a JSON object matching exactly this shape:\n" +
+    STEPS_ONLY_SCHEMA_HINT +
+    "\n"
+  );
+}
+
 /** Build the user prompt asking the model for a structured syllabus. */
 export function buildSyllabusPrompt(
   topic: string,

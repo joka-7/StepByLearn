@@ -7,11 +7,16 @@
  */
 
 import { healAndValidate, healAndValidateSteps } from "../ai/jsonHealer";
-import { SYSTEM_INSTRUCTION, buildAdditionalStepsPrompt, buildSyllabusPrompt } from "../ai/prompts";
+import {
+  SYSTEM_INSTRUCTION,
+  buildAdditionalStepsPrompt,
+  buildFixStepPrompt,
+  buildSyllabusPrompt,
+} from "../ai/prompts";
 import { resolveStrategy } from "../ai/resolver";
 import { newId } from "../domain/ids";
 import type { ContentType, Difficulty, LearningPath, PathStep } from "../domain/types";
-import { appendSteps, savePath } from "../repositories/pathRepository";
+import { appendSteps, savePath, updateStep } from "../repositories/pathRepository";
 import { getApiKey, getSettings } from "../repositories/settingsRepository";
 
 export interface GeneratePathOptions {
@@ -133,4 +138,56 @@ export async function generateAdditionalSteps(
 
   await appendSteps(path.id, steps);
   return steps;
+}
+
+/**
+ * Ask the AI agent to produce a corrected replacement for one existing step
+ * (e.g. its material link is broken or mislabeled). The step's identity and
+ * progress (id, order, status, schedule) are preserved — only its
+ * AI-authored content is swapped in.
+ */
+export async function regenerateStep(
+  path: LearningPath,
+  step: PathStep,
+  instruction: string,
+): Promise<LearningPath | undefined> {
+  const settings = await getSettings();
+  const provider = settings.provider;
+  const model = settings.models[provider];
+  const apiKey = getApiKey(provider) ?? "";
+
+  const strategy = resolveStrategy(provider, apiKey, model);
+  const raw = await strategy.generateText(
+    buildFixStepPrompt(
+      path.title,
+      path.topic,
+      {
+        title: step.title,
+        type: step.type,
+        description: step.description,
+        materialTitle: step.materialTitle,
+        materialUrl: step.materialUrl,
+      },
+      instruction,
+      {
+        stepDuration: path.stepDuration,
+        contentType: path.contentType,
+        currentKnowledge: path.currentKnowledge,
+      },
+    ),
+    SYSTEM_INSTRUCTION,
+  );
+  const [drafted] = healAndValidateSteps(raw);
+
+  return updateStep(path.id, step.id, (existing) => ({
+    ...existing,
+    title: drafted.title,
+    duration: drafted.duration,
+    type: drafted.type,
+    description: drafted.description,
+    keyConcepts: drafted.keyConcepts,
+    materialTitle: drafted.materialTitle,
+    materialUrl: drafted.materialUrl,
+    resources: drafted.resources,
+  }));
 }
