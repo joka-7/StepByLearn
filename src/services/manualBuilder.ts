@@ -9,7 +9,7 @@
 
 import { newId } from "../domain/ids";
 import type { ContentType, LearningPath, PathStep } from "../domain/types";
-import { appendSteps, savePath } from "../repositories/pathRepository";
+import { appendSteps, savePath, updateStep } from "../repositories/pathRepository";
 
 export interface ManualStepInput {
   title: string;
@@ -90,4 +90,28 @@ export async function addManualStep(
   const step = buildManualStep(input, path.topic, path.steps.length, path.stepDuration);
   const updated = await appendSteps(path.id, [step]);
   return updated ?? path;
+}
+
+/**
+ * Apply user-entered corrections to an existing step's core fields — title,
+ * type, duration, description, and material link — offline. Progress
+ * (status/doneAt/scheduledDate), keyConcepts, and supplementary resources
+ * are left untouched.
+ */
+export async function editManualStep(
+  path: LearningPath,
+  stepId: string,
+  input: ManualStepInput,
+): Promise<LearningPath | undefined> {
+  const title = input.title.trim() || undefined;
+  const materialUrl = input.materialUrl.trim();
+  return updateStep(path.id, stepId, (step) => ({
+    ...step,
+    title: title ?? step.title,
+    duration: input.duration || step.duration,
+    type: input.type,
+    description: input.description.trim(),
+    materialTitle: materialUrl ? (title ?? step.title) : "",
+    materialUrl,
+  }));
 }
