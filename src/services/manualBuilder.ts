@@ -8,7 +8,7 @@
  */
 
 import { newId } from "../domain/ids";
-import type { ContentType, LearningPath, PathStep } from "../domain/types";
+import type { ContentType, LearningPath, LearningResource, PathStep } from "../domain/types";
 import { appendSteps, savePath, updateStep } from "../repositories/pathRepository";
 
 export interface ManualStepInput {
@@ -18,6 +18,8 @@ export interface ManualStepInput {
   description: string;
   /** Optional link to the actual study material (video/podcast/article). */
   materialUrl: string;
+  /** Supplementary resource links; omitted (not just empty) when creating a new step. */
+  resources?: LearningResource[];
 }
 
 export interface ManualPathInput {
@@ -94,9 +96,10 @@ export async function addManualStep(
 
 /**
  * Apply user-entered corrections to an existing step's core fields — title,
- * type, duration, description, and material link — offline. Progress
- * (status/doneAt/scheduledDate), keyConcepts, and supplementary resources
- * are left untouched.
+ * type, duration, description, material link, and supplementary resources —
+ * offline. Progress (status/doneAt/scheduledDate) and keyConcepts are left
+ * untouched. `input.resources`, when provided, fully replaces the step's
+ * resource list (so removing a bad link means simply omitting it).
  */
 export async function editManualStep(
   path: LearningPath,
@@ -113,5 +116,6 @@ export async function editManualStep(
     description: input.description.trim(),
     materialTitle: materialUrl ? (title ?? step.title) : "",
     materialUrl,
+    resources: input.resources ?? step.resources,
   }));
 }
