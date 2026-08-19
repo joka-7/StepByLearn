@@ -1,32 +1,39 @@
 /**
- * Strategy resolver: pick the concrete provider driver at call time.
+ * Strategy resolver: build the {@link AIStrategy} for a provider at call time.
  *
- * This is the single switch that maps a provider id to its implementation, so
- * the services never import provider SDKs directly.
+ * Backed by @joka-7/modeldispatcher-browser-agent — the shared browser-native
+ * AI core extracted from this file's former per-provider strategies (and
+ * JobFlowTracker/KanDOne/HighFive, which had each independently built the
+ * same thing). No vendor SDK, no server: the same direct-browser,
+ * bring-your-own-key call this app always made, just via one shared
+ * implementation instead of three duplicated ones.
  */
 
+import { complete } from "@joka-7/modeldispatcher-browser-agent";
 import type { ProviderId } from "../domain/providers";
-import { createAnthropicStrategy } from "./strategies/anthropic";
-import { createGeminiStrategy } from "./strategies/gemini";
-import { createGroqStrategy, createOpenAIStrategy } from "./strategies/openaiCompatible";
+import { PROVIDERS } from "../domain/providers";
 import { MissingApiKeyError, type AIStrategy } from "./strategy";
 
 /** Build the strategy for a provider, or throw if no key is configured. */
 export function resolveStrategy(provider: ProviderId, apiKey: string, model: string): AIStrategy {
   if (!apiKey) throw new MissingApiKeyError();
-  switch (provider) {
-    case "anthropic":
-      return createAnthropicStrategy(apiKey, model);
-    case "openai":
-      return createOpenAIStrategy(apiKey, model);
-    case "groq":
-      return createGroqStrategy(apiKey, model);
-    case "gemini":
-      return createGeminiStrategy(apiKey, model);
-    default:
-      // Defends against a stale/corrupted provider id from persisted settings
-      // that predates a newer provider list — fail with a clear message
-      // instead of returning undefined and crashing the caller.
-      throw new Error(`Unknown AI provider: ${String(provider)}`);
+  // Defends against a stale/corrupted provider id from persisted settings
+  // that predates a newer/removed provider — fail with a clear message
+  // instead of letting an unrecognised id reach the shared package.
+  if (!Object.hasOwn(PROVIDERS, provider)) {
+    throw new Error(`Unknown AI provider: ${String(provider)}`);
   }
+  return {
+    async generateText(prompt, system) {
+      // jsonMode: true matches every former strategy's behaviour — Gemini's
+      // responseMimeType and OpenAI/Groq's response_format both requested
+      // JSON; Anthropic has no such mode (jsonMode is a no-op there), same
+      // as before. The jsonHealer downstream remains the actual safety net
+      // regardless of what a provider/model does or doesn't honour.
+      return complete({ provider, apiKey, model, ollamaUrl: "" }, prompt, {
+        systemInstruction: system,
+        jsonMode: true,
+      });
+    },
+  };
 }
