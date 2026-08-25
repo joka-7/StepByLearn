@@ -9,9 +9,33 @@ import {
   ChevronRight,
   Sparkles,
 } from "lucide-react";
+import { EXTERNAL_CHAT_PROVIDERS } from "@joka-7/modeldispatcher-browser-agent";
 import type { ContentType, Difficulty, LearningPath } from "../../domain/types";
 import { schedulePath } from "../../services/calendar";
 import { generatePath } from "../../services/generation";
+
+/** Best-effort clipboard copy — never throws (permissions/non-secure context). */
+function copyToClipboard(text: string): void {
+  navigator.clipboard?.writeText(text).catch(() => {});
+}
+
+/** The same syllabus request generatePath() would have sent, phrased as a
+ * plain question — what a failed generation hands off to an external AI. */
+function buildSyllabusQuestion(
+  topic: string,
+  difficulty: Difficulty,
+  stepDuration: string,
+  currentKnowledge: string,
+): string {
+  const background = currentKnowledge.trim()
+    ? ` My current knowledge: ${currentKnowledge.trim()}.`
+    : "";
+  return (
+    `Create a step-by-step learning path for "${topic}" at ${difficulty} level, ` +
+    `with each step taking about ${stepDuration}. Include real videos, articles, ` +
+    `or other resources for each step.${background}`
+  );
+}
 
 interface Props {
   paths: LearningPath[];
@@ -274,6 +298,34 @@ export function DashboardView({
                     ✨ Tip: You can immediately build custom offline courses using the "Manual
                     Course Architect" tab on the sidebar without needing API keys!
                   </p>
+                  {topic.trim() && (
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-[10px] text-slate-400">
+                      <span>Or ask directly:</span>
+                      {Object.values(EXTERNAL_CHAT_PROVIDERS).map((provider) => {
+                        const question = buildSyllabusQuestion(
+                          topic,
+                          difficulty,
+                          stepDuration,
+                          currentKnowledge,
+                        );
+                        const url = provider.buildUrl
+                          ? provider.buildUrl(question)
+                          : provider.homeUrl;
+                        return (
+                          <a
+                            key={provider.id}
+                            href={url}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={() => copyToClipboard(question)}
+                            className="font-semibold text-blue-400 hover:text-blue-300 underline"
+                          >
+                            {provider.name}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
