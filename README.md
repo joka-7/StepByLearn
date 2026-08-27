@@ -40,6 +40,36 @@ components → services → { ai, repositories } → domain
 - `src/services` — use-cases: generation, calendar scheduling, progress.
 - `src/components` + `src/App.tsx` — React UI, reactive via Dexie live queries.
 
+See [`docs/HLD.md`](docs/HLD.md) and [`docs/LLD.md`](docs/LLD.md) for the full design, and
+[`docs/STRUCTURE.md`](docs/STRUCTURE.md) for the annotated file tree:
+
+<!-- BEGIN GENERATED TREE (depth=1 entries=all) -->
+```text
+stepbylearn/
+├── .github/
+├── docs/
+├── legacy-python/  # Earlier FastAPI + SQLite implementation, kept for reference only — not part…
+├── public/         # Static assets + PWA manifest
+├── src/
+├── .env.local.example
+├── .gitignore
+├── .npmrc
+├── .prettierignore
+├── .prettierrc
+├── LICENSE
+├── README.md       # StepByLearn
+├── eslint.config.js
+├── firestore.rules
+├── index.html
+├── package-lock.json
+├── package.json
+├── tsconfig.json
+├── vercel.json
+├── vite.config.ts
+└── vitest.config.ts
+```
+<!-- END GENERATED TREE -->
+
 ## Quick start
 
 ```bash

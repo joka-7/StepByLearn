@@ -1,0 +1,27 @@
+# Hand-written notes for docs/STRUCTURE.md's generated tree.
+# Most .ts modules already carry real docstrings gen_tree.py derives
+# automatically. These notes cover only .tsx components (no docstring
+# convention for the generator to read) and directory-level orientation.
+
+[notes]
+"src/components" = "React UI — App shell, screens, layout chrome"
+"src/components/SettingsModal.tsx" = "Provider + API key + model settings"
+"src/components/layout" = "Sidebar + top bar chrome"
+"src/components/layout/Sidebar.tsx" = "Left nav: view switcher"
+"src/components/layout/TopBar.tsx" = "Path selector + delete"
+"src/components/screens" = "The five views: Dashboard, Study, Calendar, Analytics, ManualBuilder"
+"src/components/screens/DashboardView.tsx" = "Path list + new-path generation form"
+"src/components/screens/StudyView.tsx" = "Active step study desk"
+"src/components/screens/CalendarView.tsx" = "Scheduling a path's steps onto dates"
+"src/components/screens/AnalyticsView.tsx" = "Progress/streak stats, by content type"
+"src/components/screens/ManualBuilderView.tsx" = "Build a path without AI"
+"src/components/screens/study" = "Sub-components used only within StudyView"
+"src/components/screens/study/AddStepModal.tsx" = "Add a step manually"
+"src/components/screens/study/EditStepModal.tsx" = "Edit an existing step"
+"src/components/screens/study/StudyMaterialTab.tsx" = "A step's learning resources"
+
+"legacy-python" = "Earlier FastAPI + SQLite implementation, kept for reference only — not part of the running app"
+"legacy-python/src" = "The old backend's source"
+"legacy-python/tests" = "The old backend's tests"
+
+"public" = "Static assets + PWA manifest"
