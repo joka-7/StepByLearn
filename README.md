@@ -1,9 +1,10 @@
 # StepByLearn
 
 An **offline-first, cloud-AI, step-by-step learning platform** — a pure browser
-web app. Generate a structured learning path for any topic with the Anthropic
-Claude API, schedule it onto a calendar, and track your progress. Everything is
-stored locally in your browser (IndexedDB) for privacy and full offline use.
+web app. Generate a structured learning path for any topic with your choice of
+Anthropic Claude, OpenAI, Groq, or Google Gemini, schedule it onto a calendar,
+and track your progress. Everything is stored locally in your browser
+(IndexedDB) for privacy and full offline use.
 
 No backend, no server, no database to install. Just `npm install && npm run dev`.
 
@@ -13,8 +14,11 @@ No backend, no server, no database to install. Just `npm install && npm run dev`
   deploys as a static site to any host (Netlify, Vercel, GitHub Pages, S3…).
 - **Local-first storage** — all paths, steps, calendar dates, and progress live
   in the browser's **IndexedDB** (via Dexie). Nothing is sent to a server.
-- **Cloud AI** — generation calls the **Anthropic Claude API directly from the
-  browser** using a key you paste into Settings (stored only in your browser).
+- **Cloud AI, your choice of provider** — generation calls **Anthropic, OpenAI,
+  Groq, or Gemini directly from the browser**, using a key you paste into
+  Settings (stored only in your browser). No server, no vendor SDK — backed by
+  the shared [`@joka-7/modeldispatcher-browser-agent`](https://github.com/joka-7/ModelDispatcher/tree/main/clients/browser-agent)
+  package (also used by JobFlowTracker/KanDOne/HighFive).
 - **Resilient parsing** — a defense-in-depth JSON healer cleans fragile model
   output (code fences, prose, stray text) into validated domain models.
 - **Fully offline after generation** — browsing paths, marking steps done,
@@ -31,7 +35,8 @@ components → services → { ai, repositories } → domain
 - `src/domain` — pure types + id generation (no I/O).
 - `src/db` + `src/repositories` — Dexie/IndexedDB persistence behind repository
   functions (swap storage without touching the rest).
-- `src/ai` — Anthropic browser client, prompts, and the JSON healer.
+- `src/ai` — the resolver (backed by `@joka-7/modeldispatcher-browser-agent`,
+  the shared multi-provider browser client), prompts, and the JSON healer.
 - `src/services` — use-cases: generation, calendar scheduling, progress.
 - `src/components` + `src/App.tsx` — React UI, reactive via Dexie live queries.
 
@@ -42,9 +47,9 @@ npm install
 npm run dev        # opens http://localhost:5173
 ```
 
-Then click **Settings** (top-right), paste your Anthropic API key
-(`sk-ant-…`), and generate a path. Get a key at
-<https://console.anthropic.com>.
+Then click **Settings** (top-right), pick a provider (Anthropic, OpenAI, Groq,
+or Gemini), paste its API key, and generate a path. Each provider's console
+link and key format are shown right in the Settings panel.
 
 ### Build / deploy
 
@@ -58,10 +63,10 @@ Deploy the contents of `dist/` to any static host.
 ## Privacy & the API key
 
 This is a single-user, local-first tool. Your API key is stored in the browser's
-`localStorage` and sent **only** to `api.anthropic.com` on the direct generation
-call — there is no StepByLearn server to receive it. The direct-browser call uses
-Anthropic's `dangerouslyAllowBrowser` mode; because you supply your own key on
-your own machine, this is an acceptable trade-off for a zero-backend app.
+`localStorage` and sent **only** to your chosen provider's own API on the direct
+generation call — there is no StepByLearn server to receive it. Because you
+supply your own key on your own machine, a direct browser-to-provider call is
+an acceptable trade-off for a zero-backend app.
 
 ## Scripts
 
