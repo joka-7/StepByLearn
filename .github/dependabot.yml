@@ -1,0 +1,32 @@
+# Keep Dependabot PRs grouped so a routine week doesn't cost one review per
+# package. Mirrors the pattern in joka-7/AppMyTrip.
+#
+# legacy-python/ is not covered: it carries no CI workflow and isn't part of
+# the app CI builds (see .github/workflows/ci.yml), so it's dead code, not a
+# maintained dependency surface.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    groups:
+      github-actions:
+        patterns:
+          - "*"
