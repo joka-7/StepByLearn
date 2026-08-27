@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@joka-7/modeldispatcher-browser-agent": "^0.3.0",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/vite": "^4.1.14",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
