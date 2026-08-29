@@ -8,6 +8,46 @@ and track your progress. Everything is stored locally in your browser
 
 No backend, no server, no database to install. Just `npm install && npm run dev`.
 
+## Screenshots
+
+**Workspace Planner** — describe a topic, your level, and your background, and
+generate a full curriculum; the sidebar tracks every course you've built:
+
+![Workspace Planner with the AI generation form and course library](docs/screenshots/dashboard.png)
+
+**Active Study Desk** — work through a path step by step, with key concepts,
+the primary material link, and any extra resources for the step in view:
+
+![Active Study Desk showing curriculum progression and a study milestone](docs/screenshots/study-desk.png)
+
+**Study Calendar** — every scheduled step lands on its date, so a course reads
+as a plan instead of a checklist:
+
+![Study Calendar with steps scheduled across the month](docs/screenshots/calendar.png)
+
+**My Analytics** — lessons completed, content medium breakdown, and overall
+course progress:
+
+![My Analytics showing lessons completed and content medium breakdown](docs/screenshots/analytics.png)
+
+**Manual Course Architect** — skip AI generation entirely and hand-build a
+curriculum step by step:
+
+![Manual Course Architect form for building a course by hand](docs/screenshots/manual-builder.png)
+
+**Settings** — pick a provider and paste your own API key; it's stored only in
+your browser and sent straight to that provider, never to a StepByLearn server
+(there isn't one):
+
+![Settings modal with provider and API key fields](docs/screenshots/settings.png)
+
+To regenerate these images locally:
+
+```bash
+npm run dev -- --port 5173 --strictPort   # in another terminal
+npx playwright test e2e/screenshots.spec.ts
+```
+
 ## Highlights
 
 - **Pure web app** — Vite + React + TypeScript. Runs from `npm run dev` or
@@ -111,6 +151,7 @@ an acceptable trade-off for a zero-backend app.
 | `npm run format:check` | Check formatting without writing |
 | `npm test`             | Run the unit test suite (Vitest) |
 | `npm run test:watch`   | Run tests in watch mode          |
+| `npm run test:e2e`     | Run end-to-end tests (Playwright) |
 
 ## Legacy Python implementation
 
