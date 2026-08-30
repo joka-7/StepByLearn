@@ -1,20 +1,31 @@
 # Repository structure
 
 Every file in this repo and what is inside it. The tree below is **generated** —
-run `python <ogen-ai>/skills/repo_tree/gen_tree.py --project . --output docs/STRUCTURE.md`
+run `python .ai/skills/repo_tree/gen_tree.py --project . --output docs/STRUCTURE.md`
 to refresh it, and never edit between the markers by hand.
 
 <!-- BEGIN GENERATED TREE (depth=all entries=all) -->
 ```text
-stepbylearn/
+StepByLearn/
 ├── .github/
-│   └── workflows/
-│       └── ci.yml
+│   ├── workflows/
+│   │   ├── ci.yml
+│   │   └── security.yml
+│   └── copilot-instructions.md                   # Copilot's copy of AGENTS.md (generated)
 ├── docs/
+│   ├── screenshots/
+│   │   ├── analytics.png
+│   │   ├── calendar.png
+│   │   ├── dashboard.png
+│   │   ├── manual-builder.png
+│   │   ├── settings.png
+│   │   └── study-desk.png
 │   ├── .structure-notes.toml
 │   ├── HLD.md                                    # StepByLearn — High-Level Design
 │   ├── LLD.md                                    # StepByLearn — Low-Level Design
 │   └── STRUCTURE.md                              # Repository structure
+├── e2e/
+│   └── screenshots.spec.ts
 ├── legacy-python/                                # Earlier FastAPI + SQLite implementation, kept for reference only — not part…
 │   ├── src/                                      # The old backend's source
 │   │   └── stepbylearn/
@@ -170,18 +181,25 @@ stepbylearn/
 │   ├── index.css
 │   ├── main.tsx
 │   └── vite-env.d.ts
+├── .ai                                           # Ogen-ai submodule — the shared source of rules, skills and the ai-sync…
 ├── .env.local.example
 ├── .gitignore
+├── .gitmodules
 ├── .npmrc
 ├── .prettierignore
 ├── .prettierrc
+├── AGENTS.md                                     # The compiled coding rules every AI assistant reads — generated, do not…
+├── CLAUDE.md                                     # Claude Code's copy of AGENTS.md (generated)
+├── GEMINI.md                                     # Gemini CLI's copy of AGENTS.md (generated)
 ├── LICENSE
 ├── README.md                                     # StepByLearn
+├── ai-config.toml                                # Which rule fragments and target tools ai-sync compiles for this repo
 ├── eslint.config.js
 ├── firestore.rules
 ├── index.html
 ├── package-lock.json
 ├── package.json
+├── playwright.config.ts
 ├── tsconfig.json
 ├── vercel.json
 ├── vite.config.ts
