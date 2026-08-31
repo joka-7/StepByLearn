@@ -85,32 +85,24 @@ See [`docs/HLD.md`](docs/HLD.md) and [`docs/LLD.md`](docs/LLD.md) for the full d
 
 <!-- BEGIN GENERATED TREE (depth=1 entries=all) -->
 ```text
-StepByLearn/
+stepbylearn/
 ├── .github/
 ├── docs/
-├── e2e/
 ├── legacy-python/  # Earlier FastAPI + SQLite implementation, kept for reference only — not part…
 ├── public/         # Static assets + PWA manifest
 ├── src/
-├── .ai             # Ogen-ai submodule — the shared source of rules, skills and the ai-sync…
 ├── .env.local.example
 ├── .gitignore
-├── .gitmodules
 ├── .npmrc
 ├── .prettierignore
 ├── .prettierrc
-├── AGENTS.md       # The compiled coding rules every AI assistant reads — generated, do not…
-├── CLAUDE.md       # Claude Code's copy of AGENTS.md (generated)
-├── GEMINI.md       # Gemini CLI's copy of AGENTS.md (generated)
 ├── LICENSE
 ├── README.md       # StepByLearn
-├── ai-config.toml  # Which rule fragments and target tools ai-sync compiles for this repo
 ├── eslint.config.js
 ├── firestore.rules
 ├── index.html
 ├── package-lock.json
 ├── package.json
-├── playwright.config.ts
 ├── tsconfig.json
 ├── vercel.json
 ├── vite.config.ts
