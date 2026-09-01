@@ -23,6 +23,7 @@ implements and why it's shaped this way.
 
 **`updateStep` transaction** (`src/repositories/pathRepository.ts`) — the one place a
 concurrent-edit race is possible, so it's worth spelling out:
+
 ```
 updateStep(pathId, stepId, mutate):
   within a Dexie rw-transaction on `paths`:
@@ -34,12 +35,14 @@ updateStep(pathId, stepId, mutate):
     db.paths.put(updated)
     return updated
 ```
+
 The transaction wraps read-mutate-write so a second concurrent `updateStep` can't
 interleave and clobber the first (Dexie's transaction gives this for free; the function
 would otherwise be a classic read-modify-write race over two separate IndexedDB calls).
 
 **Cloud sync loop-prevention** (`src/firebase/pathSync.ts`) — the non-obvious part of an
 otherwise ordinary bidirectional mirror:
+
 ```
 on local path change (Dexie watcher):
   if path.updatedAt != lastSynced[path.id]:
@@ -51,6 +54,7 @@ on remote path change (Firestore listener):
     write remote into Dexie
     lastSynced[path.id] = remote.updatedAt        # set BEFORE the local watcher fires
 ```
+
 Setting `lastSynced` before the Dexie write completes is what stops the local watcher
 (triggered by the very write this pull just made) from seeing it as a new local change and
 pushing it straight back up — the loop `pathSync.ts`'s own docstring names explicitly.
@@ -58,24 +62,24 @@ pushing it straight back up — the loop `pathSync.ts`'s own docstring names exp
 ## I/O schemas
 
 - **`PathStep`** (`src/domain/types.ts`): `{ id, orderIndex, title, description, type:
-  ContentType, duration, status: StepStatus, keyConcepts: string[], materialTitle,
-  materialUrl, resources: LearningResource[] }`.
+ContentType, duration, status: StepStatus, keyConcepts: string[], materialTitle,
+materialUrl, resources: LearningResource[] }`.
 - **`LearningPath`**: `{ id, createdAt, updatedAt, topic, stepDuration, contentType,
-  currentKnowledge, steps: PathStep[] }` (exact optional/backfilled fields per
+currentKnowledge, steps: PathStep[] }` (exact optional/backfilled fields per
   `pathRepository.ts`'s `normalizePath`/`normalizeStep` — see Error contract below).
 - **`AppSettings`**: `{ id: "singleton", provider: ProviderId, models: Record<ProviderId,
-  string> }`.
+string> }`.
 - **AI provider call**: `AIStrategy.generateText(prompt, system) -> Promise<string>` — a
   raw string, deliberately not typed further, since the whole point of `jsonHealer.ts` is
   that this raw text is untrusted until healed.
 
 ## Config keys
 
-| Key | Read in | Default when absent |
-|---|---|---|
-| `VITE_FIREBASE_*` (API key, project id, etc.) | `src/firebase/config.ts` | `firebaseConfigured = false`; cloud sync disabled, rest of app unaffected |
-| `localStorage["stepbylearn.apiKey.<provider>"]` | `src/repositories/settingsRepository.ts` (`getApiKey`/`setApiKey`) | `null` — `resolveStrategy` throws `MissingApiKeyError` |
-| Dexie `settings` singleton row (`id: "singleton"`) | `settingsRepository.getSettings` | `DEFAULT_SETTINGS` (provider `"anthropic"`, `defaultModels()`) materialized on first read, not written until `saveSettings` is called |
+| Key                                                | Read in                                                            | Default when absent                                                                                                                   |
+| -------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_FIREBASE_*` (API key, project id, etc.)      | `src/firebase/config.ts`                                           | `firebaseConfigured = false`; cloud sync disabled, rest of app unaffected                                                             |
+| `localStorage["stepbylearn.apiKey.<provider>"]`    | `src/repositories/settingsRepository.ts` (`getApiKey`/`setApiKey`) | `null` — `resolveStrategy` throws `MissingApiKeyError`                                                                                |
+| Dexie `settings` singleton row (`id: "singleton"`) | `settingsRepository.getSettings`                                   | `DEFAULT_SETTINGS` (provider `"anthropic"`, `defaultModels()`) materialized on first read, not written until `saveSettings` is called |
 
 ## DI wiring
 
@@ -114,6 +118,7 @@ single-user tool has limited use for structured server-side logging in the first
 ## Unit test plan
 
 Existing (`npm test`, Vitest):
+
 - `src/ai/jsonHealer.test.ts` — the untrusted-AI-output boundary, the highest-value place
   to test given `jsonHealer.ts` exists specifically to handle malformed model output.
 - `src/ai/resolver.test.ts` — provider strategy resolution.
