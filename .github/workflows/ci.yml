@@ -36,8 +36,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Test
-        run: npm test
+      - name: Test with a coverage gate
+        # Thresholds live in vitest.config.ts; --coverage makes them enforced.
+        run: npm test -- --coverage
 
       - name: Build
         run: npm run build
