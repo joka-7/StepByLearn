@@ -30,6 +30,7 @@ components → services → { ai, repositories } → domain
                               ↑
                           firebase (optional cloud mirror, one direction: Dexie ↔ Firestore)
 ```
+
 (The dependency direction above is stated in README.md's own "Architecture" section and
 confirmed by import chains — e.g. `src/services/generation.ts` imports from `src/ai/*`,
 `src/repositories/*`, and `src/domain/*`, never the reverse.)
@@ -63,6 +64,7 @@ Full annotated file list: [`STRUCTURE.md`](STRUCTURE.md).
 ## Dynamic view
 
 **Primary flow — AI-generated path** (`src/services/generation.ts`):
+
 1. UI calls `generatePath` (or the additional-steps/fix-step variants) with the topic and
    options (step duration, content type, learner background).
 2. `resolveStrategy` (`src/ai/resolver.ts`) looks up the configured provider + API key via
