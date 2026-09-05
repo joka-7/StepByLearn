@@ -10,6 +10,7 @@ StepByLearn/
 ├── .github/
 │   ├── workflows/
 │   │   ├── ci.yml
+│   │   ├── docs.yml
 │   │   └── security.yml
 │   └── copilot-instructions.md                   # Copilot's copy of AGENTS.md (generated)
 ├── docs/
