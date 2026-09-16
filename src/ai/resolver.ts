@@ -30,10 +30,11 @@ export function resolveStrategy(provider: ProviderId, apiKey: string, model: str
       // JSON; Anthropic has no such mode (jsonMode is a no-op there), same
       // as before. The jsonHealer downstream remains the actual safety net
       // regardless of what a provider/model does or doesn't honour.
-      return complete({ provider, apiKey, model, ollamaUrl: "" }, prompt, {
-        systemInstruction: system,
-        jsonMode: true,
-      });
+      return complete(
+        { providers: [{ provider, model, apiKeys: apiKey ? [apiKey] : [] }], ollamaUrl: "" },
+        prompt,
+        { systemInstruction: system, jsonMode: true },
+      );
     },
   };
 }
