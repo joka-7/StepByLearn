@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@joka-7/modeldispatcher-browser-agent": "^0.3.0",
-    "dexie": "^4.0.10",
+    "dexie": "^4.4.6",
     "dexie-react-hooks": "^1.1.7",
     "firebase": "^12.15.0",
     "lucide-react": "^0.546.0",
