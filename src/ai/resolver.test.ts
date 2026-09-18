@@ -41,7 +41,7 @@ describe("resolveStrategy", () => {
 
     expect(text).toBe('{"ok":true}');
     expect(mockComplete).toHaveBeenCalledWith(
-      { provider: "openai", apiKey: "sk-x", model: "gpt-4o-mini", ollamaUrl: "" },
+      { providers: [{ provider: "openai", model: "gpt-4o-mini", apiKeys: ["sk-x"] }], ollamaUrl: "" },
       "write json",
       { systemInstruction: "be terse", jsonMode: true },
     );
