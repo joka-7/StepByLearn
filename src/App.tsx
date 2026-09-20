@@ -1,6 +1,7 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FooterLinks } from "./components/FooterLinks";
 import { SettingsModal } from "./components/SettingsModal";
 import { Sidebar } from "./components/layout/Sidebar";
 import { TopBar } from "./components/layout/TopBar";
@@ -194,6 +195,8 @@ export function App() {
           onSaved={() => setKeyTick((t) => t + 1)}
         />
       )}
+
+      <FooterLinks />
     </div>
   );
 }
