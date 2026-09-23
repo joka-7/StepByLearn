@@ -104,6 +104,7 @@ StepByLearn/
 ├── GEMINI.md       # Gemini CLI's copy of AGENTS.md (generated)
 ├── LICENSE
 ├── README.md       # StepByLearn
+├── SECURITY.md     # Security Policy
 ├── ai-config.toml  # Which rule fragments and target tools ai-sync compiles for this repo
 ├── eslint.config.js
 ├── firestore.rules
