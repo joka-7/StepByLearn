@@ -40,10 +40,7 @@ jobs:
           node-version: "22"
           cache: "npm"
           cache-dependency-path: package-lock.json
-      # See ci.yml for why NODE_AUTH_TOKEN is needed.
       - run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       # Blocking: the backlog this was advisory for (4 high, 1 moderate) is
       # cleared and `npm audit` reports zero, so a new advisory should fail
       # here rather than be reported and ignored.

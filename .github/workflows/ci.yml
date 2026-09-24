@@ -18,14 +18,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        # @joka-7/modeldispatcher-browser-agent is on GitHub Packages, not the
-        # public npm registry — GitHub Packages requires an authenticated
-        # read even for a public repo's packages. NODE_AUTH_TOKEN must be a
-        # repo secret: a PAT (classic or fine-grained) with read:packages
-        # scope and access to joka-7/ModelDispatcher.
         run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       - name: Lint
         run: npm run lint

@@ -1,7 +1,7 @@
 /**
  * Strategy resolver: build the {@link AIStrategy} for a provider at call time.
  *
- * Backed by @joka-7/modeldispatcher-browser-agent — the shared browser-native
+ * Backed by modeldispatcher-browser-agent — the shared browser-native
  * AI core extracted from this file's former per-provider strategies (and
  * JobFlowTracker/KanDOne/HighFive, which had each independently built the
  * same thing). No vendor SDK, no server: the same direct-browser,
@@ -9,7 +9,7 @@
  * implementation instead of three duplicated ones.
  */
 
-import { complete } from "@joka-7/modeldispatcher-browser-agent";
+import { complete } from "modeldispatcher-browser-agent";
 import type { ProviderId } from "../domain/providers";
 import { PROVIDERS } from "../domain/providers";
 import { MissingApiKeyError, type AIStrategy } from "./strategy";

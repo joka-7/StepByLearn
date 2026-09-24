@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveStrategy } from "./resolver";
 import { MissingApiKeyError } from "./strategy";
 
-// @joka-7/modeldispatcher-browser-agent ships as native ESM (package.json
+// modeldispatcher-browser-agent ships as native ESM (package.json
 // "type": "module", built by plain tsc — no bundler). A real ESM module's
 // namespace object is a non-configurable exotic object per spec, so
 // `vi.spyOn(namespaceImport, "complete")` throws ("Cannot redefine
@@ -13,8 +13,8 @@ import { MissingApiKeyError } from "./strategy";
 // import time instead, which works regardless of how the real module is
 // shaped.
 const { mockComplete } = vi.hoisted(() => ({ mockComplete: vi.fn() }));
-vi.mock("@joka-7/modeldispatcher-browser-agent", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@joka-7/modeldispatcher-browser-agent")>();
+vi.mock("modeldispatcher-browser-agent", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("modeldispatcher-browser-agent")>();
   return { ...actual, complete: mockComplete };
 });
 
