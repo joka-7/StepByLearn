@@ -85,7 +85,7 @@ See [`docs/HLD.md`](docs/HLD.md) and [`docs/LLD.md`](docs/LLD.md) for the full d
 
 <!-- BEGIN GENERATED TREE (depth=1 entries=all) -->
 ```text
-stepbylearn/
+StepByLearn/
 ├── .github/
 ├── docs/
 ├── e2e/
