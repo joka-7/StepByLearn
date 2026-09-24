@@ -85,7 +85,7 @@ See [`docs/HLD.md`](docs/HLD.md) and [`docs/LLD.md`](docs/LLD.md) for the full d
 
 <!-- BEGIN GENERATED TREE (depth=1 entries=all) -->
 ```text
-StepByLearn/
+stepbylearn/
 ├── .github/
 ├── docs/
 ├── e2e/
@@ -96,7 +96,6 @@ StepByLearn/
 ├── .env.local.example
 ├── .gitignore
 ├── .gitmodules
-├── .npmrc
 ├── .prettierignore
 ├── .prettierrc
 ├── AGENTS.md       # The compiled coding rules every AI assistant reads — generated, do not…

@@ -6,7 +6,7 @@ to refresh it, and never edit between the markers by hand.
 
 <!-- BEGIN GENERATED TREE (depth=all entries=all) -->
 ```text
-StepByLearn/
+stepbylearn/
 ├── .github/
 │   ├── workflows/
 │   │   ├── ci.yml
@@ -35,7 +35,7 @@ StepByLearn/
 │   │       │   ├── __init__.py                   # AI layer: the Strategy Pattern for hybrid local/cloud generation.
 │   │       │   ├── base.py                       # The AI strategy interface (Strategy Pattern).
 │   │       │   ├── cloud_anthropic.py            # Cloud AI backend using the Anthropic Claude API (high-fidelity generation).
-│   │       │   ├── json_healer.py                # Coerce fragile LLM output into validated Pydantic domain models.
+│   │       │   ├── json_healer.py
 │   │       │   ├── local_ollama.py               # Local, free AI backend driven by an Ollama daemon (Llama3 / Mistral).
 │   │       │   ├── prompts.py                    # Versioned prompt templates for syllabus generation.
 │   │       │   └── resolver.py                   # Runtime AI strategy resolution (the Strategy Pattern's selection logic).
@@ -188,7 +188,6 @@ StepByLearn/
 ├── .env.local.example
 ├── .gitignore
 ├── .gitmodules
-├── .npmrc
 ├── .prettierignore
 ├── .prettierrc
 ├── AGENTS.md                                     # The compiled coding rules every AI assistant reads — generated, do not…
