@@ -10,8 +10,10 @@ StepByLearn/
 ├── .github/
 │   ├── workflows/
 │   │   ├── ci.yml
+│   │   ├── docs.yml
 │   │   └── security.yml
-│   └── copilot-instructions.md                   # Copilot's copy of AGENTS.md (generated)
+│   ├── copilot-instructions.md                   # Copilot's copy of AGENTS.md (generated)
+│   └── dependabot.yml
 ├── docs/
 │   ├── screenshots/
 │   │   ├── analytics.png
@@ -33,7 +35,7 @@ StepByLearn/
 │   │       │   ├── __init__.py                   # AI layer: the Strategy Pattern for hybrid local/cloud generation.
 │   │       │   ├── base.py                       # The AI strategy interface (Strategy Pattern).
 │   │       │   ├── cloud_anthropic.py            # Cloud AI backend using the Anthropic Claude API (high-fidelity generation).
-│   │       │   ├── json_healer.py
+│   │       │   ├── json_healer.py                # Coerce fragile LLM output into validated Pydantic domain models.
 │   │       │   ├── local_ollama.py               # Local, free AI backend driven by an Ollama daemon (Llama3 / Mistral).
 │   │       │   ├── prompts.py                    # Versioned prompt templates for syllabus generation.
 │   │       │   └── resolver.py                   # Runtime AI strategy resolution (the Strategy Pattern's selection logic).
@@ -151,6 +153,7 @@ StepByLearn/
 │   │   │   ├── DashboardView.tsx                 # Path list + new-path generation form
 │   │   │   ├── ManualBuilderView.tsx             # Build a path without AI
 │   │   │   └── StudyView.tsx                     # Active step study desk
+│   │   ├── GithubIcon.tsx
 │   │   ├── SettingsModal.tsx                     # Provider + API key + model settings
 │   │   └── viewTypes.ts
 │   ├── db/
@@ -193,6 +196,7 @@ StepByLearn/
 ├── GEMINI.md                                     # Gemini CLI's copy of AGENTS.md (generated)
 ├── LICENSE
 ├── README.md                                     # StepByLearn
+├── SECURITY.md                                   # Security Policy
 ├── ai-config.toml                                # Which rule fragments and target tools ai-sync compiles for this repo
 ├── eslint.config.js
 ├── firestore.rules

@@ -1,5 +1,24 @@
 version: 2
 updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    # legacy-python/ is reference-only (see README's "Legacy Python
+    # implementation" section) and not part of the active app, so it's
+    # deliberately not tracked here.
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+
   - package-ecosystem: gitsubmodule
     directory: /
     schedule:

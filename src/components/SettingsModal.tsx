@@ -1,5 +1,6 @@
-import { X } from "lucide-react";
+import { Globe, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { GithubIcon } from "./GithubIcon";
 import { PROVIDERS, PROVIDER_IDS, defaultModels, type ProviderId } from "../domain/providers";
 import type { AppSettings } from "../domain/types";
 import { closeViaHistoryBack, useBackClose } from "../hooks/useBackClose";
@@ -155,6 +156,27 @@ export function SettingsModal({ onClose, onSaved }: Props) {
         >
           Save
         </button>
+
+        <div className="flex items-center justify-center gap-4 pt-1 border-t border-slate-800">
+          <a
+            href="https://github.com/joka-7"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="GitHub"
+            className="text-slate-500 hover:text-slate-300 transition-colors"
+          >
+            <GithubIcon size={16} />
+          </a>
+          <a
+            href="https://jk-dev-7.vercel.app"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="jk.dev portfolio"
+            className="text-slate-500 hover:text-slate-300 transition-colors"
+          >
+            <Globe size={16} />
+          </a>
+        </div>
       </div>
     </div>
   );

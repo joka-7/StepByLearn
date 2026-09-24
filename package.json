@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "modeldispatcher-browser-agent": "^0.6.0",
-    "dexie": "^4.0.10",
+    "dexie": "^4.4.6",
     "dexie-react-hooks": "^1.1.7",
     "firebase": "^12.15.0",
     "lucide-react": "^0.546.0",
@@ -29,12 +29,12 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
-    "@tailwindcss/vite": "^4.1.14",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-istanbul": "^4.1.11",
-    "eslint": "^10.6.0",
+    "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
