@@ -1,57 +1,48 @@
 /**
- * Repository for provider settings and per-provider API keys.
- *
- * Security note: this is a pure browser app, so there is no OS keyring. Each
- * provider's API key is kept in `localStorage` (one entry per provider) and sent
- * only on the direct, user-initiated call to that provider's API. Keys are
- * stored apart from the Dexie data so they are never bundled into an exported
- * path or a settings document.
+ * Provider settings, backed by modeldispatcher-browser-agent's own
+ * `AgentConfig` (a multi-provider fallback list) in localStorage — the same
+ * convention JobFlowTracker/KanDOne/HighFive use, replacing this app's
+ * former single-provider Dexie + per-provider-localStorage-key shape.
  */
 
+import {
+  isConfigReady,
+  isKnownProvider,
+  loadConfig,
+  PROVIDERS,
+  saveConfig,
+  type AgentConfig,
+} from "modeldispatcher-browser-agent";
 import { db } from "../db/database";
-import { PROVIDER_IDS, defaultModels, type ProviderId } from "../domain/providers";
-import type { AppSettings } from "../domain/types";
 
-const API_KEY_PREFIX = "stepbylearn.apiKey.";
+const LEGACY_API_KEY_PREFIX = "stepbylearn.apiKey.";
 
-const DEFAULT_SETTINGS: AppSettings = {
-  id: "singleton",
-  provider: "anthropic",
-  models: defaultModels(),
-};
-
-/** Return current settings, materializing defaults on first access. */
-export async function getSettings(): Promise<AppSettings> {
-  const stored = await db.settings.get("singleton");
-  if (!stored) return DEFAULT_SETTINGS;
-  // Guard against a record saved by an older app version (e.g. the single-
-  // provider shape `{id, cloudModel}`, which has no `provider` field): fall
-  // back to the default provider rather than persisting `undefined`.
-  const provider = PROVIDER_IDS.includes(stored.provider)
-    ? stored.provider
-    : DEFAULT_SETTINGS.provider;
-  // Merge in any provider defaults added since the settings were first saved.
-  return { id: "singleton", provider, models: { ...defaultModels(), ...stored.models } };
+function legacyApiKey(provider: string): string | null {
+  return localStorage.getItem(LEGACY_API_KEY_PREFIX + provider);
 }
 
-/** Persist provider preferences (never keys — see {@link setApiKey}). */
-export async function saveSettings(settings: AppSettings): Promise<void> {
-  await db.settings.put({ ...settings, id: "singleton" });
+/**
+ * One-time migration from the pre-0.6.7 single-provider Dexie record (plus
+ * its per-provider localStorage key) into the shared `AgentConfig`. Safe to
+ * call on every app start: it's a no-op once a real config already exists,
+ * the same "fall back to legacy, only until migrated" pattern every other
+ * app that adopted this package uses.
+ */
+export async function migrateLegacySettings(): Promise<void> {
+  if (loadConfig().providers.length > 0) return;
+
+  const legacy = await db.settings.get("singleton");
+  if (!legacy || !isKnownProvider(legacy.provider)) return;
+
+  const key = legacyApiKey(legacy.provider);
+  if (!key) return;
+
+  const model = legacy.models?.[legacy.provider]?.trim() || PROVIDERS[legacy.provider].defaultModel;
+  saveConfig({
+    providers: [{ provider: legacy.provider, model, apiKeys: [key] }],
+    ollamaUrl: "http://localhost:11434",
+  });
 }
 
-/** Read a provider's stored API key, or null if none has been entered. */
-export function getApiKey(provider: ProviderId): string | null {
-  return localStorage.getItem(API_KEY_PREFIX + provider);
-}
-
-/** Store (or clear, when given an empty string) a provider's API key. */
-export function setApiKey(provider: ProviderId, key: string): void {
-  const storageKey = API_KEY_PREFIX + provider;
-  if (key) localStorage.setItem(storageKey, key);
-  else localStorage.removeItem(storageKey);
-}
-
-/** Whether a key is present for a provider (without exposing it). */
-export function hasApiKey(provider: ProviderId): boolean {
-  return Boolean(getApiKey(provider));
-}
+export { loadConfig as loadAgentConfig, saveConfig, isConfigReady };
+export type { AgentConfig };

@@ -13,7 +13,7 @@ export interface AIStrategy {
 
 export class MissingApiKeyError extends Error {
   constructor() {
-    super("No API key is set for the selected provider. Add one in Settings.");
+    super("No AI provider is configured. Add one in Settings.");
     this.name = "MissingApiKeyError";
   }
 }

@@ -17,7 +17,8 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "modeldispatcher-browser-agent": "^0.6.0",
+    "modeldispatcher-browser-agent": "^0.6.7",
+    "modeldispatcher-react-ui": "^0.6.7",
     "dexie": "^4.4.6",
     "dexie-react-hooks": "^1.1.7",
     "firebase": "^12.15.0",

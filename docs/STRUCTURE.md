@@ -161,7 +161,6 @@ StepByLearn/
 │   ├── domain/
 │   │   ├── ids.test.ts
 │   │   ├── ids.ts
-│   │   ├── providers.ts
 │   │   └── types.ts
 │   ├── firebase/
 │   │   ├── auth.ts
