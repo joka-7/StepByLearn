@@ -35,7 +35,7 @@ StepByLearn/
 │   │       │   ├── __init__.py                   # AI layer: the Strategy Pattern for hybrid local/cloud generation.
 │   │       │   ├── base.py                       # The AI strategy interface (Strategy Pattern).
 │   │       │   ├── cloud_anthropic.py            # Cloud AI backend using the Anthropic Claude API (high-fidelity generation).
-│   │       │   ├── json_healer.py
+│   │       │   ├── json_healer.py                # Coerce fragile LLM output into validated Pydantic domain models.
 │   │       │   ├── local_ollama.py               # Local, free AI backend driven by an Ollama daemon (Llama3 / Mistral).
 │   │       │   ├── prompts.py                    # Versioned prompt templates for syllabus generation.
 │   │       │   └── resolver.py                   # Runtime AI strategy resolution (the Strategy Pattern's selection logic).
