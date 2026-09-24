@@ -1,7 +1,7 @@
 /**
  * Strategy resolver: build the {@link AIStrategy} for a provider at call time.
  *
- * Backed by @joka-7/modeldispatcher-browser-agent — the shared browser-native
+ * Backed by modeldispatcher-browser-agent — the shared browser-native
  * AI core extracted from this file's former per-provider strategies (and
  * JobFlowTracker/KanDOne/HighFive, which had each independently built the
  * same thing). No vendor SDK, no server: the same direct-browser,
@@ -9,7 +9,7 @@
  * implementation instead of three duplicated ones.
  */
 
-import { complete } from "@joka-7/modeldispatcher-browser-agent";
+import { complete } from "modeldispatcher-browser-agent";
 import type { ProviderId } from "../domain/providers";
 import { PROVIDERS } from "../domain/providers";
 import { MissingApiKeyError, type AIStrategy } from "./strategy";
@@ -30,10 +30,11 @@ export function resolveStrategy(provider: ProviderId, apiKey: string, model: str
       // JSON; Anthropic has no such mode (jsonMode is a no-op there), same
       // as before. The jsonHealer downstream remains the actual safety net
       // regardless of what a provider/model does or doesn't honour.
-      return complete({ provider, apiKey, model, ollamaUrl: "" }, prompt, {
-        systemInstruction: system,
-        jsonMode: true,
-      });
+      return complete(
+        { providers: [{ provider, model, apiKeys: apiKey ? [apiKey] : [] }], ollamaUrl: "" },
+        prompt,
+        { systemInstruction: system, jsonMode: true },
+      );
     },
   };
 }

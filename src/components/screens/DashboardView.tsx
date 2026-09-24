@@ -9,7 +9,7 @@ import {
   ChevronRight,
   Sparkles,
 } from "lucide-react";
-import { EXTERNAL_CHAT_PROVIDERS } from "@joka-7/modeldispatcher-browser-agent";
+import { EXTERNAL_CHAT_PROVIDERS } from "modeldispatcher-browser-agent";
 import type { ContentType, Difficulty, LearningPath } from "../../domain/types";
 import { schedulePath } from "../../services/calendar";
 import { generatePath } from "../../services/generation";
