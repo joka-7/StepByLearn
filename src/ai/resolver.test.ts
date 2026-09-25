@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { AgentConfig } from "modeldispatcher-browser-agent";
 
 import { resolveStrategy } from "./resolver";
 import { MissingApiKeyError } from "./strategy";
@@ -18,41 +19,67 @@ vi.mock("modeldispatcher-browser-agent", async (importOriginal) => {
   return { ...actual, complete: mockComplete };
 });
 
+const EMPTY_CONFIG: AgentConfig = { providers: [], ollamaUrl: "" };
+
 describe("resolveStrategy", () => {
   beforeEach(() => {
     mockComplete.mockReset();
   });
 
-  it("throws MissingApiKeyError when no key is supplied", () => {
-    expect(() => resolveStrategy("anthropic", "", "claude-x")).toThrow(MissingApiKeyError);
+  it("throws MissingApiKeyError when no provider is configured", () => {
+    expect(() => resolveStrategy(EMPTY_CONFIG)).toThrow(MissingApiKeyError);
   });
 
-  it("throws a clear error for an unrecognised provider id (stale persisted settings)", () => {
-    // Cast past the ProviderId union — this defends against exactly the case
-    // where TypeScript can't catch it: corrupted/stale data from storage.
-    expect(() => resolveStrategy("cohere" as never, "key", "model")).toThrow(/Unknown AI provider/);
+  it("throws MissingApiKeyError when a provider is configured with no key", () => {
+    const config: AgentConfig = {
+      providers: [{ provider: "anthropic", model: "claude-x", apiKeys: [] }],
+      ollamaUrl: "",
+    };
+    expect(() => resolveStrategy(config)).toThrow(MissingApiKeyError);
   });
 
-  it("generateText delegates to the shared package with jsonMode always on", async () => {
+  it("generateText delegates to the shared package with the full config and jsonMode always on", async () => {
     mockComplete.mockResolvedValue('{"ok":true}');
+    const config: AgentConfig = {
+      providers: [{ provider: "openai", model: "gpt-4o-mini", apiKeys: ["sk-x"] }],
+      ollamaUrl: "",
+    };
 
-    const strategy = resolveStrategy("openai", "sk-x", "gpt-4o-mini");
+    const strategy = resolveStrategy(config);
     const text = await strategy.generateText("write json", "be terse");
 
     expect(text).toBe('{"ok":true}');
-    expect(mockComplete).toHaveBeenCalledWith(
-      {
-        providers: [{ provider: "openai", model: "gpt-4o-mini", apiKeys: ["sk-x"] }],
-        ollamaUrl: "",
-      },
-      "write json",
-      { systemInstruction: "be terse", jsonMode: true },
-    );
+    expect(mockComplete).toHaveBeenCalledWith(config, "write json", {
+      systemInstruction: "be terse",
+      jsonMode: true,
+    });
   });
 
   it("still resolves an Anthropic strategy (jsonMode is a no-op there, matching prior behaviour)", async () => {
     mockComplete.mockResolvedValue("plain text");
-    const strategy = resolveStrategy("anthropic", "sk-ant-x", "claude-opus-4-8");
+    const config: AgentConfig = {
+      providers: [{ provider: "anthropic", model: "claude-opus-4-8", apiKeys: ["sk-ant-x"] }],
+      ollamaUrl: "",
+    };
+    const strategy = resolveStrategy(config);
     await expect(strategy.generateText("hi", "sys")).resolves.toBe("plain text");
+  });
+
+  it("passes the whole multi-provider fallback list through, not just the first candidate", async () => {
+    mockComplete.mockResolvedValue("fell back to groq");
+    const config: AgentConfig = {
+      providers: [
+        { provider: "anthropic", model: "claude-opus-4-8", apiKeys: [] },
+        { provider: "groq", model: "openai/gpt-oss-120b", apiKeys: ["gsk_x"] },
+      ],
+      ollamaUrl: "",
+    };
+
+    const strategy = resolveStrategy(config);
+    await expect(strategy.generateText("hi", "sys")).resolves.toBe("fell back to groq");
+    expect(mockComplete).toHaveBeenCalledWith(config, "hi", {
+      systemInstruction: "sys",
+      jsonMode: true,
+    });
   });
 });

@@ -93,17 +93,17 @@ export interface SyllabusStepDraft {
   resources: LearningResource[];
 }
 
-import type { ProviderId } from "./providers";
-
 /**
- * Persisted provider preferences (API keys are stored apart, per provider).
- *
- * `models` keeps a chosen model id per provider so switching back and forth
- * remembers each one.
+ * The pre-0.6.7 single-provider settings shape, kept only so
+ * `settingsRepository`'s one-time migration can read a user's existing Dexie
+ * record. Superseded by `modeldispatcher-browser-agent`'s `AgentConfig`
+ * (a multi-provider fallback list) for all new reads/writes — `provider` is
+ * `string` rather than a provider union because that union (`domain/providers`)
+ * no longer exists; the migration validates it against the shared registry.
  */
-export interface AppSettings {
+export interface LegacyAppSettings {
   /** Singleton key in the settings table. */
   id: "singleton";
-  provider: ProviderId;
-  models: Record<ProviderId, string>;
+  provider: string;
+  models: Record<string, string>;
 }

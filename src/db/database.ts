@@ -1,21 +1,27 @@
 /**
  * Local-first persistence via Dexie (IndexedDB).
  *
- * Everything the user creates — learning paths, steps, calendar dates, progress,
- * and provider settings — lives in the browser's IndexedDB. Nothing is sent to a
- * server; the only outbound request the app ever makes is the user-initiated
- * call to the Anthropic API for generation. Dexie itself is the repository
- * abstraction here, so swapping storage engines means replacing this one module.
+ * Everything the user creates — learning paths, steps, calendar dates, and
+ * progress — lives in the browser's IndexedDB. Provider settings live in
+ * modeldispatcher-browser-agent's own localStorage config instead (shared
+ * with every other app that adopts it); this DB's `settings` table only
+ * holds a pre-0.6.7 legacy record for one-time migration. Nothing is sent to
+ * a server; the only outbound requests the app makes are user-initiated
+ * calls to the configured AI provider(s) for generation. Dexie itself is the
+ * repository abstraction here, so swapping storage engines means replacing
+ * this one module.
  */
 
 import Dexie, { type Table } from "dexie";
-import type { AppSettings, LearningPath } from "../domain/types";
+import type { LearningPath, LegacyAppSettings } from "../domain/types";
 
 class StepByLearnDB extends Dexie {
   /** Learning paths keyed by id, indexed by creation time for ordering. */
   paths!: Table<LearningPath, string>;
-  /** Singleton settings row (provider preferences). */
-  settings!: Table<AppSettings, string>;
+  /** Legacy singleton settings row (pre-0.6.7 provider preferences) — read
+   * once by settingsRepository's migration, never written to again; current
+   * settings live in modeldispatcher-browser-agent's own localStorage config. */
+  settings!: Table<LegacyAppSettings, string>;
 
   constructor() {
     super("stepbylearn");

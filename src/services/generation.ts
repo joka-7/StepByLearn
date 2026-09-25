@@ -17,7 +17,7 @@ import { resolveStrategy } from "../ai/resolver";
 import { newId } from "../domain/ids";
 import type { ContentType, Difficulty, LearningPath, PathStep } from "../domain/types";
 import { appendSteps, savePath, updateStep } from "../repositories/pathRepository";
-import { getApiKey, getSettings } from "../repositories/settingsRepository";
+import { loadAgentConfig } from "../repositories/settingsRepository";
 
 export interface GeneratePathOptions {
   /** Target time per step, e.g. "45 minutes". */
@@ -34,12 +34,13 @@ export async function generatePath(
   difficulty: Difficulty,
   options: GeneratePathOptions,
 ): Promise<LearningPath> {
-  const settings = await getSettings();
-  const provider = settings.provider;
-  const model = settings.models[provider];
-  const apiKey = getApiKey(provider) ?? "";
+  const config = loadAgentConfig();
+  // Display only, for the path's own record — with more than one provider
+  // configured, which one actually answers a given request depends on
+  // runtime fallback, not this.
+  const model = config.providers[0]?.model ?? "unknown";
 
-  const strategy = resolveStrategy(provider, apiKey, model);
+  const strategy = resolveStrategy(config);
   const raw = await strategy.generateText(
     buildSyllabusPrompt(topic, difficulty, options),
     SYSTEM_INSTRUCTION,
@@ -96,12 +97,7 @@ export async function generateAdditionalSteps(
   path: LearningPath,
   instruction: string,
 ): Promise<PathStep[]> {
-  const settings = await getSettings();
-  const provider = settings.provider;
-  const model = settings.models[provider];
-  const apiKey = getApiKey(provider) ?? "";
-
-  const strategy = resolveStrategy(provider, apiKey, model);
+  const strategy = resolveStrategy(loadAgentConfig());
   const raw = await strategy.generateText(
     buildAdditionalStepsPrompt(
       path.title,
@@ -151,12 +147,7 @@ export async function regenerateStep(
   step: PathStep,
   instruction: string,
 ): Promise<LearningPath | undefined> {
-  const settings = await getSettings();
-  const provider = settings.provider;
-  const model = settings.models[provider];
-  const apiKey = getApiKey(provider) ?? "";
-
-  const strategy = resolveStrategy(provider, apiKey, model);
+  const strategy = resolveStrategy(loadAgentConfig());
   const raw = await strategy.generateText(
     buildFixStepPrompt(
       path.title,

@@ -1,6 +1,7 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
+import { PROVIDERS, type AgentConfig } from "modeldispatcher-browser-agent";
 import { SettingsModal } from "./components/SettingsModal";
 import { Sidebar } from "./components/layout/Sidebar";
 import { TopBar } from "./components/layout/TopBar";
@@ -10,13 +11,16 @@ import { DashboardView } from "./components/screens/DashboardView";
 import { ManualBuilderView } from "./components/screens/ManualBuilderView";
 import { StudyView } from "./components/screens/StudyView";
 import type { ViewId } from "./components/viewTypes";
-import { PROVIDERS } from "./domain/providers";
 import type { LearningPath } from "./domain/types";
 import { startPathSync } from "./firebase/pathSync";
 import { useAuthUser } from "./hooks/useAuthUser";
 import { useBackClose } from "./hooks/useBackClose";
 import { deletePath, listPaths } from "./repositories/pathRepository";
-import { getSettings, hasApiKey } from "./repositories/settingsRepository";
+import {
+  isConfigReady,
+  loadAgentConfig,
+  migrateLegacySettings,
+} from "./repositories/settingsRepository";
 
 const VIEW_LABELS: Record<ViewId, string> = {
   dashboard: "Workspace Planner",
@@ -28,14 +32,16 @@ const VIEW_LABELS: Record<ViewId, string> = {
 
 /**
  * Root component. Wires the reactive path list (via Dexie live queries) to the
- * sidebar navigation and the 5 workspace views. All state lives in IndexedDB;
- * the only network calls are user-initiated AI generation requests.
+ * sidebar navigation and the 5 workspace views. Course data lives in
+ * IndexedDB; the AI provider config lives in
+ * modeldispatcher-browser-agent's own localStorage blob instead (shared with
+ * every other app that adopts it). The only network calls are user-initiated
+ * AI generation requests.
  */
 export function App() {
   // useLiveQuery re-runs automatically whenever the paths table changes, so any
   // service mutation (generate, schedule, mark-done, delete) refreshes the UI.
   const paths = useLiveQuery(() => listPaths(), [], []);
-  const settings = useLiveQuery(() => getSettings(), []);
   const { user } = useAuthUser();
 
   // Mirror Dexie <-> this user's Firestore paths while signed in; stop on
@@ -49,8 +55,15 @@ export function App() {
   const [selectedPathId, setSelectedPathId] = useState<string | null>(null);
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  // Bumped on save so the key badge re-reads localStorage (which isn't reactive).
-  const [keyTick, setKeyTick] = useState(0);
+  // Provider config lives in modeldispatcher-browser-agent's localStorage
+  // blob, which isn't reactive — re-read explicitly on every save.
+  const [config, setConfig] = useState<AgentConfig>(loadAgentConfig);
+
+  // One-time migration from the pre-0.6.7 Dexie-backed single-provider
+  // settings, then pick up whatever it produced (a no-op once already run).
+  useEffect(() => {
+    migrateLegacySettings().then(() => setConfig(loadAgentConfig()));
+  }, []);
 
   // Mobile only: the sidebar renders as a slide-in drawer there (see Sidebar's
   // md:static/fixed classes) instead of stacking above the content, so picking
@@ -92,10 +105,11 @@ export function App() {
       ? selectedStepId
       : (selectedPath?.steps[0]?.id ?? null);
 
-  const provider = settings?.provider ?? "anthropic";
-  // keyTick is referenced so this recomputes after a save.
-  void keyTick;
-  const keyPresent = hasApiKey(provider);
+  const keyPresent = isConfigReady(config);
+  // Display only, for the sidebar badge — with more than one provider
+  // configured, which one actually answers a request depends on runtime
+  // fallback, not this.
+  const providerLabel = PROVIDERS[config.providers[0]?.provider ?? "anthropic"].name;
 
   function selectPath(id: string) {
     setSelectedPathId(id);
@@ -137,7 +151,7 @@ export function App() {
         activePath={selectedPath}
         onOpenSettings={() => setShowSettings(true)}
         keyPresent={keyPresent}
-        providerLabel={(PROVIDERS[provider] ?? PROVIDERS.anthropic).label}
+        providerLabel={providerLabel}
         user={user}
         mobileOpen={mobileNavOpen}
         onCloseMobile={() => setMobileNavOpen(false)}
@@ -191,7 +205,7 @@ export function App() {
       {showSettings && (
         <SettingsModal
           onClose={() => setShowSettings(false)}
-          onSaved={() => setKeyTick((t) => t + 1)}
+          onSaved={() => setConfig(loadAgentConfig())}
         />
       )}
     </div>
