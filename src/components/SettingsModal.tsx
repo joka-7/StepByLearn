@@ -1,4 +1,4 @@
-import { Globe, Settings, X } from "lucide-react";
+import { FolderGit2, Globe, Settings, X } from "lucide-react";
 import { useState } from "react";
 import { ModelPicker } from "modeldispatcher-react-ui";
 import "modeldispatcher-react-ui/styles.css";
@@ -91,6 +91,15 @@ export function SettingsModal({ onClose, onSaved }: Props) {
             className="text-slate-500 hover:text-slate-300 transition-colors"
           >
             <Globe size={16} />
+          </a>
+          <a
+            href="https://github.com/joka-7/StepByLearn"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="View repository"
+            className="text-slate-500 hover:text-slate-300 transition-colors"
+          >
+            <FolderGit2 size={16} />
           </a>
         </div>
       </div>
