@@ -73,34 +73,37 @@ export function SettingsModal({ onClose, onSaved }: Props) {
           onExternalChatFavoriteChange={handleFavoriteChange}
         />
 
-        <div className="flex items-center justify-center gap-4 pt-1 border-t border-slate-800">
-          <a
-            href="https://github.com/joka-7"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="GitHub"
-            className="text-slate-500 hover:text-slate-300 transition-colors"
-          >
-            <GithubIcon size={16} />
-          </a>
-          <a
-            href="https://jk-dev-7.vercel.app"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="jk.dev portfolio"
-            className="text-slate-500 hover:text-slate-300 transition-colors"
-          >
-            <Globe size={16} />
-          </a>
-          <a
-            href="https://github.com/joka-7/StepByLearn"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="View repository"
-            className="text-slate-500 hover:text-slate-300 transition-colors"
-          >
-            <FolderGit2 size={16} />
-          </a>
+        <div className="flex flex-col items-center gap-1.5 pt-1 border-t border-slate-800">
+          <span className="text-[11px] text-slate-500">Built by joka-7</span>
+          <div className="flex items-center justify-center gap-4">
+            <a
+              href="https://github.com/joka-7"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="GitHub"
+              className="text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              <GithubIcon size={16} />
+            </a>
+            <a
+              href="https://jk-dev-7.vercel.app"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="jk.dev portfolio"
+              className="text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              <Globe size={16} />
+            </a>
+            <a
+              href="https://github.com/joka-7/StepByLearn"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="View repository"
+              className="text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              <FolderGit2 size={16} />
+            </a>
+          </div>
         </div>
       </div>
     </div>
