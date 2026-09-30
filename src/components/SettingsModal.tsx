@@ -1,4 +1,4 @@
-import { FolderGit2, Globe, Settings, X } from "lucide-react";
+import { FolderGit2, Globe, Mail, MessageSquare, Settings, X } from "lucide-react";
 import { useState } from "react";
 import { ModelPicker } from "modeldispatcher-react-ui";
 import "modeldispatcher-react-ui/styles.css";
@@ -102,6 +102,23 @@ export function SettingsModal({ onClose, onSaved }: Props) {
               className="text-slate-500 hover:text-slate-300 transition-colors"
             >
               <FolderGit2 size={16} />
+            </a>
+            <a
+              href="mailto:joka.dev.7@gmail.com"
+              rel="noreferrer"
+              aria-label="Send feedback by email"
+              className="text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              <Mail size={16} />
+            </a>
+            <a
+              href="https://github.com/joka-7/StepByLearn/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Report an issue"
+              className="text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              <MessageSquare size={16} />
             </a>
           </div>
         </div>

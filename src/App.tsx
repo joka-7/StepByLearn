@@ -1,5 +1,6 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { Menu } from "lucide-react";
+import { FolderGit2, Globe, Mail, Menu, MessageSquare } from "lucide-react";
+import { GithubIcon } from "./components/GithubIcon";
 import { useEffect, useState } from "react";
 import { PROVIDERS, type AgentConfig } from "modeldispatcher-browser-agent";
 import { SettingsModal } from "./components/SettingsModal";
@@ -199,6 +200,56 @@ export function App() {
           {activeView === "manual" && <ManualBuilderView onCreated={handleCreated} />}
 
           {activeView === "analytics" && <AnalyticsView paths={paths} />}
+
+          <div className="flex flex-col items-center gap-1.5 pt-8 pb-2 text-slate-500">
+            <span className="text-[11px]">Built by joka-7</span>
+            <div className="flex items-center justify-center gap-4">
+              <a
+                href="https://github.com/joka-7"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="GitHub"
+                className="hover:text-slate-300 transition-colors"
+              >
+                <GithubIcon size={16} />
+              </a>
+              <a
+                href="https://jk-dev-7.vercel.app"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="jk.dev portfolio"
+                className="hover:text-slate-300 transition-colors"
+              >
+                <Globe size={16} />
+              </a>
+              <a
+                href="https://github.com/joka-7/StepByLearn"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="View repository"
+                className="hover:text-slate-300 transition-colors"
+              >
+                <FolderGit2 size={16} />
+              </a>
+              <a
+                href="mailto:joka.dev.7@gmail.com"
+                rel="noreferrer"
+                aria-label="Send feedback by email"
+                className="hover:text-slate-300 transition-colors"
+              >
+                <Mail size={16} />
+              </a>
+              <a
+                href="https://github.com/joka-7/StepByLearn/issues/new"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Report an issue"
+                className="hover:text-slate-300 transition-colors"
+              >
+                <MessageSquare size={16} />
+              </a>
+            </div>
+          </div>
         </div>
       </main>
 
