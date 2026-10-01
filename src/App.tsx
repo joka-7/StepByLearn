@@ -203,13 +203,14 @@ export function App() {
 
           <div className="flex flex-col items-center gap-1.5 pt-8 pb-2 text-slate-500">
             <span className="text-[11px]">Built by joka-7</span>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-1">
               <a
                 href="https://github.com/joka-7"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="GitHub"
-                className="hover:text-slate-300 transition-colors"
+                title="GitHub"
+                className="hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
               >
                 <GithubIcon size={16} />
               </a>
@@ -218,7 +219,8 @@ export function App() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="jk.dev portfolio"
-                className="hover:text-slate-300 transition-colors"
+                title="jk.dev portfolio"
+                className="hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
               >
                 <Globe size={16} />
               </a>
@@ -227,7 +229,8 @@ export function App() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="View repository"
-                className="hover:text-slate-300 transition-colors"
+                title="View repository"
+                className="hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
               >
                 <FolderGit2 size={16} />
               </a>
@@ -235,7 +238,8 @@ export function App() {
                 href="mailto:joka.dev.7@gmail.com"
                 rel="noreferrer"
                 aria-label="Send feedback by email"
-                className="hover:text-slate-300 transition-colors"
+                title="Send feedback by email"
+                className="hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
               >
                 <Mail size={16} />
               </a>
@@ -244,7 +248,8 @@ export function App() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Report an issue"
-                className="hover:text-slate-300 transition-colors"
+                title="Report an issue"
+                className="hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
               >
                 <MessageSquare size={16} />
               </a>
