@@ -16,3 +16,8 @@ body {
   overscroll-behavior-x: none;
   background-color: #020617;
 }
+
+.tap-fx {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(200, 200, 200, 0.3);
+}

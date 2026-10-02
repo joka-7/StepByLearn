@@ -82,7 +82,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
               rel="noreferrer"
               aria-label="GitHub"
               title="GitHub"
-              className="text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
+              className="tap-fx text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
             >
               <GithubIcon size={16} />
             </a>
@@ -92,7 +92,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
               rel="noreferrer"
               aria-label="jk.dev portfolio"
               title="jk.dev portfolio"
-              className="text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
+              className="tap-fx text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
             >
               <Globe size={16} />
             </a>
@@ -102,7 +102,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
               rel="noreferrer"
               aria-label="View repository"
               title="View repository"
-              className="text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
+              className="tap-fx text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
             >
               <FolderGit2 size={16} />
             </a>
@@ -111,7 +111,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
               rel="noreferrer"
               aria-label="Send feedback by email"
               title="Send feedback by email"
-              className="text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
+              className="tap-fx text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
             >
               <Mail size={16} />
             </a>
@@ -121,7 +121,7 @@ export function SettingsModal({ onClose, onSaved }: Props) {
               rel="noreferrer"
               aria-label="Report an issue"
               title="Report an issue"
-              className="text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
+              className="tap-fx text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all"
             >
               <MessageSquare size={16} />
             </a>
