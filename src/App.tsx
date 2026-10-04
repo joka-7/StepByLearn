@@ -1,6 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { FolderGit2, Globe, Mail, Menu, MessageSquare } from "lucide-react";
-import { GithubIcon } from "./components/GithubIcon";
+import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PROVIDERS, type AgentConfig } from "modeldispatcher-browser-agent";
 import { SettingsModal } from "./components/SettingsModal";
@@ -201,64 +200,15 @@ export function App() {
 
           {activeView === "analytics" && <AnalyticsView paths={paths} />}
 
-          <div className="flex flex-col items-center gap-1.5 pt-8 pb-2 text-slate-500">
-            <span className="text-[11px]">Built by joka-7</span>
-            <div className="flex items-center justify-center gap-1">
-              <a
-                href="https://github.com/joka-7"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="GitHub"
-                title="GitHub"
-                className="tap-fx hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all inline-flex flex-col items-center justify-center gap-0.5"
-              >
-                <GithubIcon size={16} />
-                <span className="text-[9px] leading-none">GitHub</span>
-              </a>
-              <a
-                href="https://jk-dev-7.vercel.app"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="jk.dev portfolio"
-                title="jk.dev portfolio"
-                className="tap-fx hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all inline-flex flex-col items-center justify-center gap-0.5"
-              >
-                <Globe size={16} />
-                <span className="text-[9px] leading-none">Site</span>
-              </a>
-              <a
-                href="https://github.com/joka-7/StepByLearn"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="View repository"
-                title="View repository"
-                className="tap-fx hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all inline-flex flex-col items-center justify-center gap-0.5"
-              >
-                <FolderGit2 size={16} />
-                <span className="text-[9px] leading-none">Code</span>
-              </a>
-              <a
-                href="mailto:joka.dev.7@gmail.com"
-                rel="noreferrer"
-                aria-label="Send feedback by email"
-                title="Send feedback by email"
-                className="tap-fx hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all inline-flex flex-col items-center justify-center gap-0.5"
-              >
-                <Mail size={16} />
-                <span className="text-[9px] leading-none">Email</span>
-              </a>
-              <a
-                href="https://github.com/joka-7/StepByLearn/issues/new"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Report an issue"
-                title="Report an issue"
-                className="tap-fx hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all inline-flex flex-col items-center justify-center gap-0.5"
-              >
-                <MessageSquare size={16} />
-                <span className="text-[9px] leading-none">Feedback</span>
-              </a>
-            </div>
+          <div className="pt-8 pb-2 text-center">
+            <a
+              href="https://jk-dev-7.vercel.app"
+              target="_blank"
+              rel="noreferrer"
+              className="tap-fx text-[11px] text-slate-500 underline-offset-2 hover:underline"
+            >
+              Built by joka-7
+            </a>
           </div>
         </div>
       </main>
