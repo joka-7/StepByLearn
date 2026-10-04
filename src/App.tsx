@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { Menu } from "lucide-react";
+import { Globe, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PROVIDERS, type AgentConfig } from "modeldispatcher-browser-agent";
 import { SettingsModal } from "./components/SettingsModal";
@@ -200,14 +200,17 @@ export function App() {
 
           {activeView === "analytics" && <AnalyticsView paths={paths} />}
 
-          <div className="pt-8 pb-2 text-center">
+          <div className="flex items-center justify-center gap-1.5 pt-8 pb-2">
+            <span className="text-[11px] text-slate-500">Built by joka-7</span>
             <a
               href="https://jk-dev-7.vercel.app"
               target="_blank"
               rel="noreferrer"
-              className="tap-fx text-[11px] text-slate-500 underline-offset-2 hover:underline"
+              aria-label="jk.dev portfolio"
+              title="jk.dev portfolio"
+              className="tap-fx text-slate-500 hover:text-slate-300"
             >
-              Built by joka-7
+              <Globe size={14} aria-hidden />
             </a>
           </div>
         </div>
