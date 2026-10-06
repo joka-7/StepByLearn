@@ -23,6 +23,7 @@ StepByLearn/
 │   │   ├── settings.png
 │   │   └── study-desk.png
 │   ├── .structure-notes.toml
+│   ├── AUDIT.md                                  # StepByLearn — Full Audit (October 2026)
 │   ├── HLD.md                                    # StepByLearn — High-Level Design
 │   ├── LLD.md                                    # StepByLearn — Low-Level Design
 │   └── STRUCTURE.md                              # Repository structure
