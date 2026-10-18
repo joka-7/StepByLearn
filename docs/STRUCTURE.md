@@ -27,7 +27,8 @@ StepByLearn/
 │   ├── LLD.md                                    # StepByLearn — Low-Level Design
 │   └── STRUCTURE.md                              # Repository structure
 ├── e2e/
-│   └── screenshots.spec.ts
+│   ├── screenshots.spec.ts
+│   └── smoke.spec.ts
 ├── legacy-python/                                # Earlier FastAPI + SQLite implementation, kept for reference only — not part…
 │   ├── src/                                      # The old backend's source
 │   │   └── stepbylearn/
@@ -153,32 +154,57 @@ StepByLearn/
 │   │   │   ├── DashboardView.tsx                 # Path list + new-path generation form
 │   │   │   ├── ManualBuilderView.tsx             # Build a path without AI
 │   │   │   └── StudyView.tsx                     # Active step study desk
+│   │   ├── ui/
+│   │   │   ├── ConfirmDialog.tsx
+│   │   │   ├── ErrorBoundary.tsx
+│   │   │   ├── Modal.tsx
+│   │   │   ├── ToastProvider.tsx
+│   │   │   └── toast.ts
 │   │   ├── GithubIcon.tsx
 │   │   ├── SettingsModal.tsx                     # Provider + API key + model settings
 │   │   └── viewTypes.ts
 │   ├── db/
 │   │   └── database.ts
 │   ├── domain/
+│   │   ├── dates.test.ts
+│   │   ├── dates.ts
 │   │   ├── ids.test.ts
 │   │   ├── ids.ts
-│   │   └── types.ts
-│   ├── firebase/
-│   │   ├── auth.ts
-│   │   ├── config.test.ts
-│   │   ├── config.ts
-│   │   └── pathSync.ts
+│   │   ├── storedPath.test.ts
+│   │   ├── storedPath.ts
+│   │   ├── types.ts
+│   │   ├── urls.test.ts
+│   │   └── urls.ts
 │   ├── hooks/
 │   │   ├── useAuthUser.ts
-│   │   └── useBackClose.ts
+│   │   ├── useBackClose.ts
+│   │   └── useCloudSync.ts
 │   ├── repositories/
+│   │   ├── pathRepository.test.ts
 │   │   ├── pathRepository.ts
 │   │   └── settingsRepository.ts
 │   ├── services/
+│   │   ├── calendar.test.ts
 │   │   ├── calendar.ts
 │   │   ├── generation.ts
 │   │   ├── manualBuilder.ts
 │   │   ├── progress.test.ts
 │   │   └── progress.ts
+│   ├── sync/
+│   │   ├── clientId.test.ts
+│   │   ├── clientId.ts
+│   │   ├── dataOwner.ts
+│   │   ├── drive.ts
+│   │   ├── driveDocument.test.ts
+│   │   ├── driveDocument.ts
+│   │   ├── driveSync.test.ts
+│   │   ├── driveSync.ts
+│   │   ├── pathDriveSync.test.ts
+│   │   ├── pathDriveSync.ts
+│   │   ├── pathStore.test.ts
+│   │   ├── pathStore.ts
+│   │   ├── syncPlan.test.ts
+│   │   └── syncPlan.ts
 │   ├── App.tsx
 │   ├── index.css
 │   ├── main.tsx

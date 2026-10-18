@@ -20,12 +20,12 @@
  * returns — Drive has no change feed.
  */
 
-import { planSync } from "../firebase/syncPlan";
 import { parseStoredPath } from "../domain/storedPath";
 import type { LearningPath } from "../domain/types";
 import { DriveSyncError } from "./driveDocument";
 import type { DriveSync } from "./driveSync";
 import type { PathStore } from "./pathStore";
+import { planSync } from "./syncPlan";
 
 const COLLECTION = "paths";
 

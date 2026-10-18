@@ -4,7 +4,8 @@ An **offline-first, cloud-AI, step-by-step learning platform** — a pure browse
 web app. Generate a structured learning path for any topic with your choice of
 Anthropic Claude, OpenAI, Groq, or Google Gemini, schedule it onto a calendar,
 and track your progress. Everything is stored locally in your browser
-(IndexedDB) for privacy and full offline use.
+(IndexedDB) for privacy and full offline use, and can optionally sync to your
+**own Google Drive** — never to a StepByLearn server, because there isn't one.
 
 No backend, no server, no database to install. Just `npm install && npm run dev`.
 
@@ -53,11 +54,15 @@ npx playwright test e2e/screenshots.spec.ts
 - **Pure web app** — Vite + React + TypeScript. Runs from `npm run dev` or
   deploys as a static site to any host (Netlify, Vercel, GitHub Pages, S3…).
 - **Local-first storage** — all paths, steps, calendar dates, and progress live
-  in the browser's **IndexedDB** (via Dexie). Nothing is sent to a server.
+  in the browser's **IndexedDB** (via Dexie) and work with no network.
+- **Optional sync to your own Google Drive** — "Connect Google Drive" mirrors your
+  courses into the app's hidden Drive folder (`drive.appdata`), which only this
+  app can read. The operator has no copy of anyone's courses. Each device writes
+  its own file and the newest edit of each course wins; deletes are tombstones.
 - **Cloud AI, your choice of provider** — generation calls **Anthropic, OpenAI,
   Groq, or Gemini directly from the browser**, using a key you paste into
   Settings (stored only in your browser). No server, no vendor SDK — backed by
-  the shared [`@joka-7/modeldispatcher-browser-agent`](https://github.com/joka-7/ModelDispatcher/tree/main/clients/browser-agent)
+  the shared [`modeldispatcher-browser-agent`](https://github.com/joka-7/ModelDispatcher/tree/main/clients/browser-agent)
   package (also used by JobFlowTracker/KanDOne/HighFive).
 - **Resilient parsing** — a defense-in-depth JSON healer cleans fragile model
   output (code fences, prose, stray text) into validated domain models.
@@ -75,8 +80,11 @@ components → services → { ai, repositories } → domain
 - `src/domain` — pure types + id generation (no I/O).
 - `src/db` + `src/repositories` — Dexie/IndexedDB persistence behind repository
   functions (swap storage without touching the rest).
-- `src/ai` — the resolver (backed by `@joka-7/modeldispatcher-browser-agent`,
+- `src/ai` — the resolver (backed by `modeldispatcher-browser-agent`,
   the shared multi-provider browser client), prompts, and the JSON healer.
+- `src/sync` — optional Google Drive sync: the Drive client and merge rules
+  (`driveSync.ts`, `driveDocument.ts`) and the engine that mirrors the local
+  store with Drive (`pathDriveSync.ts`).
 - `src/services` — use-cases: generation, calendar scheduling, progress.
 - `src/components` + `src/App.tsx` — React UI, reactive via Dexie live queries.
 
@@ -106,7 +114,8 @@ StepByLearn/
 │   ├── LLD.md                                    # StepByLearn — Low-Level Design
 │   └── STRUCTURE.md                              # Repository structure
 ├── e2e/
-│   └── screenshots.spec.ts
+│   ├── screenshots.spec.ts
+│   └── smoke.spec.ts
 ├── legacy-python/                                # Earlier FastAPI + SQLite implementation, kept for reference only — not part…
 │   ├── src/                                      # The old backend's source
 │   │   └── stepbylearn/
@@ -232,32 +241,57 @@ StepByLearn/
 │   │   │   ├── DashboardView.tsx                 # Path list + new-path generation form
 │   │   │   ├── ManualBuilderView.tsx             # Build a path without AI
 │   │   │   └── StudyView.tsx                     # Active step study desk
+│   │   ├── ui/
+│   │   │   ├── ConfirmDialog.tsx
+│   │   │   ├── ErrorBoundary.tsx
+│   │   │   ├── Modal.tsx
+│   │   │   ├── ToastProvider.tsx
+│   │   │   └── toast.ts
 │   │   ├── GithubIcon.tsx
 │   │   ├── SettingsModal.tsx                     # Provider + API key + model settings
 │   │   └── viewTypes.ts
 │   ├── db/
 │   │   └── database.ts
 │   ├── domain/
+│   │   ├── dates.test.ts
+│   │   ├── dates.ts
 │   │   ├── ids.test.ts
 │   │   ├── ids.ts
-│   │   └── types.ts
-│   ├── firebase/
-│   │   ├── auth.ts
-│   │   ├── config.test.ts
-│   │   ├── config.ts
-│   │   └── pathSync.ts
+│   │   ├── storedPath.test.ts
+│   │   ├── storedPath.ts
+│   │   ├── types.ts
+│   │   ├── urls.test.ts
+│   │   └── urls.ts
 │   ├── hooks/
 │   │   ├── useAuthUser.ts
-│   │   └── useBackClose.ts
+│   │   ├── useBackClose.ts
+│   │   └── useCloudSync.ts
 │   ├── repositories/
+│   │   ├── pathRepository.test.ts
 │   │   ├── pathRepository.ts
 │   │   └── settingsRepository.ts
 │   ├── services/
+│   │   ├── calendar.test.ts
 │   │   ├── calendar.ts
 │   │   ├── generation.ts
 │   │   ├── manualBuilder.ts
 │   │   ├── progress.test.ts
 │   │   └── progress.ts
+│   ├── sync/
+│   │   ├── clientId.test.ts
+│   │   ├── clientId.ts
+│   │   ├── dataOwner.ts
+│   │   ├── drive.ts
+│   │   ├── driveDocument.test.ts
+│   │   ├── driveDocument.ts
+│   │   ├── driveSync.test.ts
+│   │   ├── driveSync.ts
+│   │   ├── pathDriveSync.test.ts
+│   │   ├── pathDriveSync.ts
+│   │   ├── pathStore.test.ts
+│   │   ├── pathStore.ts
+│   │   ├── syncPlan.test.ts
+│   │   └── syncPlan.ts
 │   ├── App.tsx
 │   ├── index.css
 │   ├── main.tsx
@@ -308,6 +342,20 @@ npm run preview    # serve the production build locally
 
 Deploy the contents of `dist/` to any static host.
 
+### Optional: Google Drive sync
+
+Sync is off unless the build has an OAuth client ID, and the "Connect Google
+Drive" button is hidden without one. To enable it, in a Google Cloud project:
+
+1. Enable the **Google Drive API**.
+2. Add the `https://www.googleapis.com/auth/drive.appdata` scope (non-sensitive,
+   so no verification) and publish the OAuth consent screen to production.
+3. Create an OAuth client of type **Web application** and add your site's
+   origin (and `http://localhost:5173` for local dev) under *Authorized
+   JavaScript origins*.
+4. Set `VITE_GOOGLE_CLIENT_ID` to that client ID (`.env.local` locally, the
+   host's environment variables when deploying). See `.env.local.example`.
+
 ## Privacy & the API key
 
 This is a single-user, local-first tool. Your API key is stored in the browser's
@@ -315,6 +363,13 @@ This is a single-user, local-first tool. Your API key is stored in the browser's
 generation call — there is no StepByLearn server to receive it. Because you
 supply your own key on your own machine, a direct browser-to-provider call is
 an acceptable trade-off for a zero-backend app.
+
+If you connect Google Drive, your courses (not your API keys) are written to
+the hidden app-data folder of **your** Drive, using a token limited to that
+folder. Signing out removes your courses from the device (they stay in Drive),
+and **Delete my synced data** deletes every sync file and revokes the app's
+access. Course content you generate also passes through the AI provider you
+chose, under that provider's terms.
 
 ## Scripts
 

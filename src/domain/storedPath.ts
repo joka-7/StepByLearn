@@ -1,7 +1,7 @@
 /**
  * Validate and normalize a learning path read from storage we don't fully
- * control: IndexedDB rows written by older app versions, Firestore documents
- * (any signed-in client can write its own), and imported backup files.
+ * control: IndexedDB rows written by older app versions, and Drive sync files
+ * (any device signed in to the account can write its own).
  *
  * Old rows lack fields added later (type/duration/material links/resources/
  * keyConcepts/deletedAt); those are backfilled. A value that can't be a path

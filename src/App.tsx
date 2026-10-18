@@ -61,7 +61,7 @@ function isOverlayHistoryEntry(state: unknown): boolean {
  * IndexedDB; the AI provider config lives in
  * modeldispatcher-browser-agent's own localStorage blob instead (shared with
  * every other app that adopts it). Network calls are user-initiated AI
- * generation requests and, when signed in, Firestore sync.
+ * generation requests and, when connected, sync with the user's own Google Drive.
  */
 export function App() {
   // useLiveQuery re-runs automatically whenever the paths table changes, so any
