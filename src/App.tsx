@@ -13,6 +13,8 @@ import type { LearningPath } from "./domain/types";
 import { useAuthUser } from "./hooks/useAuthUser";
 import { useBackClose } from "./hooks/useBackClose";
 import { useCloudSync } from "./hooks/useCloudSync";
+import { DriveSyncError } from "./sync/driveDocument";
+import { formatSignInError } from "./sync/driveSync";
 import {
   deletePath,
   listPaths,
@@ -159,12 +161,36 @@ export function App() {
     });
   }
 
-  async function handleDeleteCloudData() {
+  // Not async-awaited before signIn: Google's popup must open inside the click.
+  function handleSignIn() {
+    cloudSync.signIn().catch((err: unknown) => {
+      showToast({ tone: "error", message: formatSignInError(err) });
+    });
+  }
+
+  async function handleSignOut() {
     try {
-      await cloudSync.deleteCloudData();
-      showToast({ message: "Your cloud copy was deleted. Courses on this device were kept." });
+      await cloudSync.signOut();
     } catch {
-      showToast({ tone: "error", message: "Couldn't delete your cloud data. Try again." });
+      showToast({ tone: "error", message: "Couldn't sign out. Try again." });
+    }
+  }
+
+  async function handleDeleteSyncedData() {
+    try {
+      await cloudSync.deleteSyncedData();
+      showToast({
+        message:
+          "Your synced data was deleted from Google Drive. Courses on this device were kept.",
+      });
+    } catch (err) {
+      showToast({
+        tone: "error",
+        message:
+          err instanceof DriveSyncError && err.code === "offline"
+            ? "You're offline. Nothing was deleted; try again when you're back online."
+            : "Couldn't delete your synced data. Nothing was changed; try again.",
+      });
     }
   }
 
@@ -193,7 +219,10 @@ export function App() {
         keyPresent={keyPresent}
         providerLabel={providerLabel}
         user={user}
-        onDeleteCloudData={handleDeleteCloudData}
+        cloud={cloudSync.state}
+        onSignIn={handleSignIn}
+        onSignOut={() => void handleSignOut()}
+        onDeleteSyncedData={() => void handleDeleteSyncedData()}
         mobileOpen={mobileNavOpen}
         onCloseMobile={() => setMobileNavOpen(false)}
       />

@@ -1,25 +1,19 @@
 import { useEffect, useState } from "react";
-import { onAuthChange, type User } from "../firebase/auth";
+import { driveSync } from "../sync/drive";
+import type { DriveUser } from "../sync/driveSync";
 
 export interface AuthUserState {
-  user: User | null;
-  /** True until the initial auth state has resolved. */
-  loading: boolean;
+  user: DriveUser | null;
 }
 
-/** React-facing view of Firebase auth state, analogous to a Dexie live query. */
+/**
+ * React-facing view of who is connected to Drive. The first report is
+ * synchronous, so there is no "loading" state to render around.
+ */
 export function useAuthUser(): AuthUserState {
-  const [state, setState] = useState<AuthUserState>({ user: null, loading: true });
+  const [user, setUser] = useState<DriveUser | null>(null);
 
-  useEffect(() => {
-    return onAuthChange(
-      (user) => setState({ user, loading: false }),
-      (error) =>
-        console.error("Auth failed to initialize", {
-          name: error instanceof Error ? error.name : "unknown",
-        }),
-    );
-  }, []);
+  useEffect(() => driveSync.onAuthChange(setUser), []);
 
-  return state;
+  return { user };
 }

@@ -19,8 +19,16 @@ interface SyncBadge {
 
 function syncBadge(sync: CloudSyncState): SyncBadge {
   switch (sync.kind) {
-    case "signed-out":
+    case "unavailable":
       return { label: "Local-only", dotClass: "bg-emerald-400" };
+    case "signed-out":
+      return sync.needsReconnect
+        ? {
+            label: "Not connected",
+            dotClass: "bg-amber-400",
+            title: "Reconnect Google Drive to keep syncing.",
+          }
+        : { label: "Local-only", dotClass: "bg-emerald-400" };
     case "checking":
       return { label: "Connecting…", dotClass: "bg-slate-400 animate-pulse" };
     case "account-conflict":
@@ -31,6 +39,12 @@ function syncBadge(sync: CloudSyncState): SyncBadge {
           return { label: "Syncing…", dotClass: "bg-blue-400 animate-pulse" };
         case "synced":
           return { label: "Synced", dotClass: "bg-blue-400" };
+        case "offline":
+          return {
+            label: "Offline",
+            dotClass: "bg-amber-400",
+            title: "Changes will sync when you're back online.",
+          };
         case "error":
           return { label: "Sync error", dotClass: "bg-rose-400", title: sync.status.message };
       }
