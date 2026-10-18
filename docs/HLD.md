@@ -77,6 +77,12 @@ repositories and domain; nothing below the UI depends on `src/sync`.
   views (all but the planner are lazy-loaded); `components/layout/*` is the sidebar and top
   bar; `components/ui/*` holds the shared accessible `Modal`, `ConfirmDialog`, toasts and
   `ErrorBoundary`.
+- **`android/` + `capacitor.config.json`** — the Android app: a Capacitor shell around the same
+  web build (`webDir: dist`), built and signed by `.github/workflows/android.yml`. It differs
+  from the web app in three places only: Google sign-in goes through the OS
+  (`src/sync/nativeGoogleAuth.ts`, chosen in `src/sync/drive.ts` when
+  `Capacitor.isNativePlatform()`), no service worker is registered (`src/main.tsx`), and
+  Android's device backup is disabled in `AndroidManifest.xml`.
 - **`legacy-python/`** — an earlier FastAPI + SQLite implementation of the same concept, kept
   for reference per `README.md`; not part of the running app.
 
@@ -176,8 +182,14 @@ first and then removes them; they are never merged into the new account.
 - **Session**: the Google access token and signed-in user are kept in `localStorage`
   (`stepbylearn_drive_session_v1`) so a reload within the token's hour doesn't need another
   click. The token is limited to this app's hidden Drive folder and expires on Google's side
-  (about an hour); after that the top bar shows "Not connected" and offers "Reconnect Google
-  Drive".
+  (about an hour); after that the browser app's top bar shows "Not connected" and offers
+  "Reconnect Google Drive". The Android app instead renews the token silently on the next
+  Drive call and only reports signed-out when a renewal fails.
+- **Android build secrets**: the signing key and its password live only in GitHub Actions
+  secrets (`ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_B64_2`, `ANDROID_KEY_PASSWORD`) and the
+  client ID in the `VITE_GOOGLE_CLIENT_ID` Actions variable; the workflow fails rather than
+  fall back to a temporary key or a build with no client ID (`android.yml`). `*.jks` and
+  `*.keystore` are gitignored.
 
 ## Data validation / I/O
 

@@ -96,11 +96,96 @@ See [`docs/HLD.md`](docs/HLD.md) and [`docs/LLD.md`](docs/LLD.md) for the full d
 StepByLearn/
 ├── .github/
 │   ├── workflows/
+│   │   ├── android.yml
 │   │   ├── ci.yml
 │   │   ├── docs.yml
 │   │   └── security.yml
 │   ├── copilot-instructions.md                   # Copilot's copy of AGENTS.md (generated)
 │   └── dependabot.yml
+├── android/                                      # Android app: the Capacitor native project (template plus a few deliberate…
+│   ├── app/
+│   │   ├── src/
+│   │   │   └── main/
+│   │   │       ├── java/
+│   │   │       │   └── io/
+│   │   │       │       └── github/
+│   │   │       │           └── joka7/
+│   │   │       │               └── stepbylearn/
+│   │   │       │                   └── MainActivity.java  # Hands Google's Drive-consent result back to the sign-in plugin
+│   │   │       ├── res/
+│   │   │       │   ├── drawable/
+│   │   │       │   │   ├── ic_launcher_background.xml
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-land-hdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-land-mdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-land-xhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-land-xxhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-land-xxxhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-port-hdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-port-mdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-port-xhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-port-xxhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-port-xxxhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-v24/
+│   │   │       │   │   └── ic_launcher_foreground.xml
+│   │   │       │   ├── layout/
+│   │   │       │   │   └── activity_main.xml
+│   │   │       │   ├── mipmap-anydpi-v26/
+│   │   │       │   │   ├── ic_launcher.xml
+│   │   │       │   │   └── ic_launcher_round.xml
+│   │   │       │   ├── mipmap-hdpi/
+│   │   │       │   │   ├── ic_launcher.png
+│   │   │       │   │   ├── ic_launcher_foreground.png
+│   │   │       │   │   └── ic_launcher_round.png
+│   │   │       │   ├── mipmap-mdpi/
+│   │   │       │   │   ├── ic_launcher.png
+│   │   │       │   │   ├── ic_launcher_foreground.png
+│   │   │       │   │   └── ic_launcher_round.png
+│   │   │       │   ├── mipmap-xhdpi/
+│   │   │       │   │   ├── ic_launcher.png
+│   │   │       │   │   ├── ic_launcher_foreground.png
+│   │   │       │   │   └── ic_launcher_round.png
+│   │   │       │   ├── mipmap-xxhdpi/
+│   │   │       │   │   ├── ic_launcher.png
+│   │   │       │   │   ├── ic_launcher_foreground.png
+│   │   │       │   │   └── ic_launcher_round.png
+│   │   │       │   ├── mipmap-xxxhdpi/
+│   │   │       │   │   ├── ic_launcher.png
+│   │   │       │   │   ├── ic_launcher_foreground.png
+│   │   │       │   │   └── ic_launcher_round.png
+│   │   │       │   ├── values/
+│   │   │       │   │   ├── ic_launcher_background.xml
+│   │   │       │   │   ├── strings.xml
+│   │   │       │   │   └── styles.xml
+│   │   │       │   └── xml/
+│   │   │       │       └── file_paths.xml
+│   │   │       └── AndroidManifest.xml
+│   │   ├── .gitignore
+│   │   ├── build.gradle
+│   │   ├── capacitor.build.gradle
+│   │   └── proguard-rules.pro
+│   ├── gradle/
+│   │   └── wrapper/
+│   │       ├── gradle-wrapper.jar
+│   │       └── gradle-wrapper.properties
+│   ├── .gitignore
+│   ├── build.gradle
+│   ├── capacitor.settings.gradle
+│   ├── gradle.properties
+│   ├── gradlew
+│   ├── gradlew.bat
+│   ├── settings.gradle
+│   └── variables.gradle
 ├── docs/
 │   ├── screenshots/
 │   │   ├── analytics.png
@@ -286,6 +371,8 @@ StepByLearn/
 │   │   ├── driveDocument.ts
 │   │   ├── driveSync.test.ts
 │   │   ├── driveSync.ts
+│   │   ├── nativeGoogleAuth.test.ts
+│   │   ├── nativeGoogleAuth.ts
 │   │   ├── pathDriveSync.test.ts
 │   │   ├── pathDriveSync.ts
 │   │   ├── pathStore.test.ts
@@ -309,6 +396,7 @@ StepByLearn/
 ├── README.md                                     # StepByLearn
 ├── SECURITY.md                                   # Security Policy
 ├── ai-config.toml                                # Which rule fragments and target tools ai-sync compiles for this repo
+├── capacitor.config.json                         # Capacitor app id, name and the web build folder to wrap
 ├── eslint.config.js
 ├── firestore.rules
 ├── index.html
@@ -355,6 +443,41 @@ Drive" button is hidden without one. To enable it, in a Google Cloud project:
    JavaScript origins*.
 4. Set `VITE_GOOGLE_CLIENT_ID` to that client ID (`.env.local` locally, the
    host's environment variables when deploying). See `.env.local.example`.
+
+### Android app
+
+The same web app ships as an Android app (package `io.github.joka7.stepbylearn`),
+wrapped with [Capacitor](https://capacitorjs.com). Your courses stay in the app's
+own storage and sync to your Google Drive exactly as on the web. Differences:
+
+- **Sign-in** goes through Android's own Google sign-in (Google refuses its browser
+  popup inside a WebView), which can also renew the Drive token silently
+  (`src/sync/nativeGoogleAuth.ts`).
+- **No service worker**: the app ships its own files and updates by reinstalling.
+- **Android backups are off** (`allowBackup="false"`), so Google's device backup
+  can't copy your session or courses.
+
+The *Android* workflow (`.github/workflows/android.yml`) builds and signs the APK on
+every push and pull request, and publishes it on `main` at
+`https://github.com/joka-7/StepByLearn/releases/latest/download/StepByLearn.apk`.
+One-time setup it needs, none of which is in the repo:
+
+1. In the same Google Cloud project as the web client, create an OAuth client of type
+   **Android** with package `io.github.joka7.stepbylearn` and the SHA-1 of your
+   signing key (the workflow prints it in its log as `Signing key SHA1:`, or run
+   `keytool -list -v -keystore <your>.jks`). Google matches it to the Web client ID.
+2. Create a permanent signing key (`keytool -genkeypair -keystore stepbylearn-release.jks
+-alias stepbylearn -keyalg RSA -keysize 2048 -validity 10000`) and keep the `.jks` and
+   its password somewhere safe: an APK signed with a different key can't be installed
+   over the old one, and the SHA-1 above is tied to it.
+3. In *Settings → Secrets and variables → Actions*: add the secrets
+   `ANDROID_KEYSTORE_B64` and `ANDROID_KEYSTORE_B64_2` (the base64 of the `.jks`, split in
+   two halves because some clipboards cut long lines) and `ANDROID_KEY_PASSWORD`, and the
+   variable `VITE_GOOGLE_CLIENT_ID` (the Web client ID).
+
+To work on it locally: `npm run build && npx cap sync android`, then open `android/` in
+Android Studio. `android/` contains only the native project; the web build is copied in
+by `cap sync` and not committed.
 
 ## Privacy & the API key
 

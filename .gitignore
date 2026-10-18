@@ -54,3 +54,7 @@ __pycache__/
 
 # Coverage reports
 coverage/
+
+# Android signing material must never be committed.
+*.jks
+*.keystore

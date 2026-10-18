@@ -9,11 +9,96 @@ to refresh it, and never edit between the markers by hand.
 StepByLearn/
 ├── .github/
 │   ├── workflows/
+│   │   ├── android.yml
 │   │   ├── ci.yml
 │   │   ├── docs.yml
 │   │   └── security.yml
 │   ├── copilot-instructions.md                   # Copilot's copy of AGENTS.md (generated)
 │   └── dependabot.yml
+├── android/                                      # Android app: the Capacitor native project (template plus a few deliberate…
+│   ├── app/
+│   │   ├── src/
+│   │   │   └── main/
+│   │   │       ├── java/
+│   │   │       │   └── io/
+│   │   │       │       └── github/
+│   │   │       │           └── joka7/
+│   │   │       │               └── stepbylearn/
+│   │   │       │                   └── MainActivity.java  # Hands Google's Drive-consent result back to the sign-in plugin
+│   │   │       ├── res/
+│   │   │       │   ├── drawable/
+│   │   │       │   │   ├── ic_launcher_background.xml
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-land-hdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-land-mdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-land-xhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-land-xxhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-land-xxxhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-port-hdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-port-mdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-port-xhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-port-xxhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-port-xxxhdpi/
+│   │   │       │   │   └── splash.png
+│   │   │       │   ├── drawable-v24/
+│   │   │       │   │   └── ic_launcher_foreground.xml
+│   │   │       │   ├── layout/
+│   │   │       │   │   └── activity_main.xml
+│   │   │       │   ├── mipmap-anydpi-v26/
+│   │   │       │   │   ├── ic_launcher.xml
+│   │   │       │   │   └── ic_launcher_round.xml
+│   │   │       │   ├── mipmap-hdpi/
+│   │   │       │   │   ├── ic_launcher.png
+│   │   │       │   │   ├── ic_launcher_foreground.png
+│   │   │       │   │   └── ic_launcher_round.png
+│   │   │       │   ├── mipmap-mdpi/
+│   │   │       │   │   ├── ic_launcher.png
+│   │   │       │   │   ├── ic_launcher_foreground.png
+│   │   │       │   │   └── ic_launcher_round.png
+│   │   │       │   ├── mipmap-xhdpi/
+│   │   │       │   │   ├── ic_launcher.png
+│   │   │       │   │   ├── ic_launcher_foreground.png
+│   │   │       │   │   └── ic_launcher_round.png
+│   │   │       │   ├── mipmap-xxhdpi/
+│   │   │       │   │   ├── ic_launcher.png
+│   │   │       │   │   ├── ic_launcher_foreground.png
+│   │   │       │   │   └── ic_launcher_round.png
+│   │   │       │   ├── mipmap-xxxhdpi/
+│   │   │       │   │   ├── ic_launcher.png
+│   │   │       │   │   ├── ic_launcher_foreground.png
+│   │   │       │   │   └── ic_launcher_round.png
+│   │   │       │   ├── values/
+│   │   │       │   │   ├── ic_launcher_background.xml
+│   │   │       │   │   ├── strings.xml
+│   │   │       │   │   └── styles.xml
+│   │   │       │   └── xml/
+│   │   │       │       └── file_paths.xml
+│   │   │       └── AndroidManifest.xml
+│   │   ├── .gitignore
+│   │   ├── build.gradle
+│   │   ├── capacitor.build.gradle
+│   │   └── proguard-rules.pro
+│   ├── gradle/
+│   │   └── wrapper/
+│   │       ├── gradle-wrapper.jar
+│   │       └── gradle-wrapper.properties
+│   ├── .gitignore
+│   ├── build.gradle
+│   ├── capacitor.settings.gradle
+│   ├── gradle.properties
+│   ├── gradlew
+│   ├── gradlew.bat
+│   ├── settings.gradle
+│   └── variables.gradle
 ├── docs/
 │   ├── screenshots/
 │   │   ├── analytics.png
@@ -199,6 +284,8 @@ StepByLearn/
 │   │   ├── driveDocument.ts
 │   │   ├── driveSync.test.ts
 │   │   ├── driveSync.ts
+│   │   ├── nativeGoogleAuth.test.ts
+│   │   ├── nativeGoogleAuth.ts
 │   │   ├── pathDriveSync.test.ts
 │   │   ├── pathDriveSync.ts
 │   │   ├── pathStore.test.ts
@@ -222,6 +309,7 @@ StepByLearn/
 ├── README.md                                     # StepByLearn
 ├── SECURITY.md                                   # Security Policy
 ├── ai-config.toml                                # Which rule fragments and target tools ai-sync compiles for this repo
+├── capacitor.config.json                         # Capacitor app id, name and the web build folder to wrap
 ├── eslint.config.js
 ├── firestore.rules
 ├── index.html

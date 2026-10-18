@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="vite-plugin-pwa/client" />
 
 interface ImportMetaEnv {
   /** OAuth Web client ID for Google Drive sync; empty or unset disables cloud sync. */

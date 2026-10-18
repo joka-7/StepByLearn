@@ -13,7 +13,9 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: false,
-      injectRegister: "auto",
+      // Registered by hand in main.tsx so the Android app (whose WebView would
+      // keep serving the previous version after an update) can skip it.
+      injectRegister: false,
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
       },

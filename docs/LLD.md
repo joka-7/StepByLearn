@@ -23,6 +23,13 @@ implements and why it's shaped this way.
   `deleteAllSyncedData`, `loadCollection`, `upsert`, `upsertMany`, `remove`. Built by
   `createDriveSync(deps)`, where every dependency (fetch, Google's script loader, storage,
   clock, device id, lock, sleep, randomness, online check, native sign-in) is injectable.
+- **`NativeAuth`** (`src/sync/driveSync.ts`) — `requestToken({ interactive })` returning
+  `{ access_token, expires_in } | null`, and `signOut()`. `createNativeGoogleAuth`
+  (`src/sync/nativeGoogleAuth.ts`) implements it over the `@capgo/capacitor-social-login`
+  plugin (an injectable `SocialLoginClient`): interactive asks Android for the Drive scope;
+  silent calls `refresh` then `getAuthorizationCode`; expiry comes from Google's `tokeninfo`
+  endpoint because the plugin doesn't report it (a 400 means invalid → `null`; any other
+  failure rejects, so it is never mistaken for "access denied").
 - **`startPathDriveSync(deps)`** (`src/sync/pathDriveSync.ts`) — `{ sync, store, onStatus,
 triggers?, now? }` in, a stop function out.
 
@@ -98,9 +105,27 @@ LearningPath | null, at: number } } } }`. `item: null` is a Drive-level delete; 
 | `VITE_GOOGLE_CLIENT_ID` (env)                             | `src/sync/clientId.ts`                     | `""` → `isCloudConfigured()` is false; the connect button is hidden; the rest of the app is unaffected |
 | `localStorage["stepbylearn_drive_session_v1"]`            | `src/sync/driveSync.ts`                    | no session; shape-checked on read, anything else is ignored                                            |
 | `localStorage["stepbylearn_drive_device_v1"]`             | `src/sync/driveSync.ts`                    | a new device id; kept per tab in `sessionStorage` when Web Locks are unavailable                       |
+| `capacitor.config.json`                                   | `cap sync` / `cap add`                     | `appId` `io.github.joka7.stepbylearn`, `appName` `StepByLearn`, `webDir` `dist`                        |
+| `-PversionCode` / `-PversionName` (Gradle)                | `android/app/build.gradle`                 | `1` / `1.0`; CI passes the run number so each APK installs over the last                               |
 | `localStorage["stepbylearn.syncOwner"]`                   | `src/sync/dataOwner.ts`                    | `null` — courses created before any sign-in                                                            |
 | AI provider list (`modeldispatcher-browser-agent` config) | `src/repositories/settingsRepository.ts`   | no providers → `resolveStrategy` throws `MissingApiKeyError`                                           |
 | Dexie `settings` singleton row (legacy)                   | `settingsRepository.migrateLegacySettings` | ignored unless there is no provider config yet; read once, never written                               |
+
+## Android app
+
+`android/` is the Capacitor template plus four deliberate changes: the launcher and splash
+images (generated from `public/icons/icon-512.png`), version code/name from Gradle
+properties, `allowBackup="false"`, and `MainActivity`, which hands Google's Drive-consent
+result back to the SocialLogin plugin (without it the plugin can't request any scope beyond
+sign-in). The token margin differs by platform: the browser treats a token as expired 60 s
+early, the app only 5 s early, because Android returns the same token until it has really
+expired (`driveSync.ts`: `NATIVE_TOKEN_EXPIRY_MARGIN_MS`). A failed silent renewal marks the
+session as signed-out and is not retried for 5 minutes (`RENEWAL_BACKOFF_MS`), unless the
+device is simply offline, which never signs the user out. The web build is copied into
+`android/app/src/main/assets/public` by `cap sync` and is gitignored with the other generated
+files. The APK is built, aligned, signed with `apksigner` and verified by
+`.github/workflows/android.yml`. The native code has not been compiled, and the app has not
+been run on a device, from this repository's history yet.
 
 ## DI wiring
 
@@ -157,6 +182,8 @@ source tree; scenarios for one function are table-driven in its group:
 - `src/sync/driveDocument.test.ts` — parsing, merge, tie-breaks, clock guard, idle-file rules.
 - `src/sync/driveSync.test.ts` — the client against a fake Drive and fake Google sign-in
   (browser and Android paths, retries, offline, caching, cleanup, delete-all).
+- `src/sync/nativeGoogleAuth.test.ts` — the Android token flow against a fake plugin and fake
+  tokeninfo endpoint.
 - `src/sync/syncPlan.test.ts`, `pathStore.test.ts`, `pathDriveSync.test.ts`, `clientId.test.ts`
   — the conflict rule, the real Dexie store, the engine (including two devices through one
   fake Drive) and env cleaning.
