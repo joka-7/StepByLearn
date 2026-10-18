@@ -1,7 +1,7 @@
 import { Award, BarChart3, FileText, Video, Volume2 } from "lucide-react";
 import { motion } from "motion/react";
 import type { LearningPath } from "../../domain/types";
-import { summarize } from "../../services/progress";
+import { learnerStreakDays } from "../../services/progress";
 
 interface Props {
   paths: LearningPath[];
@@ -17,7 +17,6 @@ export function AnalyticsView({ paths }: Props) {
   let totalStepsCount = 0;
   let completedStepsCount = 0;
   const studyFormatCounts = { text: 0, video: 0, podcast: 0 };
-  let bestStreak = 0;
 
   paths.forEach((path) => {
     path.steps.forEach((step) => {
@@ -27,9 +26,9 @@ export function AnalyticsView({ paths }: Props) {
         studyFormatCounts[step.type]++;
       }
     });
-    bestStreak = Math.max(bestStreak, summarize(path).streakDays);
   });
 
+  const streak = learnerStreakDays(paths);
   const overallCompletionRate =
     totalStepsCount > 0 ? Math.round((100 * completedStepsCount) / totalStepsCount) : 0;
 
@@ -189,11 +188,11 @@ export function AnalyticsView({ paths }: Props) {
             <Award className="h-10 w-10 text-blue-400 shrink-0" />
             <div>
               <p className="text-xs font-bold text-slate-200">
-                {bestStreak > 0 ? "Study Streak Active!" : "Start your streak today"}
+                {streak > 0 ? "Study Streak Active!" : "Start your streak today"}
               </p>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                {bestStreak > 0
-                  ? `You've logged study progress ${bestStreak} day${bestStreak === 1 ? "" : "s"} in a row.`
+                {streak > 0
+                  ? `You've logged study progress ${streak} day${streak === 1 ? "" : "s"} in a row.`
                   : "Mark a step done today to kick off a study streak."}
               </p>
             </div>

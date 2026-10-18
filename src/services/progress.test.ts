@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { LearningPath, PathStep } from "../domain/types";
-import { summarize } from "./progress";
+import { learnerStreakDays, summarize } from "./progress";
 
 function makeStep(overrides: Partial<PathStep> = {}): PathStep {
   return {
@@ -22,9 +22,9 @@ function makeStep(overrides: Partial<PathStep> = {}): PathStep {
   };
 }
 
-function makePath(steps: PathStep[]): LearningPath {
+function makePath(steps: PathStep[], id = "path-1"): LearningPath {
   return {
-    id: "path-1",
+    id,
     title: "Path",
     topic: "topic",
     description: "",
@@ -97,5 +97,46 @@ describe("summarize", () => {
       makeStep({ id: "a", status: "done", doneAt: "2026-07-06T09:00:00.000Z" }),
     ]);
     expect(summarize(path).streakDays).toBe(0);
+  });
+});
+
+describe("streaks", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    // 15:00 on 2026-07-08 in Asia/Jerusalem (UTC+3), the timezone vitest pins.
+    vi.setSystemTime(new Date("2026-07-08T12:00:00.000Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it.each([
+    ["a 01:30 local completion counts on the local day", ["2026-07-07T22:30:00.000Z"], 1],
+    ["a 23:30 local completion counts on the local day", ["2026-07-07T20:30:00.000Z"], 0],
+    [
+      "consecutive local days across midnight UTC",
+      ["2026-07-07T22:30:00.000Z", "2026-07-07T09:00:00.000Z"],
+      2,
+    ],
+  ])("summarize: %s", (_name, doneAts, expected) => {
+    const path = makePath(
+      doneAts.map((doneAt, i) => makeStep({ id: `s${i}`, status: "done", doneAt })),
+    );
+    expect(summarize(path).streakDays).toBe(expected);
+  });
+
+  it.each([
+    ["no paths", [], 0],
+    [
+      "completions split across two courses form one streak",
+      [
+        makePath([makeStep({ id: "a", status: "done", doneAt: "2026-07-08T09:00:00.000Z" })], "p1"),
+        makePath([makeStep({ id: "b", status: "done", doneAt: "2026-07-07T09:00:00.000Z" })], "p2"),
+      ],
+      2,
+    ],
+  ])("learnerStreakDays: %s", (_name, paths, expected) => {
+    expect(learnerStreakDays(paths)).toBe(expected);
   });
 });

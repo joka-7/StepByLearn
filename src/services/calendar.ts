@@ -5,6 +5,7 @@
  * dates rather than duplicating, so a user can freely reschedule.
  */
 
+import { toLocalISODate } from "../domain/dates";
 import type { LearningPath } from "../domain/types";
 import { savePath, updateStep } from "../repositories/pathRepository";
 
@@ -17,14 +18,6 @@ export interface ScheduleOptions {
   skipWeekends: boolean;
   /** Mark every Nth step (1-based) as a milestone; 0 disables. */
   milestoneEvery: number;
-}
-
-/** Format a Date as a YYYY-MM-DD local date string. */
-function toISODate(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
 }
 
 /** Advance to the next weekday if the given date lands on a weekend. */
@@ -48,7 +41,7 @@ export async function schedulePath(
     const position = index + 1;
     const scheduled = {
       ...step,
-      scheduledDate: toISODate(cursor),
+      scheduledDate: toLocalISODate(cursor),
       isMilestone: options.milestoneEvery > 0 && position % options.milestoneEvery === 0,
     };
     cursor.setDate(cursor.getDate() + Math.max(1, options.daysBetween));

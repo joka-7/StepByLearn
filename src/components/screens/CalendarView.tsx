@@ -1,6 +1,7 @@
 import { CalendarIcon, CalendarRange, Info, Plus } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
+import { firstOfMonthOffset, tomorrowLocalISODate } from "../../domain/dates";
 import type { LearningPath, PathStep } from "../../domain/types";
 import { schedulePath, scheduleStep } from "../../services/calendar";
 
@@ -38,11 +39,7 @@ export function CalendarView({ paths }: Props) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   function changeMonth(direction: number) {
-    setCurrentDate((prev) => {
-      const copy = new Date(prev);
-      copy.setMonth(prev.getMonth() + direction);
-      return copy;
-    });
+    setCurrentDate((prev) => firstOfMonthOffset(prev, direction));
   }
 
   const year = currentDate.getFullYear();
@@ -66,10 +63,8 @@ export function CalendarView({ paths }: Props) {
   }
 
   async function handleAutoSchedule(path: LearningPath) {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
     await schedulePath(path, {
-      startDate: tomorrow.toISOString().slice(0, 10),
+      startDate: tomorrowLocalISODate(),
       daysBetween: 1,
       skipWeekends: false,
       milestoneEvery: 0,

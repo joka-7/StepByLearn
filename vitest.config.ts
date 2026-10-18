@@ -1,5 +1,9 @@
 import { defineConfig } from "vitest/config";
 
+// Pin a timezone ahead of UTC so date code that mixes UTC timestamps with
+// local calendar days fails here instead of only for users east of UTC.
+process.env.TZ = "Asia/Jerusalem";
+
 export default defineConfig({
   test: {
     environment: "node",
