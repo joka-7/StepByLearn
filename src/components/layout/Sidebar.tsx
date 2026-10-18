@@ -7,10 +7,14 @@ import {
   LogOut,
   Settings,
   Sparkles,
+  Trash2,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { LearningPath } from "../../domain/types";
 import { signInWithGoogle, signOutUser, type User } from "../../firebase/auth";
+import { closeViaHistoryBack } from "../../hooks/useBackClose";
+import { ConfirmDialog } from "../ui/ConfirmDialog";
+import { useToast } from "../ui/toast";
 import type { ViewId } from "../viewTypes";
 
 interface Props {
@@ -21,6 +25,8 @@ interface Props {
   keyPresent: boolean;
   providerLabel: string;
   user: User | null;
+  /** Delete the signed-in user's cloud copy (already confirmed by the learner). */
+  onDeleteCloudData: () => void;
   /** Mobile only: whether the drawer is open. Ignored at the md+ breakpoint, where the sidebar is always shown inline. */
   mobileOpen: boolean;
   /** Mobile only: close the drawer (backdrop click, or after picking a nav item). */
@@ -49,14 +55,6 @@ function GoogleGlyph({ className }: { className?: string }) {
       />
     </svg>
   );
-}
-
-async function handleGoogleSignIn() {
-  try {
-    await signInWithGoogle();
-  } catch (err) {
-    alert(err instanceof Error ? err.message : "Sign-in failed.");
-  }
 }
 
 interface NavItemProps {
@@ -101,10 +99,24 @@ export function Sidebar({
   keyPresent,
   providerLabel,
   user,
+  onDeleteCloudData,
   mobileOpen,
   onCloseMobile,
 }: Props) {
+  const showToast = useToast();
+  const [confirmingCloudDelete, setConfirmingCloudDelete] = useState(false);
   const doneSteps = activePath?.steps.filter((s) => s.status === "done").length ?? 0;
+
+  async function handleGoogleSignIn() {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      showToast({
+        tone: "error",
+        message: err instanceof Error ? err.message : "Sign-in failed.",
+      });
+    }
+  }
 
   function selectView(view: ViewId) {
     onChangeView(view);
@@ -117,7 +129,7 @@ export function Sidebar({
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 md:hidden"
-          onClick={onCloseMobile}
+          onClick={closeViaHistoryBack}
           aria-hidden
         />
       )}
@@ -230,11 +242,12 @@ export function Sidebar({
               </div>
               <button
                 id="google_sign_out_btn"
-                onClick={() => signOutUser()}
+                onClick={() => void signOutUser()}
                 title="Sign out"
-                className="text-slate-500 hover:text-rose-400 transition-colors shrink-0"
+                aria-label="Sign out"
+                className="text-slate-400 hover:text-rose-400 transition-colors shrink-0 p-1"
               >
-                <LogOut className="h-3.5 w-3.5" />
+                <LogOut className="h-4 w-4" aria-hidden />
               </button>
             </div>
           ) : (
@@ -245,6 +258,17 @@ export function Sidebar({
             >
               <GoogleGlyph className="h-3.5 w-3.5" />
               <span>Sign in with Google</span>
+            </button>
+          )}
+
+          {user && (
+            <button
+              id="delete_cloud_data_btn"
+              onClick={() => setConfirmingCloudDelete(true)}
+              className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all"
+            >
+              <Trash2 className="h-4 w-4" aria-hidden />
+              <span>Delete my cloud data</span>
             </button>
           )}
 
@@ -270,6 +294,22 @@ export function Sidebar({
           </div>
         </div>
       </aside>
+
+      {confirmingCloudDelete && (
+        <ConfirmDialog
+          title="Delete your cloud data?"
+          confirmLabel="Delete cloud data"
+          danger
+          onCancel={() => setConfirmingCloudDelete(false)}
+          onConfirm={() => {
+            setConfirmingCloudDelete(false);
+            onDeleteCloudData();
+          }}
+        >
+          This permanently deletes every course stored in your Google account and signs you out.
+          Courses on this device are kept.
+        </ConfirmDialog>
+      )}
     </>
   );
 }

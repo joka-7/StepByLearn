@@ -12,8 +12,13 @@ export function useAuthUser(): AuthUserState {
   const [state, setState] = useState<AuthUserState>({ user: null, loading: true });
 
   useEffect(() => {
-    const unsubscribe = onAuthChange((user) => setState({ user, loading: false }));
-    return unsubscribe;
+    return onAuthChange(
+      (user) => setState({ user, loading: false }),
+      (error) =>
+        console.error("Auth failed to initialize", {
+          name: error instanceof Error ? error.name : "unknown",
+        }),
+    );
   }, []);
 
   return state;

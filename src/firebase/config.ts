@@ -1,5 +1,5 @@
 /**
- * Firebase app initialization.
+ * Firebase configuration and lazy initialization.
  *
  * These config values identify the Firebase project; they are not secrets
  * (Firebase's own guidance: access control is enforced by Firestore security
@@ -8,12 +8,16 @@
  * value works for local dev (`.env.local`) and the Vercel deployment (set as
  * Project Environment Variables there) without editing source.
  *
+ * The Firebase SDK is the bulk of the bundle, so it's loaded with dynamic
+ * `import()` only when cloud sync is actually configured and used, keeping
+ * it off the critical path for first render.
+ *
  * When the env vars are absent (e.g. local dev before a Firebase project has
  * been configured), `firebaseConfigured` is false and callers must treat
  * cloud sync as unavailable rather than initializing against an empty config.
  */
 
-import { getApps, initializeApp, type FirebaseOptions } from "firebase/app";
+import type { FirebaseApp, FirebaseOptions } from "firebase/app";
 
 /**
  * Vercel's env var UI is a common source of accidentally-pasted leading/
@@ -26,14 +30,21 @@ export function cleanEnvVar(value: string | undefined): string | undefined {
   return value?.trim().replace(/^['"]|['"]$/g, "") || undefined;
 }
 
-const firebaseConfig: FirebaseOptions = {
+function withDefined(entries: Record<string, string | undefined>): FirebaseOptions {
+  return Object.fromEntries(Object.entries(entries).filter(([, v]) => v !== undefined));
+}
+
+const firebaseConfig: FirebaseOptions = withDefined({
   apiKey: cleanEnvVar(import.meta.env.VITE_FIREBASE_API_KEY),
   authDomain: cleanEnvVar(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN),
   projectId: cleanEnvVar(import.meta.env.VITE_FIREBASE_PROJECT_ID),
   storageBucket: cleanEnvVar(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET),
   messagingSenderId: cleanEnvVar(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
   appId: cleanEnvVar(import.meta.env.VITE_FIREBASE_APP_ID),
-};
+});
+
+/** Optional reCAPTCHA v3 site key; when set, App Check gates Firestore/Auth to this app. */
+const appCheckSiteKey = cleanEnvVar(import.meta.env.VITE_FIREBASE_APPCHECK_SITE_KEY);
 
 /** Whether all required Firebase env vars are present. */
 export const firebaseConfigured = Boolean(
@@ -43,6 +54,29 @@ export const firebaseConfigured = Boolean(
   firebaseConfig.appId,
 );
 
-export const firebaseApp = firebaseConfigured
-  ? (getApps()[0] ?? initializeApp(firebaseConfig))
-  : null;
+export class CloudSyncNotConfiguredError extends Error {
+  constructor() {
+    super("Cloud sync isn't configured for this deployment yet.");
+    this.name = "CloudSyncNotConfiguredError";
+  }
+}
+
+let appPromise: Promise<FirebaseApp> | null = null;
+
+/** Load and initialize the Firebase app once; rejects if cloud sync isn't configured. */
+export function loadFirebaseApp(): Promise<FirebaseApp> {
+  if (!firebaseConfigured) return Promise.reject(new CloudSyncNotConfiguredError());
+  appPromise ??= (async () => {
+    const { getApps, initializeApp } = await import("firebase/app");
+    const app = getApps()[0] ?? initializeApp(firebaseConfig);
+    if (appCheckSiteKey) {
+      const { initializeAppCheck, ReCaptchaV3Provider } = await import("firebase/app-check");
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(appCheckSiteKey),
+        isTokenAutoRefreshEnabled: true,
+      });
+    }
+    return app;
+  })();
+  return appPromise;
+}
