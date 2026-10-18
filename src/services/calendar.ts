@@ -6,8 +6,8 @@
  */
 
 import { toLocalISODate } from "../domain/dates";
-import type { LearningPath } from "../domain/types";
-import { savePath, updateStep } from "../repositories/pathRepository";
+import type { LearningPath, PathStep } from "../domain/types";
+import { updatePath, updateStep } from "../repositories/pathRepository";
 
 export interface ScheduleOptions {
   /** First step's date (YYYY-MM-DD). */
@@ -29,33 +29,58 @@ function nextWeekday(date: Date): Date {
   return result;
 }
 
-/** Assign calendar dates to every step of a path and persist the result. */
-export async function schedulePath(
-  path: LearningPath,
-  options: ScheduleOptions,
-): Promise<LearningPath> {
+export class InvalidScheduleError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InvalidScheduleError";
+  }
+}
+
+function validate(options: ScheduleOptions): void {
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(options.startDate) ||
+    Number.isNaN(Date.parse(options.startDate))
+  ) {
+    throw new InvalidScheduleError(`Start date must be YYYY-MM-DD, got "${options.startDate}".`);
+  }
+  if (!Number.isInteger(options.daysBetween) || options.daysBetween < 1) {
+    throw new InvalidScheduleError("Days between steps must be a whole number of at least 1.");
+  }
+  if (!Number.isInteger(options.milestoneEvery) || options.milestoneEvery < 0) {
+    throw new InvalidScheduleError("Milestone interval must be a whole number of 0 or more.");
+  }
+}
+
+/** Pure date assignment: give each step, in order, its scheduled day and milestone flag. */
+export function assignDates(steps: readonly PathStep[], options: ScheduleOptions): PathStep[] {
+  validate(options);
   let cursor = new Date(`${options.startDate}T00:00:00`);
   if (options.skipWeekends) cursor = nextWeekday(cursor);
 
-  const steps = path.steps.map((step, index) => {
+  return steps.map((step, index) => {
     const position = index + 1;
     const scheduled = {
       ...step,
       scheduledDate: toLocalISODate(cursor),
       isMilestone: options.milestoneEvery > 0 && position % options.milestoneEvery === 0,
     };
-    cursor.setDate(cursor.getDate() + Math.max(1, options.daysBetween));
+    cursor = new Date(
+      cursor.getFullYear(),
+      cursor.getMonth(),
+      cursor.getDate() + options.daysBetween,
+    );
     if (options.skipWeekends) cursor = nextWeekday(cursor);
     return scheduled;
   });
+}
 
-  const updated: LearningPath = {
-    ...path,
-    steps,
-    updatedAt: new Date().toISOString(),
-  };
-  await savePath(updated);
-  return updated;
+/** Assign calendar dates to every step of a path and persist the result. */
+export async function schedulePath(
+  pathId: string,
+  options: ScheduleOptions,
+): Promise<LearningPath | undefined> {
+  validate(options);
+  return updatePath(pathId, (path) => ({ ...path, steps: assignDates(path.steps, options) }));
 }
 
 /** Assign a single step to a specific calendar date, leaving the rest untouched. */

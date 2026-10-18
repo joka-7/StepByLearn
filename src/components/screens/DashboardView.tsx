@@ -58,7 +58,7 @@ const LOADING_STEPS = [
 
 /** Auto-schedule generated steps starting tomorrow, one per day. */
 async function autoSchedule(path: LearningPath): Promise<void> {
-  await schedulePath(path, {
+  await schedulePath(path.id, {
     startDate: tomorrowLocalISODate(),
     daysBetween: 1,
     skipWeekends: false,

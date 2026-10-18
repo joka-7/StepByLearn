@@ -63,7 +63,7 @@ export function CalendarView({ paths }: Props) {
   }
 
   async function handleAutoSchedule(path: LearningPath) {
-    await schedulePath(path, {
+    await schedulePath(path.id, {
       startDate: tomorrowLocalISODate(),
       daysBetween: 1,
       skipWeekends: false,
