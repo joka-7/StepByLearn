@@ -29,22 +29,11 @@ import type { LearningPath } from "../domain/types";
 import { listAllPathRecords, putPathRecords } from "../repositories/pathRepository";
 import { db } from "../db/database";
 import { loadFirebaseApp } from "./config";
+import { writeDataOwner } from "../sync/dataOwner";
 import { planSync } from "./syncPlan";
 
 export type SyncStatus =
   { state: "syncing" } | { state: "synced" } | { state: "error"; message: string };
-
-const OWNER_KEY = "stepbylearn.syncOwner";
-
-/** The uid whose cloud data this device's local paths were last reconciled with, if any. */
-export function getLocalDataOwner(): string | null {
-  return localStorage.getItem(OWNER_KEY);
-}
-
-export function setLocalDataOwner(uid: string | null): void {
-  if (uid === null) localStorage.removeItem(OWNER_KEY);
-  else localStorage.setItem(OWNER_KEY, uid);
-}
 
 interface LoadedFirestore {
   firestore: Firestore;
@@ -138,7 +127,7 @@ export function startPathSync(uid: string, onStatus: (status: SyncStatus) => voi
       for (const p of plan.pull) lastSynced.set(p.id, p.updatedAt);
       for (const p of remote) if (plan.inSync.includes(p.id)) lastSynced.set(p.id, p.updatedAt);
       plan.push.forEach(push);
-      setLocalDataOwner(uid);
+      writeDataOwner(uid);
       initialized = true;
       report();
 

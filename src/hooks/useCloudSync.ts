@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { signOutUser, type User } from "../firebase/auth";
-import {
-  deleteCloudPaths,
-  getLocalDataOwner,
-  setLocalDataOwner,
-  startPathSync,
-  type SyncStatus,
-} from "../firebase/pathSync";
+import { deleteCloudPaths, startPathSync, type SyncStatus } from "../firebase/pathSync";
+import { readDataOwner, writeDataOwner } from "../sync/dataOwner";
 import { clearLocalPaths, listAllPathRecords } from "../repositories/pathRepository";
 
 export type CloudSyncState =
@@ -40,7 +35,7 @@ export function useCloudSync(user: User | null): CloudSync {
   useEffect(() => {
     if (!uid) return;
     let cancelled = false;
-    const owner = getLocalDataOwner();
+    const owner = readDataOwner();
     void (async () => {
       const hasLocalData = (await listAllPathRecords()).length > 0;
       if (!cancelled)
@@ -66,7 +61,7 @@ export function useCloudSync(user: User | null): CloudSync {
   const replaceLocalData = useCallback(async () => {
     if (!uid) return;
     await clearLocalPaths();
-    setLocalDataOwner(uid);
+    writeDataOwner(uid);
     setChecked({ uid, conflict: false });
   }, [uid]);
 
@@ -80,7 +75,7 @@ export function useCloudSync(user: User | null): CloudSync {
     // into this device's local copy.
     stopSyncRef.current?.();
     await deleteCloudPaths(uid);
-    setLocalDataOwner(null);
+    writeDataOwner(null);
     await signOutUser();
   }, [uid]);
 
