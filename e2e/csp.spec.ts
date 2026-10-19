@@ -5,18 +5,33 @@ import { expect, test, type Page } from "@playwright/test";
 // `vite preview` on port 4173.
 test.use({ baseURL: "http://localhost:4173" });
 
+interface Violation {
+  directive: string;
+  /** What was blocked: a URL, or a keyword such as "eval" or "inline". */
+  blocked: string;
+}
+
+/** The hostname of a blocked URL, or null when what was blocked isn't a URL ("eval", "inline"). */
+function hostOf(blocked: string): string | null {
+  try {
+    return new URL(blocked).hostname;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Records every policy violation the page reports. The list lives in the test
  * process, not on `window`, so a page reload can't erase what was already blocked.
  */
-async function recordViolations(page: Page): Promise<() => string[]> {
-  const seen: string[] = [];
-  await page.exposeFunction("__reportViolation", (violation: string) => seen.push(violation));
+async function recordViolations(page: Page): Promise<() => Violation[]> {
+  const seen: Violation[] = [];
+  await page.exposeFunction("__reportViolation", (violation: Violation) => seen.push(violation));
   await page.addInitScript(() => {
     document.addEventListener("securitypolicyviolation", (e) => {
-      (window as unknown as { __reportViolation: (violation: string) => void }).__reportViolation(
-        `${e.violatedDirective} ${e.blockedURI}`,
-      );
+      (
+        window as unknown as { __reportViolation: (violation: Violation) => void }
+      ).__reportViolation({ directive: e.violatedDirective, blocked: e.blockedURI });
     });
   });
   return () => seen;
@@ -135,11 +150,16 @@ test("the policy blocks eval, injected script and requests to unlisted hosts, bu
     exfiltration: "blocked",
   });
   const seen = violations();
-  expect(seen.some((v) => v.startsWith("script-src") && v.includes("eval"))).toBe(true);
-  expect(seen.some((v) => v.startsWith("script-src-elem"))).toBe(true);
-  expect(seen.some((v) => v.startsWith("connect-src") && v.includes("evil.example"))).toBe(true);
-  expect(seen.some((v) => v.startsWith("img-src") && v.includes("evil.example"))).toBe(true);
-  expect(seen.filter((v) => v.includes("api.anthropic.com"))).toEqual([]);
+  expect(seen).toContainEqual({ directive: "script-src", blocked: "eval" });
+  expect(seen).toContainEqual({ directive: "script-src-elem", blocked: "inline" });
+  expect(
+    seen.some((v) => v.directive === "connect-src" && hostOf(v.blocked) === "evil.example"),
+  ).toBe(true);
+  expect(seen.some((v) => v.directive === "img-src" && hostOf(v.blocked) === "evil.example")).toBe(
+    true,
+  );
+  // An allowed host may still fail on the network, but never as a policy violation.
+  expect(seen.filter((v) => hostOf(v.blocked) === "api.anthropic.com")).toEqual([]);
 });
 
 declare global {
