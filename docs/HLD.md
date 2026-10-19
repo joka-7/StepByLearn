@@ -185,6 +185,16 @@ first and then removes them; they are never merged into the new account.
   (about an hour); after that the browser app's top bar shows "Not connected" and offers
   "Reconnect Google Drive". The Android app instead renews the token silently on the next
   Drive call and only reports signed-out when a renewal fails.
+- **Content-Security-Policy**: built by `src/csp.ts` and injected as a `<meta>` tag into the
+  production HTML only (`vite.config.ts`; the dev server needs an inline script for hot
+  reload). Because the page holds AI keys and a Drive token in `localStorage`, the policy's job
+  is to stop an injected script from sending them anywhere: scripts only from the app itself
+  (plus Google's sign-in script), no inline or `eval`, and `connect-src` limited to the AI
+  provider APIs, Google's sign-in/Drive/OAuth endpoints and a local Ollama. Allowed origins per
+  provider are keyed by the package's `ProviderId`, so adding a provider upstream is a type error
+  until its origin is listed. A custom Ollama URL needs `CSP_EXTRA_CONNECT_SRC` at build time
+  (validated to plain origins only). `frame-ancestors` can't be set from a `<meta>`, so it stays
+  an HTTP header in `vercel.json`.
 - **Android build secrets**: the signing key and its password live only in GitHub Actions
   secrets (`ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_B64_2`, `ANDROID_KEY_PASSWORD`) and the
   client ID in the `VITE_GOOGLE_CLIENT_ID` Actions variable; the workflow fails rather than

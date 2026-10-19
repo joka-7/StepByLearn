@@ -100,16 +100,17 @@ LearningPath | null, at: number } } } }`. `item: null` is a Drive-level delete; 
 
 ## Config keys
 
-| Key                                                       | Read in                                    | Default when absent                                                                                    |
-| --------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `VITE_GOOGLE_CLIENT_ID` (env)                             | `src/sync/clientId.ts`                     | `""` → `isCloudConfigured()` is false; the connect button is hidden; the rest of the app is unaffected |
-| `localStorage["stepbylearn_drive_session_v1"]`            | `src/sync/driveSync.ts`                    | no session; shape-checked on read, anything else is ignored                                            |
-| `localStorage["stepbylearn_drive_device_v1"]`             | `src/sync/driveSync.ts`                    | a new device id; kept per tab in `sessionStorage` when Web Locks are unavailable                       |
-| `capacitor.config.json`                                   | `cap sync` / `cap add`                     | `appId` `io.github.joka7.stepbylearn`, `appName` `StepByLearn`, `webDir` `dist`                        |
-| `-PversionCode` / `-PversionName` (Gradle)                | `android/app/build.gradle`                 | `1` / `1.0`; CI passes the run number so each APK installs over the last                               |
-| `localStorage["stepbylearn.syncOwner"]`                   | `src/sync/dataOwner.ts`                    | `null` — courses created before any sign-in                                                            |
-| AI provider list (`modeldispatcher-browser-agent` config) | `src/repositories/settingsRepository.ts`   | no providers → `resolveStrategy` throws `MissingApiKeyError`                                           |
-| Dexie `settings` singleton row (legacy)                   | `settingsRepository.migrateLegacySettings` | ignored unless there is no provider config yet; read once, never written                               |
+| Key                                                       | Read in                                    | Default when absent                                                                                                                               |
+| --------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_GOOGLE_CLIENT_ID` (env)                             | `src/sync/clientId.ts`                     | `""` → `isCloudConfigured()` is false; the connect button is hidden; the rest of the app is unaffected                                            |
+| `CSP_EXTRA_CONNECT_SRC` (build-time env)                  | `vite.config.ts` → `src/csp.ts`            | none; extra `connect-src` origins (space/comma separated). Anything but a plain `http(s)://host[:port]` fails the build (`InvalidCspSourceError`) |
+| `localStorage["stepbylearn_drive_session_v1"]`            | `src/sync/driveSync.ts`                    | no session; shape-checked on read, anything else is ignored                                                                                       |
+| `localStorage["stepbylearn_drive_device_v1"]`             | `src/sync/driveSync.ts`                    | a new device id; kept per tab in `sessionStorage` when Web Locks are unavailable                                                                  |
+| `capacitor.config.json`                                   | `cap sync` / `cap add`                     | `appId` `io.github.joka7.stepbylearn`, `appName` `StepByLearn`, `webDir` `dist`                                                                   |
+| `-PversionCode` / `-PversionName` (Gradle)                | `android/app/build.gradle`                 | `1` / `1.0`; CI passes the run number so each APK installs over the last                                                                          |
+| `localStorage["stepbylearn.syncOwner"]`                   | `src/sync/dataOwner.ts`                    | `null` — courses created before any sign-in                                                                                                       |
+| AI provider list (`modeldispatcher-browser-agent` config) | `src/repositories/settingsRepository.ts`   | no providers → `resolveStrategy` throws `MissingApiKeyError`                                                                                      |
+| Dexie `settings` singleton row (legacy)                   | `settingsRepository.migrateLegacySettings` | ignored unless there is no provider config yet; read once, never written                                                                          |
 
 ## Android app
 
@@ -182,11 +183,19 @@ source tree; scenarios for one function are table-driven in its group:
 - `src/sync/driveDocument.test.ts` — parsing, merge, tie-breaks, clock guard, idle-file rules.
 - `src/sync/driveSync.test.ts` — the client against a fake Drive and fake Google sign-in
   (browser and Android paths, retries, offline, caching, cleanup, delete-all).
+- `src/csp.test.ts` — the policy: no inline/eval/wildcards, exact `script-src` and `frame-src`,
+  every provider origin present, and the provider list matching the package's, plus the
+  validation of extra origins (wildcards, paths and directive injection are rejected).
 - `src/sync/nativeGoogleAuth.test.ts` — the Android token flow against a fake plugin and fake
   tokeninfo endpoint.
 - `src/sync/syncPlan.test.ts`, `pathStore.test.ts`, `pathDriveSync.test.ts`, `clientId.test.ts`
   — the conflict rule, the real Dexie store, the engine (including two devices through one
   fake Drive) and env cleaning.
+- `e2e/csp.spec.ts` (Playwright, against the production build served by `vite preview`) — the
+  page ships the policy; a full session through every screen triggers no violations (recorded
+  in the test process so a reload can't erase them); and inline script, `eval` from a loaded
+  script, a request to an unlisted host and an image from one are all blocked while an allowed
+  AI host is not. Not covered: the Google sign-in flow, which needs a real OAuth client.
 - `e2e/smoke.spec.ts` (Playwright, `npm run test:e2e`) — boots the real app, creates a
   course, survives a reload, undoes a delete, and checks dialog accessibility.
   `e2e/screenshots.spec.ts` only regenerates README images and skips under CI.

@@ -112,6 +112,7 @@ StepByLearn/
 │   ├── LLD.md                                    # StepByLearn — Low-Level Design
 │   └── STRUCTURE.md                              # Repository structure
 ├── e2e/
+│   ├── csp.spec.ts
 │   ├── screenshots.spec.ts
 │   └── smoke.spec.ts
 ├── legacy-python/                                # Earlier FastAPI + SQLite implementation, kept for reference only — not part…
@@ -293,6 +294,8 @@ StepByLearn/
 │   │   ├── syncPlan.test.ts
 │   │   └── syncPlan.ts
 │   ├── App.tsx
+│   ├── csp.test.ts
+│   ├── csp.ts
 │   ├── index.css
 │   ├── main.tsx
 │   └── vite-env.d.ts

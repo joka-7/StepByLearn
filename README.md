@@ -199,6 +199,7 @@ StepByLearn/
 │   ├── LLD.md                                    # StepByLearn — Low-Level Design
 │   └── STRUCTURE.md                              # Repository structure
 ├── e2e/
+│   ├── csp.spec.ts
 │   ├── screenshots.spec.ts
 │   └── smoke.spec.ts
 ├── legacy-python/                                # Earlier FastAPI + SQLite implementation, kept for reference only — not part…
@@ -380,6 +381,8 @@ StepByLearn/
 │   │   ├── syncPlan.test.ts
 │   │   └── syncPlan.ts
 │   ├── App.tsx
+│   ├── csp.test.ts
+│   ├── csp.ts
 │   ├── index.css
 │   ├── main.tsx
 │   └── vite-env.d.ts
@@ -444,6 +447,16 @@ Drive" button is hidden without one. To enable it, in a Google Cloud project:
 4. Set `VITE_GOOGLE_CLIENT_ID` to that client ID (`.env.local` locally, the
    host's environment variables when deploying). See `.env.local.example`.
 
+### Content-Security-Policy
+
+The production build ships a strict Content-Security-Policy (`src/csp.ts`, injected into the
+HTML at build time, so it also covers the Android app's copy). Your API keys and Drive token
+live in `localStorage`, so the page may only talk to the AI providers, Google sign-in and
+Drive, and itself, and inline or `eval`'d script is forbidden. The one practical effect: an
+Ollama server on another machine (a URL other than `localhost:11434`) is blocked unless you
+allow its origin when building, e.g. `CSP_EXTRA_CONNECT_SRC=http://192.168.1.20:11434 npm run build`
+(space- or comma-separated origins, no paths or wildcards).
+
 ### Android app
 
 The same web app ships as an Android app (package `io.github.joka7.stepbylearn`),
@@ -507,7 +520,7 @@ chose, under that provider's terms.
 | `npm run format:check` | Check formatting without writing |
 | `npm test`             | Run the unit test suite (Vitest) |
 | `npm run test:watch`   | Run tests in watch mode          |
-| `npm run test:e2e`     | Run end-to-end tests (Playwright) |
+| `npm run test:e2e`     | Build, then run the end-to-end tests (Playwright) |
 
 ## Legacy Python implementation
 
