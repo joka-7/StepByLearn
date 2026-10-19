@@ -51,3 +51,10 @@ __pycache__/
 .agents/skills/
 .cursor/skills/
 .github/skills/
+
+# Coverage reports
+coverage/
+
+# Android signing material must never be committed.
+*.jks
+*.keystore

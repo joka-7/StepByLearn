@@ -19,6 +19,7 @@ import type {
   SyllabusDraft,
   SyllabusStepDraft,
 } from "../domain/types";
+import { toSafeUrl } from "../domain/urls";
 
 const DIFFICULTIES: readonly Difficulty[] = ["beginner", "intermediate", "advanced"];
 const CONTENT_TYPES: readonly ContentType[] = ["video", "podcast", "text"];
@@ -182,13 +183,6 @@ function asStringArray(value: unknown): string[] {
   return value.filter((v): v is string => typeof v === "string" && v.trim().length > 0);
 }
 
-/** Only accept plausible http(s) URLs; anything else becomes "" (no link shown). */
-function asUrl(value: unknown): string {
-  if (typeof value !== "string") return "";
-  const trimmed = value.trim();
-  return /^https?:\/\/.+/i.test(trimmed) ? trimmed : "";
-}
-
 function normalizeContentType(value: unknown): ContentType {
   return CONTENT_TYPES.includes(value as ContentType) ? (value as ContentType) : "text";
 }
@@ -234,7 +228,7 @@ function normalizeResources(value: unknown): LearningResource[] {
   return value
     .filter((r): r is Record<string, unknown> => typeof r === "object" && r !== null)
     .map((r) => {
-      const url = asUrl(r.url);
+      const url = toSafeUrl(r.url);
       return {
         title: asString(r.title),
         type: resolveContentType(r.type, url),
@@ -251,7 +245,7 @@ export function normalizeStep(value: unknown): SyllabusStepDraft | null {
   const record = value as Record<string, unknown>;
   const title = asString(record.title).trim();
   if (!title) return null;
-  const materialUrl = asUrl(record.materialUrl);
+  const materialUrl = toSafeUrl(record.materialUrl);
   return {
     title,
     duration: asString(record.duration, "30 minutes"),

@@ -14,20 +14,23 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "npm run build && playwright test"
   },
   "dependencies": {
-    "modeldispatcher-browser-agent": "^0.6.7",
-    "modeldispatcher-react-ui": "^0.6.7",
+    "@capacitor/android": "8.5.2",
+    "@capacitor/core": "8.5.2",
+    "@capgo/capacitor-social-login": "8.5.12",
     "dexie": "^4.4.6",
     "dexie-react-hooks": "^1.1.7",
-    "firebase": "^12.15.0",
     "lucide-react": "^0.546.0",
+    "modeldispatcher-browser-agent": "^0.6.7",
+    "modeldispatcher-react-ui": "^0.6.7",
     "motion": "^12.23.24",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.2",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/vite": "^4.3.3",
@@ -39,6 +42,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
+    "fake-indexeddb": "6.2.5",
     "globals": "^17.7.0",
     "prettier": "^3.9.4",
     "tailwindcss": "^4.1.14",

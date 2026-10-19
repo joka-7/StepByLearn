@@ -83,6 +83,7 @@ export async function generatePath(
     steps,
     createdAt: now,
     updatedAt: now,
+    deletedAt: null,
   };
 
   await savePath(path);
