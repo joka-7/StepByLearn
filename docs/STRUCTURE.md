@@ -113,6 +113,7 @@ StepByLearn/
 │   └── STRUCTURE.md                              # Repository structure
 ├── e2e/
 │   ├── csp.spec.ts
+│   ├── privacy.spec.ts
 │   ├── screenshots.spec.ts
 │   └── smoke.spec.ts
 ├── legacy-python/                                # Earlier FastAPI + SQLite implementation, kept for reference only — not part…
@@ -217,7 +218,8 @@ StepByLearn/
 │   │   └── icon-96.png
 │   ├── apple-touch-icon.png
 │   ├── icon.svg
-│   └── manifest.webmanifest
+│   ├── manifest.webmanifest
+│   └── privacy.html
 ├── src/
 │   ├── ai/
 │   │   ├── jsonHealer.test.ts

@@ -1,4 +1,4 @@
-import { FolderGit2, Globe, Mail, MessageSquare, Settings } from "lucide-react";
+import { FolderGit2, Globe, Mail, MessageSquare, Settings, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { ModelPicker } from "modeldispatcher-react-ui";
 import "modeldispatcher-react-ui/styles.css";
@@ -98,6 +98,15 @@ export function SettingsModal({ onClose, onSaved }: Props) {
           >
             <FolderGit2 size={16} />
             <span className="text-[9px] leading-none">Code</span>
+          </a>
+          <a
+            href="/privacy.html"
+            aria-label="Privacy"
+            title="Privacy"
+            className="tap-fx text-slate-500 hover:text-slate-300 p-2 rounded-lg hover:bg-slate-800 active:bg-slate-700 active:scale-90 transition-all inline-flex flex-col items-center justify-center gap-0.5"
+          >
+            <ShieldCheck size={16} />
+            <span className="text-[9px] leading-none">Privacy</span>
           </a>
           <a
             href="mailto:joka.dev.7@gmail.com"

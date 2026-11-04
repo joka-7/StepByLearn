@@ -43,6 +43,9 @@ export default defineConfig(({ mode }) => {
         injectRegister: false,
         workbox: {
           globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
+          // The privacy page is a separate static file; without this an
+          // installed app would answer /privacy.html with the app shell.
+          navigateFallbackDenylist: [/^\/privacy\.html$/],
         },
       }),
     ],
