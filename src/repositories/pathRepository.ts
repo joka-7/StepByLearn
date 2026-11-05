@@ -3,48 +3,21 @@
  *
  * All access to path storage goes through these functions so the rest of the app
  * never touches Dexie directly — keeping the storage engine swappable.
+ *
+ * Deleted paths stay in the table as tombstones (`deletedAt` set) so sync can
+ * propagate the delete and the UI can offer Undo; the "live" readers below
+ * never return them.
  */
 
 import { db } from "../db/database";
-import type { ContentType, LearningPath, PathStep } from "../domain/types";
+import { parseStoredPath } from "../domain/storedPath";
+import type { LearningPath, PathStep } from "../domain/types";
 
-/**
- * Backfill fields onto a step that may have been written by an earlier schema
- * version (before steps carried type/duration/material links/resources/
- * keyConcepts). Without this, reading old IndexedDB data crashes the UI on
- * `undefined.map()` the moment it touches a field that didn't exist yet.
- */
-function normalizeStep(raw: PathStep & Record<string, unknown>): PathStep {
-  const legacyContent = typeof raw.content === "string" ? raw.content : "";
-  const resources = Array.isArray(raw.resources)
-    ? raw.resources
-        .filter(
-          (r): r is PathStep["resources"][number] =>
-            typeof r === "object" && r !== null && "title" in r,
-        )
-        .map((r) => ({ ...r, url: typeof r.url === "string" ? r.url : "" }))
-    : [];
-  return {
-    ...raw,
-    duration: raw.duration ?? "30 minutes",
-    type: (raw.type as ContentType) ?? "text",
-    description: raw.description ?? legacyContent,
-    keyConcepts: raw.keyConcepts ?? [],
-    materialTitle: raw.materialTitle ?? "",
-    materialUrl: raw.materialUrl ?? "",
-    resources,
-  };
-}
+/** Tombstones older than this are hard-deleted locally. */
+const TOMBSTONE_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
 
-/** Backfill fields onto a path that may have been written by an earlier schema. */
-function normalizePath(raw: LearningPath & Record<string, unknown>): LearningPath {
-  return {
-    ...raw,
-    stepDuration: raw.stepDuration ?? "30 minutes",
-    contentType: raw.contentType ?? "all",
-    currentKnowledge: raw.currentKnowledge ?? "",
-    steps: raw.steps.map((s) => normalizeStep(s as PathStep & Record<string, unknown>)),
-  };
+function parseRows(rows: unknown[]): LearningPath[] {
+  return rows.map(parseStoredPath).filter((p): p is LearningPath => p !== null);
 }
 
 /** Persist a new (or replace an existing) path with all its steps. */
@@ -52,46 +25,89 @@ export async function savePath(path: LearningPath): Promise<void> {
   await db.paths.put(path);
 }
 
-/** Return every path, newest first. */
+/** Return every live (not deleted) path, newest first. */
 export async function listPaths(): Promise<LearningPath[]> {
-  const paths = await db.paths.orderBy("createdAt").reverse().toArray();
-  return paths.map((p) => normalizePath(p as LearningPath & Record<string, unknown>));
+  const rows = await db.paths.orderBy("createdAt").reverse().toArray();
+  return parseRows(rows).filter((p) => p.deletedAt === null);
 }
 
-/** Return a single path by id, or undefined if absent. */
+/** Every stored path including tombstones — what sync and backup operate on. */
+export async function listAllPathRecords(): Promise<LearningPath[]> {
+  return parseRows(await db.paths.toArray());
+}
+
+/** Return a single live path by id, or undefined if absent or deleted. */
 export async function getPath(id: string): Promise<LearningPath | undefined> {
-  const path = await db.paths.get(id);
-  return path && normalizePath(path as LearningPath & Record<string, unknown>);
-}
-
-/** Delete a path and everything embedded in it. */
-export async function deletePath(id: string): Promise<void> {
-  await db.paths.delete(id);
+  const path = parseStoredPath(await db.paths.get(id));
+  return path && path.deletedAt === null ? path : undefined;
 }
 
 /**
- * Apply an update to a single step within a path and persist the result.
- *
- * Runs inside a transaction so a concurrent edit can't interleave a partial
- * write. Returns the updated path, or undefined if the path no longer exists.
+ * Read-modify-write one path inside a transaction, so a concurrent write
+ * (another tab, or a sync pull) can't be overwritten by a stale copy.
+ * Returns the updated path, or undefined if it no longer exists.
  */
+export async function updatePath(
+  pathId: string,
+  mutate: (path: LearningPath) => LearningPath,
+): Promise<LearningPath | undefined> {
+  return db.transaction("rw", db.paths, async () => {
+    const path = parseStoredPath(await db.paths.get(pathId));
+    if (!path || path.deletedAt !== null) return undefined;
+    const updated: LearningPath = { ...mutate(path), updatedAt: new Date().toISOString() };
+    await db.paths.put(updated);
+    return updated;
+  });
+}
+
+/** Soft-delete a path (see {@link restorePath} to undo). */
+export async function deletePath(id: string): Promise<void> {
+  await db.transaction("rw", db.paths, async () => {
+    const path = parseStoredPath(await db.paths.get(id));
+    if (!path) return;
+    const now = new Date().toISOString();
+    await db.paths.put({ ...path, deletedAt: now, updatedAt: now });
+  });
+}
+
+/** Undo a {@link deletePath}. */
+export async function restorePath(id: string): Promise<void> {
+  await db.transaction("rw", db.paths, async () => {
+    const path = parseStoredPath(await db.paths.get(id));
+    if (!path || path.deletedAt === null) return;
+    await db.paths.put({ ...path, deletedAt: null, updatedAt: new Date().toISOString() });
+  });
+}
+
+/** Hard-delete tombstones past the retention window. */
+export async function purgeExpiredTombstones(now: Date = new Date()): Promise<void> {
+  const cutoff = now.getTime() - TOMBSTONE_RETENTION_MS;
+  const expired = (await listAllPathRecords())
+    .filter((p) => p.deletedAt !== null && Date.parse(p.deletedAt) < cutoff)
+    .map((p) => p.id);
+  await db.paths.bulkDelete(expired);
+}
+
+/** Remove every path from this device (used when another account signs in). */
+export async function clearLocalPaths(): Promise<void> {
+  await db.paths.clear();
+}
+
+/** Write paths exactly as given (sync pulls and backup imports keep their own timestamps). */
+export async function putPathRecords(paths: readonly LearningPath[]): Promise<void> {
+  await db.paths.bulkPut([...paths]);
+}
+
+/** Apply an update to a single step within a path and persist the result. */
 export async function updateStep(
   pathId: string,
   stepId: string,
   mutate: (step: PathStep) => PathStep,
 ): Promise<LearningPath | undefined> {
-  return db.transaction("rw", db.paths, async () => {
-    const raw = await db.paths.get(pathId);
-    if (!raw) return undefined;
-    const path = normalizePath(raw as LearningPath & Record<string, unknown>);
-    const updated: LearningPath = {
-      ...path,
-      steps: path.steps.map((s) => (s.id === stepId ? mutate(s) : s)),
-      updatedAt: new Date().toISOString(),
-    };
-    await db.paths.put(updated);
-    return updated;
-  });
+  return updatePath(pathId, (path) => ({
+    ...path,
+    steps: path.steps.map((s) => (s.id === stepId ? mutate(s) : s)),
+  }));
 }
 
 /**
@@ -102,17 +118,11 @@ export async function appendSteps(
   pathId: string,
   newSteps: PathStep[],
 ): Promise<LearningPath | undefined> {
-  return db.transaction("rw", db.paths, async () => {
-    const raw = await db.paths.get(pathId);
-    if (!raw) return undefined;
-    const path = normalizePath(raw as LearningPath & Record<string, unknown>);
-    const startIndex = path.steps.length;
-    const updated: LearningPath = {
-      ...path,
-      steps: [...path.steps, ...newSteps.map((s, i) => ({ ...s, orderIndex: startIndex + i }))],
-      updatedAt: new Date().toISOString(),
-    };
-    await db.paths.put(updated);
-    return updated;
-  });
+  return updatePath(pathId, (path) => ({
+    ...path,
+    steps: [
+      ...path.steps,
+      ...newSteps.map((s, i) => ({ ...s, orderIndex: path.steps.length + i })),
+    ],
+  }));
 }

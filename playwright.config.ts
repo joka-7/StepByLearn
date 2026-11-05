@@ -11,9 +11,19 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  webServer: {
-    command: "npm run dev -- --port 5173 --strictPort",
-    url: "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
-  },
+  // The dev server for the functional tests; the production build, served by
+  // `vite preview`, for the Content-Security-Policy tests (the policy is only
+  // injected into production HTML). `npm run test:e2e` builds first.
+  webServer: [
+    {
+      command: "npm run dev -- --port 5173 --strictPort",
+      url: "http://localhost:5173",
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: "npm run preview -- --port 4173 --strictPort",
+      url: "http://localhost:4173",
+      reuseExistingServer: !process.env.CI,
+    },
+  ],
 });

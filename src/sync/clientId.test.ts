@@ -1,22 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { cleanEnvVar } from "./config";
+import { cleanEnvVar } from "./clientId";
 
 describe("cleanEnvVar", () => {
   it("passes through a clean value unchanged", () => {
-    expect(cleanEnvVar("stepbylearn-bff6d.firebaseapp.com")).toBe(
-      "stepbylearn-bff6d.firebaseapp.com",
+    expect(cleanEnvVar("123456789-abc.apps.googleusercontent.com")).toBe(
+      "123456789-abc.apps.googleusercontent.com",
     );
   });
 
   it("strips accidental wrapping double quotes", () => {
-    expect(cleanEnvVar('"stepbylearn-bff6d.firebaseapp.com"')).toBe(
-      "stepbylearn-bff6d.firebaseapp.com",
+    expect(cleanEnvVar('"123456789-abc.apps.googleusercontent.com"')).toBe(
+      "123456789-abc.apps.googleusercontent.com",
     );
   });
 
   it("strips accidental wrapping single quotes and surrounding whitespace", () => {
-    expect(cleanEnvVar(" 'stepbylearn-bff6d.firebaseapp.com' ")).toBe(
-      "stepbylearn-bff6d.firebaseapp.com",
+    expect(cleanEnvVar(" '123456789-abc.apps.googleusercontent.com' ")).toBe(
+      "123456789-abc.apps.googleusercontent.com",
     );
   });
 

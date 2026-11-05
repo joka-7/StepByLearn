@@ -6,6 +6,7 @@
  * timestamps.
  */
 
+import { localDateOf, toLocalISODate } from "../domain/dates";
 import type { LearningPath, StepStatus } from "../domain/types";
 import { updateStep } from "../repositories/pathRepository";
 
@@ -49,27 +50,24 @@ export function summarize(path: LearningPath): ProgressSummary {
   };
 }
 
-/** Count consecutive days ending today that have at least one completion. */
+/** The learner's current streak across every path, not just one course. */
+export function learnerStreakDays(paths: readonly LearningPath[]): number {
+  return streakDays(paths.flatMap((path) => path.steps.map((step) => step.doneAt)));
+}
+
+/** Count consecutive local days ending today that have at least one completion. */
 function streakDays(timestamps: (string | null)[]): number {
   const doneDates = new Set(
-    timestamps.filter((t): t is string => t !== null).map((t) => t.slice(0, 10)),
+    timestamps.filter((t): t is string => t !== null).map((t) => localDateOf(t)),
   );
   if (doneDates.size === 0) return 0;
 
-  const today = new Date();
   let streak = 0;
-  const cursor = new Date(today);
+  const cursor = new Date();
   // A streak must include today; otherwise it has already been broken.
-  while (doneDates.has(toISODate(cursor))) {
+  while (doneDates.has(toLocalISODate(cursor))) {
     streak++;
     cursor.setDate(cursor.getDate() - 1);
   }
   return streak;
-}
-
-function toISODate(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
 }

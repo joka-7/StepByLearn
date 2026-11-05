@@ -67,6 +67,12 @@ export interface LearningPath {
   steps: PathStep[];
   createdAt: string;
   updatedAt: string;
+  /**
+   * ISO timestamp when the learner deleted this path; null while it's live.
+   * Deletes are kept as tombstones so sync can tell "deleted on another
+   * device" apart from "never seen", and so a delete can be undone.
+   */
+  deletedAt: string | null;
 }
 
 /**

@@ -7,10 +7,14 @@ import {
   LogOut,
   Settings,
   Sparkles,
+  Trash2,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { LearningPath } from "../../domain/types";
-import { signInWithGoogle, signOutUser, type User } from "../../firebase/auth";
+import { closeViaHistoryBack } from "../../hooks/useBackClose";
+import type { CloudSyncState } from "../../hooks/useCloudSync";
+import type { DriveUser } from "../../sync/driveSync";
+import { ConfirmDialog } from "../ui/ConfirmDialog";
 import type { ViewId } from "../viewTypes";
 
 interface Props {
@@ -20,7 +24,14 @@ interface Props {
   onOpenSettings: () => void;
   keyPresent: boolean;
   providerLabel: string;
-  user: User | null;
+  user: DriveUser | null;
+  cloud: CloudSyncState;
+  /** Called straight from the button's click handler, so Google's popup isn't blocked. */
+  onSignIn: () => void;
+  /** Sign out and remove the account's courses from this device (already confirmed). */
+  onSignOut: () => void;
+  /** Delete everything synced to Drive and revoke access (already confirmed). */
+  onDeleteSyncedData: () => void;
   /** Mobile only: whether the drawer is open. Ignored at the md+ breakpoint, where the sidebar is always shown inline. */
   mobileOpen: boolean;
   /** Mobile only: close the drawer (backdrop click, or after picking a nav item). */
@@ -49,14 +60,6 @@ function GoogleGlyph({ className }: { className?: string }) {
       />
     </svg>
   );
-}
-
-async function handleGoogleSignIn() {
-  try {
-    await signInWithGoogle();
-  } catch (err) {
-    alert(err instanceof Error ? err.message : "Sign-in failed.");
-  }
 }
 
 interface NavItemProps {
@@ -101,10 +104,19 @@ export function Sidebar({
   keyPresent,
   providerLabel,
   user,
+  cloud,
+  onSignIn,
+  onSignOut,
+  onDeleteSyncedData,
   mobileOpen,
   onCloseMobile,
 }: Props) {
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false);
+  const [confirmingCloudDelete, setConfirmingCloudDelete] = useState(false);
   const doneSteps = activePath?.steps.filter((s) => s.status === "done").length ?? 0;
+
+  const unsynced =
+    cloud.kind === "active" && (cloud.status.state === "syncing" || cloud.status.state === "error");
 
   function selectView(view: ViewId) {
     onChangeView(view);
@@ -117,7 +129,7 @@ export function Sidebar({
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 md:hidden"
-          onClick={onCloseMobile}
+          onClick={closeViaHistoryBack}
           aria-hidden
         />
       )}
@@ -210,41 +222,53 @@ export function Sidebar({
         <div className="p-4 border-t border-slate-800 space-y-3">
           {user ? (
             <div className="flex items-center gap-2.5 px-1">
-              {user.photoURL ? (
-                <img
-                  src={user.photoURL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="h-7 w-7 rounded-full shrink-0"
-                />
-              ) : (
-                <div className="h-7 w-7 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
-                  {(user.displayName ?? user.email ?? "?").charAt(0).toUpperCase()}
-                </div>
-              )}
+              <div
+                className="h-7 w-7 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                aria-hidden
+              >
+                {(user.displayName || user.email || "?").charAt(0).toUpperCase()}
+              </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-slate-200 truncate">
-                  {user.displayName ?? "Signed in"}
+                  {user.displayName || "Signed in"}
                 </p>
-                <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
+                <p className="text-xs text-slate-400 truncate">{user.email}</p>
               </div>
               <button
                 id="google_sign_out_btn"
-                onClick={() => signOutUser()}
+                onClick={() => setConfirmingSignOut(true)}
                 title="Sign out"
-                className="text-slate-500 hover:text-rose-400 transition-colors shrink-0"
+                aria-label="Sign out"
+                className="text-slate-400 hover:text-rose-400 transition-colors shrink-0 p-1"
               >
-                <LogOut className="h-3.5 w-3.5" />
+                <LogOut className="h-4 w-4" aria-hidden />
               </button>
             </div>
           ) : (
+            cloud.kind !== "unavailable" && (
+              <button
+                id="google_sign_in_btn"
+                onClick={onSignIn}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 transition-all"
+              >
+                <GoogleGlyph className="h-3.5 w-3.5" />
+                <span>
+                  {cloud.kind === "signed-out" && cloud.needsReconnect
+                    ? "Reconnect Google Drive"
+                    : "Connect Google Drive"}
+                </span>
+              </button>
+            )
+          )}
+
+          {user && (
             <button
-              id="google_sign_in_btn"
-              onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 transition-all"
+              id="delete_cloud_data_btn"
+              onClick={() => setConfirmingCloudDelete(true)}
+              className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all"
             >
-              <GoogleGlyph className="h-3.5 w-3.5" />
-              <span>Sign in with Google</span>
+              <Trash2 className="h-4 w-4" aria-hidden />
+              <span>Delete my synced data</span>
             </button>
           )}
 
@@ -259,17 +283,52 @@ export function Sidebar({
               className={`ml-auto h-1.5 w-1.5 rounded-full ${keyPresent ? "bg-emerald-400" : "bg-slate-600"}`}
             ></span>
           </button>
-          <div className="text-[11px] text-slate-500 space-y-2 px-1">
+          <div className="text-xs text-slate-400 space-y-2 px-1">
             <div className="flex items-center gap-2">
               <div
                 className={`h-1.5 w-1.5 rounded-full ${user ? "bg-blue-400" : "bg-emerald-400"}`}
               ></div>
-              <span>{user ? "Synced across devices" : "Offline mode fully supported"}</span>
+              <span>{user ? "Synced to your Google Drive" : "Offline mode fully supported"}</span>
             </div>
             <div className="text-[10px] font-mono">{keyPresent ? providerLabel : "No key set"}</div>
           </div>
         </div>
       </aside>
+
+      {confirmingSignOut && (
+        <ConfirmDialog
+          title="Sign out of Google Drive?"
+          confirmLabel="Sign out"
+          danger
+          onCancel={() => setConfirmingSignOut(false)}
+          onConfirm={() => {
+            setConfirmingSignOut(false);
+            onSignOut();
+          }}
+        >
+          Your courses are removed from this device so the next person to use it can&apos;t see
+          them. They stay safe in your Google Drive, and signing in again brings them back.
+          {unsynced &&
+            " Some recent changes haven't reached Drive yet and would be lost; wait for the top bar to show Synced first."}
+        </ConfirmDialog>
+      )}
+
+      {confirmingCloudDelete && (
+        <ConfirmDialog
+          title="Delete your synced data?"
+          confirmLabel="Delete synced data"
+          danger
+          onCancel={() => setConfirmingCloudDelete(false)}
+          onConfirm={() => {
+            setConfirmingCloudDelete(false);
+            onDeleteSyncedData();
+          }}
+        >
+          This permanently deletes every course StepByLearn saved in your Google Drive, removes the
+          app&apos;s access to it, and signs you out. Courses on this device are kept. Sign out on
+          your other devices first, or they will upload their copies again.
+        </ConfirmDialog>
+      )}
     </>
   );
 }

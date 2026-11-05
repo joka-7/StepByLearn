@@ -8,7 +8,7 @@ const OUT_DIR = path.resolve(__dirname, "../docs/screenshots");
 function isoDaysFromNow(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function makeStep(overrides: Record<string, unknown> & { id: string; orderIndex: number }) {

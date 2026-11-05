@@ -36,3 +36,12 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # Unit tests can't see a provider that was never mounted or a view that
+      # throws on first render; this drives the real app in a real browser.
+      # The screenshot spec skips itself under CI.
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end smoke tests
+        run: npm run test:e2e

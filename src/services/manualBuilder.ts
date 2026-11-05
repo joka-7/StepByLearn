@@ -9,6 +9,7 @@
 
 import { newId } from "../domain/ids";
 import type { ContentType, LearningPath, LearningResource, PathStep } from "../domain/types";
+import { toSafeUrl } from "../domain/urls";
 import { appendSteps, savePath, updateStep } from "../repositories/pathRepository";
 
 export interface ManualStepInput {
@@ -36,7 +37,7 @@ function buildManualStep(
   fallbackDuration: string,
 ): PathStep {
   const title = step.title.trim() || `Milestone ${index + 1}`;
-  const materialUrl = step.materialUrl.trim();
+  const materialUrl = toSafeUrl(step.materialUrl);
   return {
     id: newId(),
     orderIndex: index,
@@ -78,6 +79,7 @@ export async function createManualPath(input: ManualPathInput): Promise<Learning
     steps,
     createdAt: now,
     updatedAt: now,
+    deletedAt: null,
   };
 
   await savePath(path);
@@ -107,7 +109,7 @@ export async function editManualStep(
   input: ManualStepInput,
 ): Promise<LearningPath | undefined> {
   const title = input.title.trim() || undefined;
-  const materialUrl = input.materialUrl.trim();
+  const materialUrl = toSafeUrl(input.materialUrl);
   return updateStep(path.id, stepId, (step) => ({
     ...step,
     title: title ?? step.title,
@@ -116,6 +118,8 @@ export async function editManualStep(
     description: input.description.trim(),
     materialTitle: materialUrl ? (title ?? step.title) : "",
     materialUrl,
-    resources: input.resources ?? step.resources,
+    resources: input.resources
+      ? input.resources.map((r) => ({ ...r, url: toSafeUrl(r.url) }))
+      : step.resources,
   }));
 }

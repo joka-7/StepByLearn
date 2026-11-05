@@ -1,5 +1,9 @@
 import { defineConfig } from "vitest/config";
 
+// Pin a timezone ahead of UTC so date code that mixes UTC timestamps with
+// local calendar days fails here instead of only for users east of UTC.
+process.env.TZ = "Asia/Jerusalem";
+
 export default defineConfig({
   test: {
     environment: "node",
@@ -12,12 +16,11 @@ export default defineConfig({
       reporter: ["text-summary", "lcov"],
       include: ["src/**"],
       exclude: ["src/**/*.test.*", "src/main.tsx"],
-      // Floors just under the measured 23.5/24.6/14.2/22.5, to ratchet up.
-      // Unlike KanDOne there is no functional e2e suite backing this up --
-      // e2e/ holds only a screenshot capture that skips under CI -- so this
-      // is the whole picture, and it is low. The gate exists to stop it
-      // slipping further while the number is raised.
-      thresholds: { lines: 21, statements: 22, functions: 12, branches: 20 },
+      // Floors just under the measured 46.7/46.5/34.9/47.7, to ratchet up. There
+      // is still no functional e2e suite -- e2e/ holds only a screenshot
+      // capture that skips under CI -- and no component tests, so UI code is
+      // the uncovered bulk.
+      thresholds: { lines: 44, statements: 44, functions: 32, branches: 45 },
     },
   },
 });

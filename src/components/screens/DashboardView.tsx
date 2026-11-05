@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { EXTERNAL_CHAT_PROVIDERS } from "modeldispatcher-browser-agent";
+import { tomorrowLocalISODate } from "../../domain/dates";
 import type { ContentType, Difficulty, LearningPath } from "../../domain/types";
 import { schedulePath } from "../../services/calendar";
 import { generatePath } from "../../services/generation";
@@ -57,10 +58,8 @@ const LOADING_STEPS = [
 
 /** Auto-schedule generated steps starting tomorrow, one per day. */
 async function autoSchedule(path: LearningPath): Promise<void> {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  await schedulePath(path, {
-    startDate: tomorrow.toISOString().slice(0, 10),
+  await schedulePath(path.id, {
+    startDate: tomorrowLocalISODate(),
     daysBetween: 1,
     skipWeekends: false,
     milestoneEvery: 0,
