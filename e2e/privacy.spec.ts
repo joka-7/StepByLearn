@@ -7,6 +7,9 @@ test.describe("Privacy page", () => {
     await expect(page.getByRole("heading", { level: 1, name: /Privacy/i })).toBeVisible();
     await expect(page.getByText(/hidden app folder in your own Google\s+Drive/i)).toBeVisible();
     await expect(page.getByText(/AI provider you choose/i)).toBeVisible();
-    await expect(page.getByRole("link", { name: /Back to StepByLearn/i })).toHaveAttribute("href", "/");
+    await expect(page.getByRole("link", { name: /Back to StepByLearn/i })).toHaveAttribute(
+      "href",
+      "/",
+    );
   });
 });
